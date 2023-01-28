@@ -1,4 +1,3 @@
 # Welcome
 
-yes
-
+This is a case study in computing.
