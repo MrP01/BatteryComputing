@@ -4,7 +4,7 @@ a = 0;
 b = 10;
 T0 = 0;
 T = 1;
-dx = 0.1;
+dx = 0.01;
 dt = 0.01;
 BC2 = 1;
 IC = 1;
@@ -14,36 +14,13 @@ BC1 = 0;
 [bs] = Create_RHS_Dirichlet(Nx-1,Nt,dt/(dx)^2,BC1,BC2,IC);
 U1 = A\bs;
 U1 = full(U1);
-counter = 0;
-% figure 
-% plot(a:dx:b,ones(1,Nx+1)*IC)
-% xlim([a,b])
-% ylim([0,IC*1.3])
 D = zeros(1,length(T0:dt:T-2*dt));
 counter = 0;
 for t = T0+dt:dt:T
-%     pause(0.1)
-%     plot(a:dx:b,[BC1,U1(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2])
-%     hold on
-%     if t~=0
-%     plot(a:dx:b,erf((a:dx:b)/(2*sqrt(t))))
-%     end
-%     hold off  
     D(1,counter+1)= ((-3/2)*BC1+2*U1(1+(Nx-1)*counter)-0.5*U1(2+(Nx-1)*counter))/dx;
-%     xlim([a,b])
-%     ylim([0,IC*1.3])
-%     if t~=0
-%     legend('Approx','Solution')
-%     end
     counter =counter+1;
 end
 Dp = [((-3/2)*IC+2*IC-0.5*IC)/dx,D];
-% figure
-% plot(T0:dt:T-dt,D)
-%hold on
-%plot(T0:dt:T-dt,1-D)
-%%
-
 BC2n = 0;
 IC = 0;
 Cu = 1;
@@ -54,34 +31,31 @@ U = A\bs;
 U = full(U);
 counter = 0;
 figure 
-% plot(a:dx:b,ones(1,Nx+1)*IC)
-% xlim([a,b])
-% ylim([0,1.3])
-%D = zeros(1,length(T0:dt:T-dt));
+
 for t = T0+dt:dt:T
     pause(0.1)
-    plot(a:dx:b,[-(NBC1(1,counter+1)*dx-U(1+(Nx-1)*counter)),U(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2n],'LineWidth',2)
+    plot(a:dx:b,[-2/3*(-Cu*NBC1(1,counter+1)*dx-2*U(1+(Nx-1)*counter)+0.5*U(2+(Nx-1)*counter)),U(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2n],'LineWidth',1)
     hold on
-    plot(a:dx:b,[BC1,U1(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2],'LineWidth',2)
+    plot(a:dx:b,[BC1,U1(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2],'LineWidth',1)
+    hold on
+    plot(a:dx:b,[-2/3*(-Cu*NBC1(1,counter+1)*dx-2*U(1+(Nx-1)*counter)+0.5*U(2+(Nx-1)*counter)),U(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2n]+[BC1,U1(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2],'LineWidth',1)
     if Cu == 1
-    plot(a:dx:b,erf((a:dx:b)/(2*sqrt(t))),'LineWidth',2)
-    plot(a:dx:b,1-erf((a:dx:b)/(2*sqrt(t))),'LineWidth',2)
+    plot(a:dx:b,erf((a:dx:b)/(2*sqrt(t))),'LineWidth',1)
+    plot(a:dx:b,1-erf((a:dx:b)/(2*sqrt(t))),'LineWidth',1)
     end
     hold off
     xlim([a,b])
     ylim([0,1.3])
     if Cu == 1
-    legend('b','a','exact_a','exact_b')
+    legend('b','a','b+a','exact a','exact b','Location','southeast')
     else
     legend('b','a')
     end
     counter =counter+1;
 end
-% D =[(-3/2)*BC1+2*IC-0.5*IC,D];
 figure
 plot(T0:dt:T,Dp)
-
-
+legend('Current')
 function [dx,dt,Nx,Nt] = create_mesh(a,b,T0,T,dx,dt)
     Nx = round(abs((a-b))/dx);
     Nt = round(abs((T-T0))/dt);
