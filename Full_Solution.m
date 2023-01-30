@@ -49,7 +49,7 @@ for t = T0+dt:dt:T
     if Cu == 1
     legend('b','a','b+a','exact a','exact b','Location','southeast')
     else
-    legend('b','a')
+    legend('b','a','b+a')
     end
     counter =counter+1;
 end
