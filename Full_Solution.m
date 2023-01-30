@@ -1,6 +1,5 @@
 clc;
 clearvars;
-%vdjosh
 a = 0;
 b = 10;
 T0 = 0;
