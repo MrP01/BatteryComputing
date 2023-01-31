@@ -28,7 +28,8 @@ BC1 = 0; BC2 = 1
 IC = 1
 
 # Set up matrices for solving the scheme
-A = schemeDirichlet(Nx,Nt,CFL);
+A = schemeDirichlet(Nx,Nt,CFL)
+b= rhsDirichlet(Nx,Nt,CFL)
 print(A.toarray())
 
 
@@ -37,7 +38,8 @@ print(A.toarray())
 #U1 = full(U1);
 #counter = 0;
 
-# Function creating the scheme matrix for a
+# Function creating the scheme matrix for "a"
+# Admittedly I used a for loop which was not necessary.
 def schemeDirichlet(Nx,Nt,CFL):
 
     #diagonal vector with (Nx+1)*(Nt+1) entries
@@ -49,7 +51,6 @@ def schemeDirichlet(Nx,Nt,CFL):
 
     #lonely diagonal vector accounts for the explicit coefficient
     lonelydiag=np.ones((Nx+1)*(Nt+1)-(Nx+1))
-
 
     # We aim to zero the entries of the lonely vector corresponding to boundary
     # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL,CFL)
@@ -66,13 +67,18 @@ def schemeDirichlet(Nx,Nt,CFL):
             lonelydiag[t * (Nx + 1)] = 0
             lonelydiag[t * (Nx + 1) + Nx] = 0
 
-
     for k in range(0,Nx+1):
         diag[k]=1
         ldiag[k]=0
         udiag[k]=0
 
-
+    #This creates sparse matrix out of diagonals
     A= diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx+1)])
     return A
 
+def rhsDirichlet(Nx,Nt,CFL,BC1):
+    r = np.zeros((Nx+1)*(Nt+1))
+    for t in range(0,Nt+1)
+        r[t*(Nx+1)]=BC1
+        r[t * (Nx + 1) + Nx]=BC1
+    return r
