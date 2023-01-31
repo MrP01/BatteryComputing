@@ -36,11 +36,16 @@ counter = 0;
 # Function creating the scheme matrix for a
 def schemeDirichlet(Nx,Nt,m)
     diag=np.zeros((Nx+1)*(Nt+1))+1
-    subdiag=np.zeros((Nx+1)*(Nt+1)-(Nx+2))+1
+    lonelydiag=np.zeros((Nx+1)*(Nt+1)-(Nx+1))+1
+    upperdiag=np.zeros((Nx+1)*(Nt+1)-1)
+    lowerdiag = np.zeros((Nx + 1) * (Nt + 1) - 1)
     for t in range(1,Nt+1)  #so for times t=1,2,...Nt
-        subdiag()
+        lonelydiag(t*Nx+1)=0
+        lonelydiag((t+1)*Nx-1)=0
         for k in range(2, Nx) #so for k=2...Nx-1
             diag(t*Nx+k) = 1+2*CFL
+            upperdiag(t*Nx+k) = -CFL
+            lowerdiag(t*Nx+k-1)=-CFL
 
     for
 
