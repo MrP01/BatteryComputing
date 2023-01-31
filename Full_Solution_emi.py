@@ -34,7 +34,7 @@ IC = 1
 #counter = 0;
 
 # Function creating the scheme matrix for a
-def schemeDirichlet(Nx,Nt,m)
+def schemeDirichlet(Nx,Nt,m):
 
     #diagonal vector with (Nx+1)*(Nt+1) entries
     diag=np.zeros((Nx+1)*(Nt+1))+1
@@ -48,10 +48,10 @@ def schemeDirichlet(Nx,Nt,m)
 
     # We aim to zero the entries of the lonely vector corresponding to boundary
     # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL,CFL)
-    for t in range(1,Nt+1)  #so for times t=1,2,...Nt
+    for t in range(1,Nt+1):  #so for times t=1,2,...Nt
         lonelydiag(t*Nx+1)=0
         lonelydiag((t+1)*Nx-1)=0
-        for k in range(2, Nx) #so for k=2...Nx-1
+        for k in range(2, Nx): #so for k=2...Nx-1
             diag(t*Nx+k) = 1+2*CFL
             udiag(t*Nx+k) = -CFL
             ldiag(t*Nx+k-1)=-CFL
