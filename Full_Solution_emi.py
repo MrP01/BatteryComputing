@@ -33,17 +33,17 @@ BC2 = 1
 IC = 1
 
 # Set up matrices for solving the Dirichlet scheme for "a"
-A = scheme(Nx, Nt, CFL, true)
+A = schemeD(Nx, Nt, CFL, True)
 rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
 print(A.toarray())
 
 # Set up matrices for solving the Neumann scheme for "b"
-B = scheme(Nx, Nt, CFL,false)
+B = schemeD(Nx, Nt, CFL, False)
 rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
 
 # Function creating the scheme matrix for "a"
 # Admittedly I used a for loop which was not necessary.
-def scheme(Nx, Nt, CFL, Dirichlet):
+def schemeD(Nx, Nt, CFL, Dirichlet):
 
     # diagonal vector with (Nx+1)*(Nt+1) entries
     diag = np.ones((Nx + 1) * (Nt + 1)) * (1 + 2 * CFL)
@@ -88,7 +88,6 @@ def scheme(Nx, Nt, CFL, Dirichlet):
     # This creates sparse matrix out of diagonals
     A = diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx + 1)])
     return A
-
 
 def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     r = np.zeros((Nx + 1) * (Nt + 1))
