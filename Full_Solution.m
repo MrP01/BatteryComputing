@@ -30,7 +30,7 @@ NBC1 = -D/Cu;
 U = A\bs;
 U = full(U);
 counter = 0;
-figure 
+figure
 
 for t = T0+dt:dt:T
     pause(0.1)
@@ -84,7 +84,7 @@ c0 = [1:Nx,(1:Nx-1)+1,(2:Nx)-1];
 nnz0 = [ones(1,Nx)*(1+2*m),-ones(1,Nx-1)*m,-ones(1,Nx-1)*m];
 
 %% Create the matrix
-A = sparse([r1,r0],[c1,c0],[nnz1,nnz0]);     
+A = sparse([r1,r0],[c1,c0],[nnz1,nnz0]);
 end
 
 function [A] = Create_matrix_Newmann (Nx,Nt,m)
@@ -114,14 +114,14 @@ c0 = [1,2,2:Nx-1,(2:Nx-1)+1,(2:Nx-1)-1,Nx-1,Nx];
 nnz0 = [1+m,-m,ones(1,Nx-2)*(1+2*m),-ones(1,Nx-2)*m,-ones(1,Nx-2)*m,-m,1+2*m];
 
 %% Create the matrix
-A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);     
+A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);
 end
 
 
 function [b] = Create_RHS_Dirichlet(Nx,Nt,m,BC1,BC2,IC)
 rl = nonzeros([Nx+1:Nx*Nt].*(rem([Nx+1:Nx*Nt]-1,Nx)==0))';
 cl = ones(1,length(rl));
-nnzl = ones(1,length(rl))*m*BC1; 
+nnzl = ones(1,length(rl))*m*BC1;
 rr = nonzeros([Nx+1:Nx*Nt].*(rem([Nx+1:Nx*Nt],Nx)==0))';
 cr = ones(1,length(rr));
 nnzr =  ones(1,length(rr))*m*BC2;
