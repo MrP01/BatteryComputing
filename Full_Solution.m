@@ -77,7 +77,6 @@ function [b] = Create_RHS_Dirichlet(Nx, Nt, m, BC1, BC2, IC)
 end
 
 function [b] = Create_RHS_Newmann(Nx, Nt, m, NBC1, BC2, IC, dt, dx)
-
     rl = nonzeros([1:Nx * Nt] .* (rem([1:Nx * Nt] - 1, Nx) == 0))';
     cl = ones(1, length(rl));
     nnzl = -dt / dx * NBC1;
@@ -96,7 +95,7 @@ b = 10;
 T0 = 0;
 T = 1;
 dx = 0.01;
-dt = 0.1;
+dt = 0.01;
 BC2 = 1;
 IC = 1;
 BC1 = 0;
@@ -126,7 +125,7 @@ counter = 0;
 figure
 
 for t = T0 + dt:dt:T
-    pause(0.1)
+    pause(0.001)
     plot(a:dx:b, [-2/3 * (-Cu * NBC1(1, counter + 1) * dx - 2 * U(1 + (Nx - 1) * counter) + 0.5 * U(2 + (Nx - 1) * counter)), U(1 + (Nx - 1) * counter:(Nx - 1) + (Nx - 1) * counter)', BC2n], 'LineWidth', 1)
     hold on
     plot(a:dx:b, [BC1, U1(1 + (Nx - 1) * counter:(Nx - 1) + (Nx - 1) * counter)', BC2], 'LineWidth', 1)
@@ -152,5 +151,8 @@ for t = T0 + dt:dt:T
 end
 
 figure
-plot(T0:dt:T, Dp)
-legend('Current')
+plot(T0:dt:T, Dp);
+hold on;
+plot(T0:dt:T, 1 ./ sqrt(pi .* (T0:dt:T)));
+hold off;
+legend('Current', 'Exact Current');
