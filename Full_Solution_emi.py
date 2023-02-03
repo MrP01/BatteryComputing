@@ -4,7 +4,8 @@ import numpy as np
 from scipy.sparse import diags
 
 # from scipy.sparse import dia_matrix, dok_matrix
-# from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import spsolve
+
 # import matplotlib.pyplot as plt
 # from matplotlib import cm
 
@@ -23,7 +24,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
     lonelydiag = np.ones((Nx + 1) * (Nt + 1) - (Nx + 1))
 
     # We aim to zero the entries of the lonely vector corresponding to previous timestep
-    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL,CFL)
+    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
 
     for t in range(0, Nt + 1):
         diag[t * (Nx + 1)] = 1
@@ -84,7 +85,7 @@ if __name__ == "__main__":
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
-    xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
+    xn = 10  # i replaced a by x_0 and b by xn #should be xn=10
     T0 = 0
     T = 1
 
@@ -109,7 +110,8 @@ if __name__ == "__main__":
     A = schemeD(Nx, Nt, CFL, True)
     rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
     print(A.toarray())
+    solution_Dirichlet = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeD(Nx, Nt, CFL, False)
-    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
+    # B = schemeD(Nx, Nt, CFL, False)
+    # rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
