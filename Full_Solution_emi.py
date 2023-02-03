@@ -4,7 +4,7 @@ import numpy as np
 from scipy.sparse import diags
 
 # from scipy.sparse import dia_matrix, dok_matrix
-# from scipy.sparse.linalg import spsolve
+from scipy.sparse.linalg import spsolve
 # import matplotlib.pyplot as plt
 # from matplotlib import cm
 
@@ -52,7 +52,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
         udiag[k] = 0
 
     # This creates sparse matrix out of diagonals
-    A = diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx + 1)])
+    A = diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx + 1)],format = 'csr')
     return A
 
 
@@ -109,7 +109,12 @@ if __name__ == "__main__":
     A = schemeD(Nx, Nt, CFL, True)
     rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
     print(A.toarray())
+    x= spsolve(A,rhsA)
+    print("x")
+    print(x)
+
+
 
     # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeD(Nx, Nt, CFL, False)
-    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
+    #B = schemeD(Nx, Nt, CFL, False)
+    #rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
