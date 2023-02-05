@@ -2,6 +2,8 @@
 
 import numpy as np
 from scipy.sparse import diags
+import matplotlib
+import matplotlib.pyplot as plt
 
 # from scipy.sparse import dia_matrix, dok_matrix
 from scipy.sparse.linalg import spsolve
@@ -35,13 +37,14 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
         if Dirichlet:
             udiag[t * (Nx + 1)] = 0
         else:
-            udiag[t * (Nx + 1)] = -1
+            udiag[t * (Nx + 1)] = -1 #this will put -1 to every first upper diagonal entry of the many submatrices
 
         if t != Nt:
             ldiag[t * (Nx + 1) + Nx] = 0
             if Dirichlet:
                 ldiag[t * (Nx + 1) + Nx] = 0  # to check
             else:
+                # this will put -1 to every last lower diagonal entry of the many submatrices
                 ldiag[t * (Nx + 1) + Nx - 1] = -1
             udiag[t * (Nx + 1) + Nx] = 0
             lonelydiag[t * (Nx + 1)] = 0
@@ -69,17 +72,19 @@ def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     return r
 
 
-def rhsNeumann(Nx, Nt, IC, BC1, BC2, a):
+def rhsNeumann(Nx, Nt, IC, BC1, BC2, a,D):
     r = np.zeros((Nx + 1) * (Nt + 1))
     # Initial conditions for the first Nx rows of r.
     r[0:Nx] = IC
 
     # Fill the bounary conditions in
     for t in range(1, Nt + 1):
-        r[t * (Nx + 1)] = a[0, t] - a[1, t]
-        r[t * (Nx + 1) + Nx] = a[-1, t] - a[-2, t]
+        r[t * (Nx + 1)] = D* (a[t*(Nx+1)+1]-a[t*(Nx+1)])
+        r[t * (Nx + 1) + Nx] = D*(-a[t*(Nx+1)+Nx]+a[t*(Nx+1)+Nx-1])
     return r
 
+def animate(i):
+    line.set_ydata(F[i, :])
 
 if __name__ == "__main__":
     ## Set up for solving the heat equation for a
@@ -93,8 +98,8 @@ if __name__ == "__main__":
     # dx = 0.1 ; dt = 0.01
 
     # Number of meshpoints and meshsizes
-    Nx = 2
-    Nt = 2
+    Nx = 3
+    Nt = 3
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
 
@@ -109,13 +114,35 @@ if __name__ == "__main__":
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL, True)
     rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
-    print(A.toarray())
-    x= spsolve(A,rhsA)
-    print("x")
-    print(x)
-
-
+    #print(A.toarray())
+    x_A= spsolve(A,rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
-    #B = schemeD(Nx, Nt, CFL, False)
-    #rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
+    B = schemeD(Nx, Nt, CFL, False)
+    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
+    x_B=spsolve(B,rhsB)
+
+
+
+
+    # Plotting
+    x = np.linspace(0, 1, 1000)
+    y = [u0(each) for each in x]
+    plt.plot(x, y)
+    plt.xlabel(r'$x$')
+    plt.ylabel(r'$u_0$')
+    plt.title(r'Concentration at time $t=0$')
+    plt.show()
+
+    #Plotting 1
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.set(xlim=(0, 10), ylim=(0, 10))
+
+    x = np.linspace(x0, xn, Nx)
+    line = ax.plot(x, F[0, :], color='k', lw=2)[0]
+
+    anim = FuncAnimation(
+        fig, animate, interval=100, frames=len(t) - 1)
+
+    plt.draw()
+    plt.show()
