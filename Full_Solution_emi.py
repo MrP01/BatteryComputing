@@ -8,6 +8,9 @@ from matplotlib.animation import FuncAnimation
 # from scipy.sparse import dia_matrix, dok_matrix
 from scipy.sparse.linalg import spsolve
 
+# Python code for External viewer on Mac
+plt.switch_backend("MacOSX")
+np.set_printoptions(linewidth=200)
 
 # Function creating the scheme matrix for "a"
 # Admittedly I used a for loop which was not necessary.
@@ -20,7 +23,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
     ldiag = np.ones(Nx * Nt) * (-CFL)
 
     # lonely diagonal vector accounts for the explicit coefficient
-    lonelydiag = np.ones(Nx * Nt - Nx)
+    lonelydiag = np.ones(Nx * Nt - Nx) *(-1)
 
     # We aim to zero the entries of the lonely vector corresponding to previous timestep
     # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
@@ -77,8 +80,8 @@ def rhsNeumann(Nx, Nt, IC, BC1, BC2, a, D):
 
     # Fill the bounary conditions in
     for t in range(1, Nt):
-        r[t * Nx] = D * (a[t * Nx + 1] - a[t * Nx])
-        r[t * Nx + Nx] = D * (-a[t * Nx + Nx] + a[t * Nx + Nx - 1])
+        r[t * Nx] = -D * (a[t * Nx + 1] - a[t * Nx])
+        r[t * Nx + Nx-1] = -D * (a[t * Nx + Nx-2] - a[t * Nx + Nx - 1])
     return r
 
 
@@ -94,8 +97,8 @@ def main():
     # dx = 0.1 ; dt = 0.01
 
     # Number of meshpoints and meshsizes
-    Nx = 100
-    Nt = 100
+    Nx = 300
+    Nt = 400
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
 
@@ -110,37 +113,35 @@ def main():
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL, True)
     rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
-    # print(A.toarray())
-    print(rhsA)
+    np.set_printoptions(linewidth=200)
     x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
-    # B = schemeD(Nx, Nt, CFL, False)
-    # rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2, x_A, 1)
-    # x_B = spsolve(B, rhsB)
-    print(x_A)
+    B = schemeD(Nx, Nt, CFL, False)
+    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2, x_A, 1)
+    x_B = spsolve(B, rhsB)
 
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
-    ax.set(xlim=(x0, xn), ylim=(x_A.min(), x_A.max()))
+    ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
     x = np.linspace(x0, xn, Nx)
     # t = np.linspace(T0, T, Nt)
 
-    line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx)
+   # line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
+    line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
 
     def animate(t):
-        t = 2 * t
-        print("Doing", t)
         first = t * Nx
         last = first + Nx - 1
-        line.set_ydata(x_A[first : last + 1])
+        #line.set_ydata(x_A[first : last + 1])
+        line2.set_ydata(x_B[first: last + 1])
 
-    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt // 2)
-    print("Rendering", anim, "now")
-    # anim.save("filename.gif", writer="imagemagick")
+    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt )
+    anim.save("new.gif", writer="imagemagick")
     plt.show()
-    return x_A
-
+    return x_A,x_B
 
 if __name__ == "__main__":
-    x_A = main()
+    [x_A,x_B] = main()
+    sum=x_B+x_A
+    print((max(sum)))
