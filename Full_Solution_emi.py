@@ -38,7 +38,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
         ldiag[last - 1] = 0  # penultimate
 
         udiag[first] = 0 if Dirichlet else -1
-        udiag[last] = 0 if Dirichlet else -1
+        udiag[last] = 0
 
         if t != Nt - 1:
             lonelydiag[first] = 0
@@ -80,8 +80,8 @@ def rhsNeumann(Nx, Nt, IC, BC1, BC2, a, D):
 
     # Fill the bounary conditions in
     for t in range(1, Nt):
-        r[t * Nx] = -D * (a[t * Nx + 1] - a[t * Nx])
-        r[t * Nx + Nx-1] = -D * (a[t * Nx + Nx-2] - a[t * Nx + Nx - 1])
+        r[t * Nx] = -D * (3/2* a[t * Nx] -2* a[t * Nx + 1] +1/2*a[t*Nx+2])
+        r[t * Nx + Nx-1] = 0
     return r
 
 
@@ -108,17 +108,18 @@ def main():
     # Values at boundary in space and time
     BC1 = 0
     BC2 = 1
-    IC = 1
+    IC_A = 1
+    IC_B =0
 
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
+    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
     np.set_printoptions(linewidth=200)
     x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL, False)
-    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2, x_A, 1)
+    rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
     x_B = spsolve(B, rhsB)
 
     # Plotting
@@ -127,13 +128,13 @@ def main():
     x = np.linspace(x0, xn, Nx)
     # t = np.linspace(T0, T, Nt)
 
-   # line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
+    line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
     line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
 
     def animate(t):
         first = t * Nx
         last = first + Nx - 1
-        #line.set_ydata(x_A[first : last + 1])
+        line.set_ydata(x_A[first : last + 1])
         line2.set_ydata(x_B[first: last + 1])
 
     anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt )
