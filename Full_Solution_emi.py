@@ -85,7 +85,7 @@ if __name__ == "__main__":
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
-    xn = 10  # i replaced a by x_0 and b by xn #should be xn=10
+    xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
     T0 = 0
     T = 1
 
@@ -93,8 +93,8 @@ if __name__ == "__main__":
     # dx = 0.1 ; dt = 0.01
 
     # Number of meshpoints and meshsizes
-    Nx = 100
-    Nt = 100
+    Nx = 3
+    Nt = 3
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
 
@@ -108,10 +108,10 @@ if __name__ == "__main__":
 
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2) #todo
-    #print(A.toarray())
+    rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
+    print(A.toarray())
+    print(rhsA)
     x_A= spsolve(A,rhsA)
-    print(x_A)
 
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL, False)
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     x = np.linspace(x0, xn, Nx+1)
     t = np.linspace(T0, T, Nt+1)
 
-    line = ax.plot(x, x_A[0 : Nx+1], color='k', lw=2)[0]
+    line = ax.plot(x, x_A[0 : Nx+1], color='k', lw=2)[0] #x_A(0), ...x_A(Nx)
     def animate(i):
         line.set_ydata(x_A[i*(Nx+1):i*(Nx+1)+Nx+1])
 
