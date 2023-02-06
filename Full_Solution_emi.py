@@ -94,7 +94,7 @@ def main():
     # dx = 0.1 ; dt = 0.01
 
     # Number of meshpoints and meshsizes
-    Nx = 30
+    Nx = 100
     Nt = 100
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
@@ -129,14 +129,16 @@ def main():
     line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx)
 
     def animate(t):
+        t = 2 * t
+        print("Doing", t)
         first = t * Nx
         last = first + Nx - 1
         line.set_ydata(x_A[first : last + 1])
 
-    anim = FuncAnimation(fig, animate, interval=dt * 2000, frames=Nt)
-    plt.draw()
+    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt // 2)
+    print("Rendering", anim, "now")
+    # anim.save("filename.gif", writer="imagemagick")
     plt.show()
-    anim.save("filename.gif", writer="imagemagick")
     return x_A
 
 
