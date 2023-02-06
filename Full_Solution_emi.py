@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Number of meshpoints and meshsizes
     Nx = 3
-    Nt = 3
+    Nt = 4
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
 
@@ -117,6 +117,9 @@ if __name__ == "__main__":
     B = schemeD(Nx, Nt, CFL, False)
     rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2,x_A,1)
     x_B=spsolve(B,rhsB)
+
+    sum=x_A+x_B
+    print(x_A)
 
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
