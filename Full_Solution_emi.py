@@ -2,14 +2,11 @@
 
 import numpy as np
 from scipy.sparse import diags
-import matplotlib
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
 # from scipy.sparse import dia_matrix, dok_matrix
 from scipy.sparse.linalg import spsolve
-
-# import matplotlib.pyplot as plt
-# from matplotlib import cm
 
 
 # Function creating the scheme matrix for "a"
@@ -63,7 +60,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
 def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     r = np.zeros((Nx + 1) * (Nt + 1))
     # Initial conditions for the first Nx rows of r.
-    r[0:Nx] = IC
+    r[0:Nx+1] = IC
 
     # Fill the bounary conditions in
     for t in range(1, Nt + 1):
@@ -83,8 +80,6 @@ def rhsNeumann(Nx, Nt, IC, BC1, BC2, a,D):
         r[t * (Nx + 1) + Nx] = D*(-a[t*(Nx+1)+Nx]+a[t*(Nx+1)+Nx-1])
     return r
 
-def animate(i):
-    line.set_ydata(F[i, :])
 
 if __name__ == "__main__":
     ## Set up for solving the heat equation for a
@@ -98,8 +93,8 @@ if __name__ == "__main__":
     # dx = 0.1 ; dt = 0.01
 
     # Number of meshpoints and meshsizes
-    Nx = 3
-    Nt = 3
+    Nx = 100
+    Nt = 100
     dx = (xn - x0) / Nx
     dt = (T - T0) / Nt
 
@@ -113,36 +108,29 @@ if __name__ == "__main__":
 
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
+    rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2) #todo
     #print(A.toarray())
     x_A= spsolve(A,rhsA)
+    print(x_A)
 
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL, False)
-    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2)
+    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2,x_A,1)
     x_B=spsolve(B,rhsB)
 
-
-
-
     # Plotting
-    x = np.linspace(0, 1, 1000)
-    y = [u0(each) for each in x]
-    plt.plot(x, y)
-    plt.xlabel(r'$x$')
-    plt.ylabel(r'$u_0$')
-    plt.title(r'Concentration at time $t=0$')
-    plt.show()
-
-    #Plotting 1
     fig, ax = plt.subplots(figsize=(5, 3))
-    ax.set(xlim=(0, 10), ylim=(0, 10))
+    ax.set(xlim=(x0, xn), ylim=(T0, T))
+    x = np.linspace(x0, xn, Nx+1)
+    t = np.linspace(T0, T, Nt+1)
 
-    x = np.linspace(x0, xn, Nx)
-    line = ax.plot(x, F[0, :], color='k', lw=2)[0]
+    line = ax.plot(x, x_A[0 : Nx+1], color='k', lw=2)[0]
+    def animate(i):
+        line.set_ydata(x_A[i*(Nx+1):i*(Nx+1)+Nx+1])
 
-    anim = FuncAnimation(
-        fig, animate, interval=100, frames=len(t) - 1)
+    anim = FuncAnimation(fig, animate, interval=Nt, frames=len(t) -1)
 
     plt.draw()
     plt.show()
+
+    anim.save('filename.gif', writer='imagemagick')
