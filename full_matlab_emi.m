@@ -1,7 +1,6 @@
 clc;
 clearvars;
 
-
 a = 0;
 b = 1;
 T0 = 0;

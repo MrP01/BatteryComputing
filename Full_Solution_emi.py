@@ -34,7 +34,7 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
         if Dirichlet:
             udiag[t * (Nx + 1)] = 0
         else:
-            udiag[t * (Nx + 1)] = -1 #this will put -1 to every first upper diagonal entry of the many submatrices
+            udiag[t * (Nx + 1)] = -1  # this will put -1 to every first upper diagonal entry of the many submatrices
 
         if t != Nt:
             ldiag[t * (Nx + 1) + Nx] = 0
@@ -53,14 +53,14 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
         udiag[k] = 0
 
     # This creates sparse matrix out of diagonals
-    A = diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx + 1)],format = 'csr')
+    A = diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -(Nx + 1)], format="csr")
     return A
 
 
 def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     r = np.zeros((Nx + 1) * (Nt + 1))
     # Initial conditions for the first Nx rows of r.
-    r[0:Nx+1] = IC
+    r[0 : Nx + 1] = IC
 
     # Fill the bounary conditions in
     for t in range(1, Nt + 1):
@@ -69,15 +69,15 @@ def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     return r
 
 
-def rhsNeumann(Nx, Nt, IC, BC1, BC2, a,D):
+def rhsNeumann(Nx, Nt, IC, BC1, BC2, a, D):
     r = np.zeros((Nx + 1) * (Nt + 1))
     # Initial conditions for the first Nx rows of r.
     r[0:Nx] = IC
 
     # Fill the bounary conditions in
     for t in range(1, Nt + 1):
-        r[t * (Nx + 1)] = D* (a[t*(Nx+1)+1]-a[t*(Nx+1)])
-        r[t * (Nx + 1) + Nx] = D*(-a[t*(Nx+1)+Nx]+a[t*(Nx+1)+Nx-1])
+        r[t * (Nx + 1)] = D * (a[t * (Nx + 1) + 1] - a[t * (Nx + 1)])
+        r[t * (Nx + 1) + Nx] = D * (-a[t * (Nx + 1) + Nx] + a[t * (Nx + 1) + Nx - 1])
     return r
 
 
@@ -111,29 +111,30 @@ if __name__ == "__main__":
     rhsA = rhsDirichlet(Nx, Nt, IC, BC1, BC2)
     print(A.toarray())
     print(rhsA)
-    x_A= spsolve(A,rhsA)
+    x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL, False)
-    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2,x_A,1)
-    x_B=spsolve(B,rhsB)
+    rhsB = rhsNeumann(Nx, Nt, IC, BC1, BC2, x_A, 1)
+    x_B = spsolve(B, rhsB)
 
-    sum=x_A+x_B
+    sum = x_A + x_B
     print(x_A)
 
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.set(xlim=(x0, xn), ylim=(T0, T))
-    x = np.linspace(x0, xn, Nx+1)
-    t = np.linspace(T0, T, Nt+1)
+    x = np.linspace(x0, xn, Nx + 1)
+    t = np.linspace(T0, T, Nt + 1)
 
-    line = ax.plot(x, x_A[0 : Nx+1], color='k', lw=2)[0] #x_A(0), ...x_A(Nx)
+    line = ax.plot(x, x_A[0 : Nx + 1], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx)
+
     def animate(i):
-        line.set_ydata(x_A[i*(Nx+1):i*(Nx+1)+Nx+1])
+        line.set_ydata(x_A[i * (Nx + 1) : i * (Nx + 1) + Nx + 1])
 
-    anim = FuncAnimation(fig, animate, interval=Nt, frames=len(t) -1)
+    anim = FuncAnimation(fig, animate, interval=Nt, frames=len(t) - 1)
 
     plt.draw()
     plt.show()
 
-    anim.save('filename.gif', writer='imagemagick')
+    anim.save("filename.gif", writer="imagemagick")
