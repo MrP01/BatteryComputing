@@ -14,19 +14,19 @@ np.set_printoptions(linewidth=200)
 
 # Function creating the scheme matrix for "a"
 # Admittedly I used a for loop which was not necessary.
-def schemeD(Nx, Nt, CFL, Dirichlet):
+def schemeD(Nx, Nt, muD, Dirichlet):
     # diagonal vector with (Nx+1)*(Nt+1) entries
-    diag = np.ones(Nx * Nt) * (1 + 2 * CFL)
+    diag = np.ones(Nx * Nt) * (1 + 2 * muD)
 
     # off diagonal vectors
-    udiag = np.ones(Nx * Nt) * (-CFL)
-    ldiag = np.ones(Nx * Nt) * (-CFL)
+    udiag = np.ones(Nx * Nt) * (-muD)
+    ldiag = np.ones(Nx * Nt) * (-muD)
 
     # lonely diagonal vector accounts for the explicit coefficient
     lonelydiag = np.ones(Nx * Nt - Nx) *(-1)
 
     # We aim to zero the entries of the lonely vector corresponding to previous timestep
-    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
+    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl*D, 1+2CFL*D, CFL*D)
     for t in range(0, Nt):
         first = t * Nx
         last = first + Nx - 1
@@ -57,26 +57,31 @@ def schemeD(Nx, Nt, CFL, Dirichlet):
     return diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -Nx], format="csr")
 
 def schemeVolta(Nx, Nt, CFL, isA):
-    # diagonal vector with (Nx+1)*(Nt+1) entries
-    diag = np.ones(Nx * Nt) * (1 + 2 * CFL)
+    # diagonal vector with 2*(Nx+1)*(Nt+1) entries
+    diag = np.ones(Nx * Nt*2) * (1 + 2 * CFL)
 
     # off diagonal vectors
-    udiag = np.ones(Nx * Nt) * (-CFL)
-    ldiag = np.ones(Nx * Nt) * (-CFL)
+    udiag = np.ones(2*Nx * Nt) * (-CFL)
+    ldiag = np.ones(2*Nx * Nt) * (-CFL)
 
     # lonely diagonal vector accounts for the explicit coefficient
-    lonelydiag = np.ones(Nx * Nt - Nx) *(-1)
+    lfar = np.ones(2*Nx * Nt - Nx) *(-1)
+
+    # lonely upper diagonal accounting for the voltametry dependence on a and b
+    ufar = np.zeros(2*Nx * Nt - Nx)
 
     # second upper diagonal
-    u2diag = np.zeros(Nx * Nt)
+    u2diag = np.zeros(2*Nx * Nt)
+
+
 
     # We aim to zero the entries of the lonely vector corresponding to previous timestep
     # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
-    for t in range(0, Nt):
+    for t in range(0, 2*Nt):
         first = t * Nx
         last = first + Nx - 1
 
-        diag[first] = 1
+        diag[first] = alpha - kappa*dx*f_A
         diag[last] = 1
 
         ldiag[last] = 0  # ultimate
@@ -85,13 +90,13 @@ def schemeVolta(Nx, Nt, CFL, isA):
         udiag[first] = -1
         udiag[last] = 0
 
-        if t != Nt - 1:
-            lonelydiag[first] = 0
-            lonelydiag[last] = 0
+        if t != Nt - 1 and t!= 2*Nt - 1:
+            lfar[first] = 0
+            lfar[last] = 0
 
-        if t != 0:
-            u2diag[first] = -1/2
-            udiag[first] = 2
+        if t != 0 and t!=Nt:
+            u2diag[first] = gamma
+            udiag[first] = beta
             diag[first] = -3/2
 
     # initial condition:
@@ -104,7 +109,7 @@ def schemeVolta(Nx, Nt, CFL, isA):
     udiag = udiag[:-1]
 
     # This creates sparse matrix out of diagonals
-    return diags([diag, udiag, ldiag, lonelydiag,u2diag], [0, 1, -1, -Nx, 2], format="dia_matrix")
+    return diags([diag, udiag, ldiag, lfar,u2diag], [0, 1, -1, -Nx, 2], format="dia_matrix")
 
 
 def look_at_time(x_A, time_index, Nx):
@@ -162,6 +167,7 @@ def chronoamperometry():
 
     # Courant Friedrichs-Lewy
     CFL = dt / dx**2
+    D=1
 
     # Values at boundary in space and time
     BC1 = 0
@@ -170,13 +176,13 @@ def chronoamperometry():
     IC_B =0
 
     # Set up matrices for solving the Dirichlet scheme for "a"
-    A = schemeD(Nx, Nt, CFL, True)
+    A = schemeD(Nx, Nt, CFL*D, True)
     rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
     np.set_printoptions(linewidth=200)
     x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeD(Nx, Nt, CFL, False)
+    B = schemeD(Nx, Nt, CFL*D, False)
     rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
     x_B = spsolve(B, rhsB)
 
