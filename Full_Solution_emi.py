@@ -8,9 +8,10 @@ from matplotlib.animation import FuncAnimation
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
-# plt.switch_backend("MacOSX")
+plt.switch_backend("MacOSX")
 np.set_printoptions(linewidth=200)
 
+# This is a modifica loooolll
 
 # Function creating the scheme matrix for "a"
 # Admittedly I used a for loop which was not necessary.
