@@ -54,62 +54,6 @@ def schemeD(Nx, Nt, muD, Dirichlet):
     # This creates sparse matrix out of diagonals
     return diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -Nx], format="csr")
 
-def schemeVolta(Nx, Nt, CFL, isA):
-    # diagonal vector with 2*(Nx+1)*(Nt+1) entries
-    diag = np.ones(Nx * Nt*2) * (1 + 2 * CFL)
-
-    # off diagonal vectors
-    udiag = np.ones(2*Nx * Nt) * (-CFL)
-    ldiag = np.ones(2*Nx * Nt) * (-CFL)
-
-    # lonely diagonal vector accounts for the explicit coefficient
-    lfar = np.ones(2*Nx * Nt - Nx) *(-1)
-
-    # lonely upper diagonal accounting for the voltametry dependence on a and b
-    ufar = np.zeros(2*Nx * Nt - Nx)
-
-    # second upper diagonal
-    u2diag = np.zeros(2*Nx * Nt)
-
-
-
-    # We aim to zero the entries of the lonely vector corresponding to previous timestep
-    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
-    for t in range(0, 2*Nt):
-        first = t * Nx
-        last = first + Nx - 1
-
-        diag[first] = alpha - kappa*dx*f_A
-        diag[last] = 1
-
-        ldiag[last] = 0  # ultimate
-        ldiag[last - 1] = 0  # penultimate
-
-        udiag[first] = -1
-        udiag[last] = 0
-
-        if t != Nt - 1 and t!= 2*Nt - 1:
-            lfar[first] = 0
-            lfar[last] = 0
-
-        if t != 0 and t!=Nt:
-            u2diag[first] = gamma
-            udiag[first] = beta
-            diag[first] = -3/2
-
-    # initial condition:
-    for k in range(0, Nx):
-        diag[k] = 1
-        ldiag[k] = 0
-        udiag[k] = 0
-
-    ldiag = ldiag[:-1]
-    udiag = udiag[:-1]
-
-    # This creates sparse matrix out of diagonals
-    return diags([diag, udiag, ldiag, lfar,u2diag], [0, 1, -1, -Nx, 2], format="dia_matrix")
-
-
 def look_at_time(x_A, time_index, Nx):
     return x_A[time_index * Nx : (time_index + 1) * Nx]
 
@@ -185,24 +129,7 @@ def chronoamperometry():
     x_B = spsolve(B, rhsB)
 
     # Plotting
-    fig, ax = plt.subplots(figsize=(5, 3))
-    ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
-    x = np.linspace(x0, xn, Nx)
-    # t = np.linspace(t0, tn, Nt)
-
-    line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
-    line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
-
-    def animate(t):
-        first = t * Nx
-        last = first + Nx - 1
-        line.set_ydata(x_A[first : last + 1])
-        line2.set_ydata(x_B[first: last + 1])
-
-    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt )
-    anim.save("new.gif", writer="imagemagick")
-    plt.show()
-    return x_A,x_B
+    plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B)
 
 def voltametry():
     ## Set up for solving the heat equation for a
@@ -269,7 +196,7 @@ def voltametry():
         ldiag=ldiag[2:-1]
 
         # This creates a sparse matrix out of diagonals
-        return diags([diag, udiag, u2diag ldiag, first, second,third], [0, 1, 2, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
+        return diags([diag, udiag, u2diag, ldiag, first, second,third], [0, 1, 2, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
@@ -285,6 +212,27 @@ def voltametry():
         x=spsolve(matrix,rhs)
         sol_A[t:t+Nx]= x[0:Nx]
         sol_B[t:t+Nx]= x[Nx:-1]
+    plotAnimate(x0,xn,Nx,Nt,dt,sol_A,sol_B)
+
+def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B):
+    # Plotting
+    fig, ax = plt.subplots(figsize=(5, 3))
+    ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
+    x = np.linspace(x0, xn, Nx)
+
+    line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
+    line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
+
+    def animate(t):
+        first = t * Nx
+        last = first + Nx - 1
+        line.set_ydata(x_A[first: last + 1])
+        line2.set_ydata(x_B[first: last + 1])
+
+    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt)
+    anim.save("new.gif", writer="imagemagick")
+    plt.show()
+    return x_A, x_B
 
 if __name__ == "__main__":
     [x_A,x_B] = chronoamperometry()
