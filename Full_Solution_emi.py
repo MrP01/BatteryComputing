@@ -223,6 +223,9 @@ def voltametry():
     # Courant Friedrichs-Lewy
     CFL = dt / dx**2
 
+    # Diffusion constant
+    D=1
+
     # Values at boundary in space and time
     BC1 = 0
     BC2 = 1
@@ -231,13 +234,13 @@ def voltametry():
 
     # Set up matrices for solving the Neumann scheme for "a".
     # Input true if a, false if b
-    A = schemeVolta(Nx, Nt, CFL, True)
+    A = schemeVolta(Nx, Nt, CFL*D, True)
     rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
     np.set_printoptions(linewidth=200)
     x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeVolta(Nx, Nt, CFL, False)
+    B = schemeVolta(Nx, Nt, CFL*D, False)
     rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
     x_B = spsolve(B, rhsB)
 
