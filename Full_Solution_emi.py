@@ -154,14 +154,14 @@ def chronoamperometry():
     # Boundaries for space and time
     x0 = 0
     xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
-    T0 = 0
-    T = 0.2
+    t0 = 0
+    tn = 0.2
 
     # Number of meshpoints and meshsizes
     Nx = 300
     Nt = 400
     dx = (xn - x0) / Nx
-    dt = (T - T0) / Nt
+    dt = (tn - t0) / Nt
 
     # Courant Friedrichs-Lewy
     CFL = dt / dx**2
@@ -188,7 +188,7 @@ def chronoamperometry():
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
     x = np.linspace(x0, xn, Nx)
-    # t = np.linspace(T0, T, Nt)
+    # t = np.linspace(t0, tn, Nt)
 
     line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
     line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
@@ -207,28 +207,23 @@ def chronoamperometry():
 def voltametry():
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
-    x0 = 0
-    xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
-    T0 = 0
-    T = 1
+    x0 = 0 ; xn = 1 
+    t0 = 0 ; tn = 1
 
     # Number of meshpoints and meshsizes
-    Nx = 300
-    Nt = 400
-    dx = (xn - x0) / Nx
-    dt = (T - T0) / Nt
-
-    # Courant Friedrichs-Lewy
-    CFL = dt / dx**2
-
-    # Diffusion constant
-    D=1
+    Nx = 300 ;  dx = (xn - x0) / Nx
+    Nt = 400 ; dt = (tn - t0) / Nt
+   
+    # Courant Friedrichs-Lewy and diffusion constant
+    CFL = dt / dx**2 ;   D=1
 
     # Values at boundary in space and time
-    BC1 = 0
-    BC2 = 1
-    IC_A = 1
-    IC_B =0
+    BC1 = 0 ; BC2 = 1
+    IC_A = 1 ; IC_B =0
+
+    # Initial values
+    E_start = -10; E_0 = 0
+    t_rev = 20 ;  kappa = 35 ; alpha = 1 / 2
 
     def Pot(t):
         E_start + t if t<t_rev else E_start - t+2*t_rev
@@ -255,87 +250,41 @@ def voltametry():
         ldiag[Nx] = 0
         ldiag[-1]=0
 
+        # A second upper diagonal has to be added
+        u2diag = np.zeros(2*Nx-2)
+        u2diag[0]=gamma
+
+        # Three entries to be added to account the conservation of mass (BC of b)
+        first=np.zeros(Nx)
+        first[0]=D*alpha
+
+        second = np.zeros(Nx+1)
+        second[1] = D * beta
+
+        third = np.zeros(Nx)
+        third[2]=D*gamma
+
         # Shorten the off-diagonal vectors
         udiag=udiag[:-1]
         ldiag=ldiag[2:-1]
 
-    #Initial values
-    E_start = -10
-    E_0 = 0
-    t_rev=20
-    kappa=35
-    alpha=1/2
+        # This creates a sparse matrix out of diagonals
+        return diags([diag, udiag, u2diag ldiag, first, second,third], [0, 1, 2, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
 
+    ## Solve the unknowns iteratively with time
+    # First create an empty vector for each quantity a and b and set the first values to be the IC
     sol_A = np.ones(Nx*Nt)
+    sol_A[0:Nx]=IC_A
 
-    sol_A(0:Nx)=IC_A
+    sol_B = np.ones(Nx*Nt)
+    sol_B[0: Nx]=IC_B
 
     for t in range(1:Nt):
-        matrix =
-
-    # diagonal vector with 2*(Nx+1)*(Nt+1) entries
-    diag = np.ones(Nx * Nt * 2) * (1 + 2 * CFL)
-
-    # off diagonal vectors
-    udiag = np.ones(2 * Nx * Nt) * (-CFL)
-    ldiag = np.ones(2 * Nx * Nt) * (-CFL)
-
-    # lonely diagonal vector accounts for the explicit coefficient
-    lfar = np.ones(2 * Nx * Nt - Nx) * (-1)
-
-    # lonely upper diagonal accounting for the voltametry dependence on a and b
-    ufar = np.zeros(2 * Nx * Nt - Nx)
-
-    # second upper diagonal
-    u2diag = np.zeros(2 * Nx * Nt)
-
-    # We aim to zero the entries of the lonely vector corresponding to previous timestep
-    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
-    for t in range(0, 2 * Nt):
-        first = t * Nx
-        last = first + Nx - 1
-
-        diag[first] = alpha - kappa * dx * f_A
-        diag[last] = 1
-
-        ldiag[last] = 0  # ultimate
-        ldiag[last - 1] = 0  # penultimate
-
-        udiag[first] = -1
-        udiag[last] = 0
-
-        if t != Nt - 1 and t != 2 * Nt - 1:
-            lfar[first] = 0
-            lfar[last] = 0
-
-        if t != 0 and t != Nt:
-            u2diag[first] = gamma
-            udiag[first] = beta
-            diag[first] = -3 / 2
-
-    # initial condition:
-    for k in range(0, Nx):
-        diag[k] = 1
-        ldiag[k] = 0
-        udiag[k] = 0
-
-    ldiag = ldiag[:-1]
-    udiag = udiag[:-1]
-
-    # This creates sparse matrix out of diagonals
-    d=diags([diag, udiag, ldiag, lfar, u2diag], [0, 1, -1, -Nx, 2], format="dia_matrix")
-
-    # Use a for loop instead of a matrix in order to solve the system.
-
-    A = schemeVolta(Nx, Nt, CFL * D, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
-    np.set_printoptions(linewidth=200)
-    x_A = spsolve(A, rhsA)
-
-    # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeVolta(Nx, Nt, CFL * D, False)
-    rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
-    x_B = spsolve(B, rhsB)
+        matrix = oneTimeStepMatrix(t)
+        rsh=np.concatenate([0],sol_A[(t-1):(t-1)+Nx],[1],[0],sol_B[(t-1):(t-1)+Nx],[1])
+        x=spsolve(matrix,rhs)
+        sol_A[t:t+Nx]= x[0:Nx]
+        sol_B[t:t+Nx]= x[Nx:-1]
 
 if __name__ == "__main__":
     [x_A,x_B] = chronoamperometry()
