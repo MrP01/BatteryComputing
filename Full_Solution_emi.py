@@ -151,10 +151,14 @@ def voltametry():
     # Initial values
     E_start = -10; E_0 = 0
     t_rev = 20 ;  kappa = 35 ; alpha = 1 / 2
+    def Pot(t): # This function returns our potential
+        E= E_start + t if t<t_rev else E_start - t+2*t_rev
+        return E
+    def G_A(t):
+        return kappa *dx * math.exp((1-alpha)*(Pot(t)-E_0))
 
-    def Pot(t):
-        E_start + t if t<t_rev else E_start - t+2*t_rev
-
+    def G_B(t):
+        return  kappa *dx * math.exp((-alpha)*(Pot(t)-E_0))
     def oneTimeStepMatrix(t):
 
         ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
@@ -181,6 +185,10 @@ def voltametry():
         u2diag = np.zeros(2*Nx-2)
         u2diag[0]=gamma
 
+        # A lonely upper diagonal to incorporate G_B, the BC for A depending on b
+        ulonely=np.zeros(Nx)
+        ulonely[0]=G_B(t)
+
         # Three entries to be added to account the conservation of mass (BC of b)
         first=np.zeros(Nx)
         first[0]=D*alpha
@@ -196,7 +204,7 @@ def voltametry():
         ldiag=ldiag[2:-1]
 
         # This creates a sparse matrix out of diagonals
-        return diags([diag, udiag, u2diag, ldiag, first, second,third], [0, 1, 2, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
+        return diags([diag, udiag, u2diag, ulonely, ldiag, first, second,third], [0, 1, 2, Nx, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
