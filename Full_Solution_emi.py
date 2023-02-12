@@ -130,7 +130,7 @@ def chronoamperometry():
     x_B = spsolve(B, rhsB)
 
     # Plotting
-    plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B)
+    plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B,"chrono.gif")
 
 def voltametry():
     ## Set up for solving the heat equation for a
@@ -226,9 +226,9 @@ def voltametry():
         x=spsolve(matrix,rhs)
         sol_A[t:t+Nx]= x[0:Nx]
         sol_B[t:t+Nx]= x[Nx:]
-    plotAnimate(x0,xn,Nx,Nt,dt,sol_A,sol_B)
+    plotAnimate(x0,xn,Nx,Nt,dt,sol_A,sol_B,"volt.gif")
 
-def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B):
+def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B,myStr):
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
@@ -238,13 +238,14 @@ def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B):
     line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
 
     def animate(t):
+        print("qani,t")
         first = t * Nx
         last = first + Nx - 1
         line.set_ydata(x_A[first: last + 1])
         line2.set_ydata(x_B[first: last + 1])
 
-    anim = FuncAnimation(fig, animate, interval=dt * 4000, frames=Nt)
-    anim.save("new.gif", writer="imagemagick")
+    anim = FuncAnimation(fig, animate, interval=dt * 400, frames=Nt)
+    anim.save(myStr)
     plt.show()
     return x_A, x_B
 
