@@ -1,6 +1,7 @@
 # Python code for solving chronoamperometre problem
 
 import numpy as np
+import math
 from scipy.sparse import diags
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
@@ -148,6 +149,11 @@ def voltametry():
     BC1 = 0 ; BC2 = 1
     IC_A = 1 ; IC_B =0
 
+    # Values found for the Taylor expansion of ∂a/dx at x=0
+    alpha = -3/2
+    beta=2
+    gamma=-1/2
+
     # Initial values
     E_start = -10; E_0 = 0
     t_rev = 20 ;  kappa = 35 ; alpha = 1 / 2
@@ -196,15 +202,15 @@ def voltametry():
         second = np.zeros(Nx+1)
         second[1] = D * beta
 
-        third = np.zeros(Nx)
+        third = np.zeros(Nx+2)
         third[2]=D*gamma
 
         # Shorten the off-diagonal vectors
-        udiag=udiag[:-1]
-        ldiag=ldiag[2:-1]
+        udiag=udiag[:-1] #discard the -1 entry
+        ldiag=ldiag[1:] #discard the 0th entry
 
         # This creates a sparse matrix out of diagonals
-        return diags([diag, udiag, u2diag, ulonely, ldiag, first, second,third], [0, 1, 2, Nx, -1,-Nx,-Nx+1, -Nx+2], format="dia_matrix")
+        return diags([diag, udiag, u2diag, ulonely, ldiag, first, second,third], [0, 1, 2, Nx, -1,-Nx,-Nx+1, -Nx+2], format="csr")
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
@@ -214,12 +220,12 @@ def voltametry():
     sol_B = np.ones(Nx*Nt)
     sol_B[0: Nx]=IC_B
 
-    for t in range(1:Nt):
+    for t in range(1,Nt):
         matrix = oneTimeStepMatrix(t)
-        rsh=np.concatenate([0],sol_A[(t-1):(t-1)+Nx],[1],[0],sol_B[(t-1):(t-1)+Nx],[1])
+        rhs=np.concatenate(([0],sol_A[(t-1)+1:(t-1)+Nx-1],[1],[0],sol_B[(t-1)+1:(t-1)+Nx-1],[1]))
         x=spsolve(matrix,rhs)
         sol_A[t:t+Nx]= x[0:Nx]
-        sol_B[t:t+Nx]= x[Nx:-1]
+        sol_B[t:t+Nx]= x[Nx:]
     plotAnimate(x0,xn,Nx,Nt,dt,sol_A,sol_B)
 
 def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B):
@@ -243,6 +249,7 @@ def plotAnimate(x0,xn,Nx,Nt,dt,x_A,x_B):
     return x_A, x_B
 
 if __name__ == "__main__":
-    [x_A,x_B] = chronoamperometry()
+    #chronoamperometry()
+    voltametry()
 
 
