@@ -235,20 +235,29 @@ def voltametry():
 
     def oneTimeStepMatrix(t):
 
-        diagA = np.ones(Nx) * (1+2*D*CFL)
-        diagA[0]=alpha-G_A(t)
-        diagA[Nx-1]=1
+        ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
+        # The diagonal is 1+2*D*mu except at the boundaries
+        diag = np.ones(2*Nx) * (1+2*D*CFL)
+        diag[0]=alpha-G_A(t)
+        diag[Nx-1]=1
+        diag[Nx]=-1
+        diag[-1]=1
 
-        udiagA = np.ones(Nx) * (-D*CFL)
+        # The upper diag is -mu*D except at boundaries
+        udiag = np.ones(2*Nx) * (-D*CFL)
         udiag[0]=beta
         udiag[Nx-1]=0
+        udiag[Nx] = 1
 
-        ldiagA = np.ones(Nx)
+        # The lower diag is -mu*D except at boundaries
+        ldiag = np.ones(2*Nx) * (-D*CFL)
+        ldiag[Nx - 1] = 0
+        ldiag[Nx] = 0
+        ldiag[-1]=0
 
-        ldiagA = np.ones(2 * Nx) * (-D*CFL)
-
-
-
+        # Shorten the off-diagonal vectors
+        udiag=udiag[:-1]
+        ldiag=ldiag[2:-1]
 
     #Initial values
     E_start = -10
