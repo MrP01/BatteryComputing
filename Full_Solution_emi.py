@@ -4,8 +4,6 @@ import numpy as np
 from scipy.sparse import diags
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
-
-# from scipy.sparse import dia_matrix, dok_matrix
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
@@ -212,7 +210,7 @@ def voltametry():
     x0 = 0
     xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
     T0 = 0
-    T = 0.2
+    T = 1
 
     # Number of meshpoints and meshsizes
     Nx = 300
@@ -232,17 +230,25 @@ def voltametry():
     IC_A = 1
     IC_B =0
 
-    # Set up matrices for solving the Neumann scheme for "a".
-    # Input true if a, false if b
-    A = schemeVolta(Nx, Nt, CFL*D, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
-    np.set_printoptions(linewidth=200)
-    x_A = spsolve(A, rhsA)
+    def Pot(t):
+        E_start + t if t<t_rev else E_start - t+2*t_rev
 
-    # Set up matrices for solving the Neumann scheme for "b"
-    B = schemeVolta(Nx, Nt, CFL*D, False)
-    rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
-    x_B = spsolve(B, rhsB)
+    def oneTimeStepMatrix(t):
+
+        diagA = np.ones(Nx) * (1+2*D*CFL)
+        diagA[0]=alpha-G_A(t)
+        diagA[Nx-1]=1
+
+        udiagA = np.ones(Nx) * (-D*CFL)
+        udiag[0]=beta
+        udiag[Nx-1]=0
+
+        ldiagA = np.ones(Nx)
+
+        ldiagA = np.ones(2 * Nx) * (-D*CFL)
+
+
+
 
     #Initial values
     E_start = -10
@@ -251,8 +257,76 @@ def voltametry():
     kappa=35
     alpha=1/2
 
-    def Pot(t):
-        E_start + t if t<t_rev else E_start - t+2*t_rev
+    sol_A = np.ones(Nx*Nt)
+
+    sol_A(0:Nx)=IC_A
+
+    for t in range(1:Nt):
+        matrix =
+
+    # diagonal vector with 2*(Nx+1)*(Nt+1) entries
+    diag = np.ones(Nx * Nt * 2) * (1 + 2 * CFL)
+
+    # off diagonal vectors
+    udiag = np.ones(2 * Nx * Nt) * (-CFL)
+    ldiag = np.ones(2 * Nx * Nt) * (-CFL)
+
+    # lonely diagonal vector accounts for the explicit coefficient
+    lfar = np.ones(2 * Nx * Nt - Nx) * (-1)
+
+    # lonely upper diagonal accounting for the voltametry dependence on a and b
+    ufar = np.zeros(2 * Nx * Nt - Nx)
+
+    # second upper diagonal
+    u2diag = np.zeros(2 * Nx * Nt)
+
+    # We aim to zero the entries of the lonely vector corresponding to previous timestep
+    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl, 1+2CFL, CFL)
+    for t in range(0, 2 * Nt):
+        first = t * Nx
+        last = first + Nx - 1
+
+        diag[first] = alpha - kappa * dx * f_A
+        diag[last] = 1
+
+        ldiag[last] = 0  # ultimate
+        ldiag[last - 1] = 0  # penultimate
+
+        udiag[first] = -1
+        udiag[last] = 0
+
+        if t != Nt - 1 and t != 2 * Nt - 1:
+            lfar[first] = 0
+            lfar[last] = 0
+
+        if t != 0 and t != Nt:
+            u2diag[first] = gamma
+            udiag[first] = beta
+            diag[first] = -3 / 2
+
+    # initial condition:
+    for k in range(0, Nx):
+        diag[k] = 1
+        ldiag[k] = 0
+        udiag[k] = 0
+
+    ldiag = ldiag[:-1]
+    udiag = udiag[:-1]
+
+    # This creates sparse matrix out of diagonals
+    d=diags([diag, udiag, ldiag, lfar, u2diag], [0, 1, -1, -Nx, 2], format="dia_matrix")
+
+    # Use a for loop instead of a matrix in order to solve the system.
+
+    A = schemeVolta(Nx, Nt, CFL * D, True)
+    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
+    np.set_printoptions(linewidth=200)
+    x_A = spsolve(A, rhsA)
+
+    # Set up matrices for solving the Neumann scheme for "b"
+    B = schemeVolta(Nx, Nt, CFL * D, False)
+    rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
+    x_B = spsolve(B, rhsB)
 
 if __name__ == "__main__":
     [x_A,x_B] = chronoamperometry()
