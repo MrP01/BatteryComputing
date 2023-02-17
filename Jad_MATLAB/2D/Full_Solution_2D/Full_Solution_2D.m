@@ -1,0 +1,67 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%% EXPLANATION %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% This code solves the diffusion equation for a coupled system (a and b)  %
+% such as follows: axx = at  and D*bxx = bt on a 2D domain. The code allow%
+% us to specify Dirichlet BC on x=L and Y=L for both a and b (constants)  %
+% we can also specify any other coupled boundary conditions on x0 and y0  %
+% by specifying vectors (commented later), also the boundary y=0 can have %
+% different conditions, one from 1:x1 and the other x1:end (implicit)     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+clc
+tic
+%NOTE: define parameters can be moved inside for loop of BC on y=0 or x=0
+%are requested to be varied in function of time (for y=0, x>=x1)
+[ax,bx,ay,by,T0,T,dx,dy,dt,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,BCx2U,BCy2U,BCx2V,BCy2V,ICU,ICV,x1] = Define_Parameters();
+[dx,dy,dt,Nx,Ny,Nt] = create_mesh(ax,bx,ay,by,T0,T,dx,dy,dt);
+
+%Initializing vectors for storing solutions and plotting
+U = ones(1,Nx*Ny)*ICU;
+V = ones(1,Nx*Ny)*ICV;
+U_plot = zeros(Nx*Ny*Nt,1);
+V_plot = zeros(Nx*Ny*Nt,1);
+counter = 0;
+% counter2 = 0;
+% vec = 0:0.2:0.6;
+% name = "Alpha";
+I = zeros(length(vec),Nt);
+% for alpha = vec
+% counter2 = counter2+1;
+for t = T0:dt:T-dt
+
+[Upy0_U,Upy0_V,Vpy0_U,Vpy0_V]= Define_Parameters_x_less_x1 (1,D,t,T,dy);    
+[A] = Create_matrix_f(Nx,Ny,dt/(dx)^2,dt/(dy)^2,dx,dy,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,x1,ax,bx,ay,by,Upy0_U,Upy0_V,Vpy0_U,Vpy0_V);
+[bs] = Create_RHS_f(Nx,Ny,dt/(dx)^2,dt/(dy)^2,BCx2U,BCy2U,BCx2V,BCy2V,dx,dy,U,V,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,ax,bx,ay,by,x1,Upy0_U,Upy0_V,Vpy0_U,Vpy0_V);
+Ut = (A\bs)';
+U_plot(1+Nx*Ny*counter:Nx*Ny*(counter+1),1) = Ut(1:Nx*Ny);
+V_plot(1+Nx*Ny*counter:Nx*Ny*(counter+1),1) = Ut(Nx*Ny+1:end);
+U = Ut(1:Nx*Ny);
+V = Ut(Nx*Ny+1:end);
+counter = counter+1;
+clc
+fprintf('Working on it: %f percent',t/(T-dt)*100)
+end
+
+fprintf('\n')
+dbstop at 24 in Plot_Results
+[I(counter2,:)]=Plot_Results(1,U_plot,V_plot,Nx,Ny,BCx2U,BCy2U,BCx2V,BCy2V,ICU,dx,Uy0_U,Uy0_V,Ux0_U,Ux0_V,x1,Upy0_U,Upy0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,Vpy0_U,Vpy0_V,ICV,ax,bx,ay,by,dy,dt,Nt,T0,T);
+% end
+% figure
+% hold on
+% figure (1)
+% xlabel('Time')
+% ylabel('Current')
+% s = strings(1,length(vec));
+% for i = 1:length(vec)
+% plot(T0:dt:T-dt,I(i,1:100))
+% s(1,i) = name+" = "+vec(i);
+% end
+% legend(s)
+
+
+
+
+
+
+
+
+
