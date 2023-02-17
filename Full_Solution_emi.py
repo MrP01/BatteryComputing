@@ -8,7 +8,7 @@ from matplotlib.animation import FuncAnimation
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
-# plt.switch_backend("MacOSX")
+plt.switch_backend("MacOSX")
 np.set_printoptions(linewidth=200)
 
 
@@ -166,7 +166,7 @@ def voltametry():
     # Initial values
     E_start = -10
     E_0 = 0
-    t_rev = 20
+    t_rev = 8
     kappa = 35
     alpha = 1 / 2
 
@@ -232,14 +232,15 @@ def voltametry():
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
-    sol_A = np.ones(Nx * Nt)
+    sol_A = np.zeros(Nx * Nt )
     sol_A[0:Nx] = IC_A
 
-    sol_B = np.ones(Nx * Nt)
+    sol_B = np.zeros(Nx * Nt)
     sol_B[0:Nx] = IC_B
 
     for t in range(1, Nt):
         matrix = oneTimeStepMatrix(t)
+        print(matrix)
         rhs = np.concatenate(
             ([0], sol_A[(t - 1) + 1 : (t - 1) + Nx - 1], [1], [0], sol_B[(t - 1) + 1 : (t - 1) + Nx - 1], [1])
         )
@@ -247,6 +248,7 @@ def voltametry():
         sol_A[t : t + Nx] = x[0:Nx]
         sol_B[t : t + Nx] = x[Nx:]
     plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt.gif")
+    return sol_A, sol_B
 
 
 def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
@@ -261,7 +263,7 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
     def animate(t):
         first = t * Nx
         last = first + Nx - 1
-        print("Frame", x_A[first : last + 1].mean())
+        #print("Frame", x_A[first : last + 1].mean()) #who wroe that?
         line.set_ydata(x_A[first : last + 1])
         line2.set_ydata(x_B[first : last + 1])
 
@@ -273,4 +275,7 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
 
 if __name__ == "__main__":
     # chronoamperometry()
-    voltametry()
+    [x_A,x_B]=voltametry()
+    print(x_A[0:10])
+    print(x_B[0:10])
+
