@@ -6,12 +6,12 @@ bx = 10; %Highest x value for U and V
 ay = ax;
 by = bx;
 T0 = 0; %Starting time
-T = 5; %Ending time
-dx = 0.5; %Space increment
+T = 15; %Ending time
+dx = 0.08; %Space increment
 dy = dx; 
 dt = 0.1; %Time increment
 D = 1; %Check explanation (diffusion coeff)
-x1 = 1.5;%Specifying where BC at y=0 change
+x1 = 1;%Specifying where BC at y=0 change
 
 %NOTE: U represent a and V represent b
 

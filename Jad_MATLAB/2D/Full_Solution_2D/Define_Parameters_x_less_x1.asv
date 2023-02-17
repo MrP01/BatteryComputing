@@ -1,14 +1,14 @@
-function [Upy0_U,Upy0_V,Vpy0_U,Vpy0_V]= Define_Parameters_x_less_x1 (c,D,t,T,dy)
+function [Upy0_U,Upy0_V,Vpy0_U,Vpy0_V]= Define_Parameters_x_less_x1 (c,D,t,T,dy,E0)
 %This function specifies parameters in vector form (just like in define
 %parameters previously) for x<x1
 %Data = [E0 k0 alpha w]
 
     if c~=1
         Estart = -10;
-        E0 = 0;
+        %E0 = 0;
         trev = T/2;
-        k0 = 35;
-        alpha = 0.5;%Changed from 0.5
+        %k0 = 35;
+        alpha = 0.5;
         DE = 0.1;
         w = 2*pi;
     if t<=trev
