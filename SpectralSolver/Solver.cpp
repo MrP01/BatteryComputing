@@ -8,6 +8,7 @@ double TwoComponentSolver::currentObjective() {
 
 void TwoComponentSolver::setup(Vector u0) {
   HeatSolver::setup(u0);
+  bConcentration = TschebFun::interpolantThrough(u0 - 1);
   left_bc.type = Neumann;
   left_bc.value = 0;
   right_bc.type = Dirichlet;
@@ -17,7 +18,11 @@ void TwoComponentSolver::setup(Vector u0) {
 }
 
 void TwoComponentSolver::iterate() {
-  HeatSolver::iterate();
   left_bc.value = currentObjective();
   std::cout << "Set left BC: type " << left_bc.type << " value: " << left_bc.value << std::endl;
+
+  alpha = D_a;
+  HeatSolver::iterate();
+  TschebFun previousB = bConcentration;
+  bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b);
 }
