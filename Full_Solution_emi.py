@@ -1,15 +1,18 @@
 # Python code for solving chronoamperometre problem
 
-import numpy as np
 import math
-from scipy.sparse import diags
+import pathlib
+
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.animation import FuncAnimation
+from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
 plt.switch_backend("MacOSX")
 np.set_printoptions(linewidth=200)
+RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results"
 
 
 # Function creating the scheme matrix for "a"
@@ -232,7 +235,7 @@ def voltametry():
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
-    sol_A = np.zeros(Nx * Nt )
+    sol_A = np.zeros(Nx * Nt)
     sol_A[0:Nx] = IC_A
 
     sol_B = np.zeros(Nx * Nt)
@@ -251,7 +254,7 @@ def voltametry():
     return sol_A, sol_B
 
 
-def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
+def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename):
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
     ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
@@ -263,19 +266,18 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
     def animate(t):
         first = t * Nx
         last = first + Nx - 1
-        #print("Frame", x_A[first : last + 1].mean()) #who wroe that?
+        # print("Frame", x_A[first : last + 1].mean()) #who wroe that?
         line.set_ydata(x_A[first : last + 1])
         line2.set_ydata(x_B[first : last + 1])
 
     anim = FuncAnimation(fig, animate, interval=dt * 400, frames=Nt)
-    anim.save(myStr)
+    anim.save(str(RESULTS_FOLDER / filename))
     plt.show()
     return x_A, x_B
 
 
 if __name__ == "__main__":
     # chronoamperometry()
-    [x_A,x_B]=voltametry()
+    [x_A, x_B] = voltametry()
     print(x_A[0:10])
     print(x_B[0:10])
-
