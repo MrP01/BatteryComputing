@@ -12,12 +12,10 @@ from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
 #plt.switch_backend("MacOSX")
-np.set_printoptions(linewidth=200)
 RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results"
 
-
-# Function creating the scheme matrix for "a"
-# Admittedly I used a for loop which was not necessary.
+## This function relates to CHRONOAMPEROMETRY  where we first tried to solve for x AND t altogether
+# This function creates the scheme MATRIX for "a"
 def schemeD(Nx, Nt, muD, Dirichlet):
     # diagonal vector with (Nx+1)*(Nt+1) entries
     diag = np.ones(Nx * Nt) * (1 + 2 * muD)
@@ -29,17 +27,17 @@ def schemeD(Nx, Nt, muD, Dirichlet):
     # lonely diagonal vector accounts for the explicit coefficient
     lonelydiag = np.ones(Nx * Nt - Nx) * (-1)
 
-    # We aim to zero the entries of the lonely vector corresponding to previous timestep
-    # We aim to have tridiagonal matrix (lowerdiag, diag, upperdiag) with (-CFl*D, 1+2CFL*D, CFL*D)
+    # At each timestep, we put the coefficients of the boundary values and their neighbours respectively
+    # to 1 and 0. If Neumann, the neighbour coefficient is not 0 but -1
     for t in range(0, Nt):
-        first = t * Nx
-        last = first + Nx - 1
+        first = t * Nx          # first boundary entry of a timestep
+        last = first + Nx - 1   # last boundary entry of a timestep
 
-        diag[first] = 1
-        diag[last] = 1
+        diag[first] = 1 # first BC entry of a timestep
+        diag[last] = 1 # last BC entry of a timestep
 
-        ldiag[last] = 0  # ultimate
-        ldiag[last - 1] = 0  # penultimate
+        ldiag[last] = 0      # last boundary entry
+        ldiag[last - 1] = 0  # penultimate entry
 
         udiag[first] = 0 if Dirichlet else -1
         udiag[last] = 0
@@ -48,16 +46,17 @@ def schemeD(Nx, Nt, muD, Dirichlet):
             lonelydiag[first] = 0
             lonelydiag[last] = 0
 
-    # initial condition:
+    # account for initial condition:
     for k in range(0, Nx):
         diag[k] = 1
         ldiag[k] = 0
         udiag[k] = 0
 
+    # shorten the lower diagonal and the upper diagonal to have Nx-1 entries
     ldiag = ldiag[:-1]
     udiag = udiag[:-1]
 
-    # This creates sparse matrix out of diagonals
+    # This creates sparse matrix out of specified diagonals
     return diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -Nx], format="csr")
 
 
