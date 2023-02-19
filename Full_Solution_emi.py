@@ -59,11 +59,7 @@ def schemeD(Nx, Nt, muD, Dirichlet):
     # This creates sparse matrix out of specified diagonals
     return diags([diag, udiag, ldiag, lonelydiag], [0, 1, -1, -Nx], format="csr")
 
-
-def look_at_time(x_A, time_index, Nx):
-    return x_A[time_index * Nx : (time_index + 1) * Nx]
-
-
+# rhsDirichlet assembles the right hand side of matrix system, where we have Dirichlet BC
 def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     r = np.zeros(Nx * Nt)
     # Initial conditions for the first Nx rows of r.
@@ -75,18 +71,19 @@ def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
         r[t * Nx + Nx - 1] = BC2
     return r
 
-
+# rhsNeumann assembles the right hand side of matrix system, where we have Neumann BC
 def rhsNeumann(Nx, Nt, IC, BC2, a, D): #Neumann for the first boundary and Dirichlet with the second
     r = np.zeros(Nx * Nt)
     # Initial conditions for the first Nx rows of r.
     r[0:Nx] = IC
 
-    # Fill the bounary conditions in
+    # Fill the boundary conditions in
     for t in range(1, Nt):
-        r[t * Nx] = -D * (3 / 2 * a[t * Nx] - 2 * a[t * Nx + 1] + 1 / 2 * a[t * Nx + 2])
+        r[t * Nx] = -D * (3 / 2 * a[t * Nx] - 2 * a[t * Nx + 1] + 1 / 2 * a[t * Nx + 2]) # using the Taylor
         r[t * Nx + Nx - 1] = BC2
     return r
 
+## CHRONOAMPEROMETRY is the main code for running experiment with Dirichlet BC for A and Neumann for B
 def chronoamperometry():
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
@@ -125,22 +122,20 @@ def chronoamperometry():
     # Store the real solution for a
     real_A = np.zeros(Nx*Nt)
     real_A[0:Nx] = IC_A
-
-
     for j in range(1,Nt):
         x=np.linspace(0,xn,Nx)
         h=math.sqrt(j*dt)
         real_A[j*Nx:(j+1)*Nx] = special.erf(x/(2*h))
-
     print(real_A)
 
     # Compare real to numerical solutionn
     #plotAnimate(x0,xn,Nx,Nt,dt,x_A,real_A,"chrono_real_sol.gif","Numerical Solution","Real Solution")
 
-    # Plotting
-    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono.gif","Concentration of A","Concentration of B")
+    # Plotting the concentration of A versus that of B
+    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono.gif","Concentration A","Concentration B")
 
 
+# VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
 def voltametry():
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
@@ -179,12 +174,14 @@ def voltametry():
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
         return E
 
-    def G_A(t):
+    def G_A(t): # This function represents the first term of our Butler-Volmer function
         return kappa * dx * math.exp((1 - alpha) * (Pot(t) - E_0))
 
-    def G_B(t):
+    def G_B(t): # This function represents the positive part of the second term of our Butler-Volmer function
         return kappa * dx * math.exp((-alpha) * (Pot(t) - E_0))
 
+    # oneTimeStepMatrix creates a matrix that incorporates the Butler-Volmer scheme but only for one step.
+    # This is similar to schemeD, only that schemeD creates a matrix involving all unknowns in time and space
     def oneTimeStepMatrix(t):
         ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
         # The diagonal is 1+2*D*mu except at the boundaries
@@ -213,13 +210,13 @@ def voltametry():
         ulonely[0] = -G_B(t)
 
         # Two entries to be added to account the conservation of mass (BC of b)
+        # For the moment I could only do it by creating two diagonals
         first = np.zeros(Nx)
         first[0] = -1
-
         second = np.zeros(Nx + 1)
         second[1] = 1
 
-        # This creates a sparse matrix out of diagonals
+        # This creates a sparse matrix out of specified diagonals
         return diags(
             [diag, udiag, ulonely, ldiag, first, second],
             [0, 1, Nx, -1, -Nx, -Nx + 1],
@@ -234,6 +231,7 @@ def voltametry():
     sol_B = np.zeros(Nx * Nt)
     sol_B[0:Nx] = IC_B
 
+    # Loop over all time-step
     for t in range(1, Nt):
         matrix = oneTimeStepMatrix(t)
         print(matrix)
