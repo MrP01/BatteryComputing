@@ -126,13 +126,12 @@ def chronoamperometry():
         x=np.linspace(0,xn,Nx)
         h=math.sqrt(j*dt)
         real_A[j*Nx:(j+1)*Nx] = special.erf(x/(2*h))
-    print(real_A)
 
-    # Compare real to numerical solutionn
-    #plotAnimate(x0,xn,Nx,Nt,dt,x_A,real_A,"chrono_real_sol.gif","Numerical Solution","Real Solution")
+    # Compare real to numerical solution
+    plotAnimate(x0,xn,Nx,Nt,dt,x_A,real_A,"chrono_AvsReal.gif","Numerical Solution","Real Solution")
 
     # Plotting the concentration of A versus that of B
-    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono.gif","Concentration A","Concentration B")
+    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB.gif","Concentration A","Concentration B")
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
@@ -234,13 +233,12 @@ def voltametry():
     # Loop over all time-step
     for t in range(1, Nt):
         matrix = oneTimeStepMatrix(t)
-        print(matrix)
         rhs = np.concatenate(
             ([0], sol_A[Nx*(t - 1) + 1 : Nx * (t - 1) + Nx - 1], [1], [0], sol_B[Nx*(t - 1) + 1 : Nx*(t - 1) + Nx - 1], [0]))
         x = spsolve(matrix, rhs)
         sol_A[Nx*t : Nx*t + Nx] = x[0:Nx]
         sol_B[Nx*t : Nx*t + Nx] = x[Nx:]
-    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt.gif","Concentration A","Concentration B")
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
     return sol_A, sol_B
 
 
@@ -274,8 +272,6 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
 
 
 if __name__ == "__main__":
-    # chronoamperometry()
+    chronoamperometry()
     [x_A,x_B]=voltametry()
-    print(x_A[0:10])
-    print(x_B[0:10])
 
