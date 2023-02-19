@@ -3,12 +3,13 @@
 import numpy as np
 import math
 from scipy.sparse import diags
+from scipy import special
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
-plt.switch_backend("MacOSX")
+#plt.switch_backend("MacOSX")
 np.set_printoptions(linewidth=200)
 
 
@@ -73,7 +74,7 @@ def rhsDirichlet(Nx, Nt, IC, BC1, BC2):
     return r
 
 
-def rhsNeumann(Nx, Nt, IC, BC1, BC2, a, D):
+def rhsNeumann(Nx, Nt, IC, BC2, a, D): #Neumann for the first boundary and Dirichlet with the second
     r = np.zeros(Nx * Nt)
     # Initial conditions for the first Nx rows of r.
     r[0:Nx] = IC
@@ -81,21 +82,8 @@ def rhsNeumann(Nx, Nt, IC, BC1, BC2, a, D):
     # Fill the bounary conditions in
     for t in range(1, Nt):
         r[t * Nx] = -D * (3 / 2 * a[t * Nx] - 2 * a[t * Nx + 1] + 1 / 2 * a[t * Nx + 2])
-        r[t * Nx + Nx - 1] = 0
+        r[t * Nx + Nx - 1] = BC2
     return r
-
-
-def rhsNeumannChrono(Nx, Nt, IC, BC1, BC2, dA, D):
-    r = np.zeros(Nx * Nt)
-    # Initial conditions for the first Nx rows of r.
-    r[0:Nx] = IC
-
-    # Fill the bounary conditions in
-    for t in range(1, Nt):
-        r[t * Nx] = 0.5 * 7777  # TODO: what should be written here?
-        r[t * Nx + Nx - 1] = 0
-    return r
-
 
 def chronoamperometry():
     ## Set up for solving the heat equation for a
@@ -116,24 +104,39 @@ def chronoamperometry():
     D = 1
 
     # Values at boundary in space and time
-    BC1 = 0
-    BC2 = 1
+    BC1A = 0
+    BC2A = 1
     IC_A = 1
     IC_B = 0
 
     # Set up matrices for solving the Dirichlet scheme for "a"
     A = schemeD(Nx, Nt, CFL * D, True)
-    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1, BC2)
+    rhsA = rhsDirichlet(Nx, Nt, IC_A, BC1A, BC2A)
     np.set_printoptions(linewidth=200)
     x_A = spsolve(A, rhsA)
 
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL * D, False)
-    rhsB = rhsNeumann(Nx, Nt, IC_B, BC1, BC2, x_A, 1)
+    rhsB = rhsNeumann(Nx, Nt, IC_B, 0, x_A, 1)
     x_B = spsolve(B, rhsB)
 
+    # Store the real solution for a
+    real_A = np.zeros(Nx*Nt)
+    real_A[0:Nx] = IC_A
+
+
+    for j in range(1,Nt):
+        x=np.linspace(0,xn,Nx)
+        h=math.sqrt(j*dt)
+        real_A[j*Nx:(j+1)*Nx] = special.erf(x/(2*h))
+
+    print(real_A)
+
+    # Compare real to numerical solutionn
+    #plotAnimate(x0,xn,Nx,Nt,dt,x_A,real_A,"chrono_real_sol.gif","Numerical Solution","Real Solution")
+
     # Plotting
-    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono.gif")
+    plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono.gif","Concentration of A","Concentration of B")
 
 
 def voltametry():
@@ -165,7 +168,7 @@ def voltametry():
 
     # Initial values
     E_start = -10
-    E_0 = 0
+    E_0 = 1
     t_rev = 8
     kappa = 35
     alpha = 1 / 2
@@ -184,55 +187,46 @@ def voltametry():
         ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
         # The diagonal is 1+2*D*mu except at the boundaries
         diag = np.ones(2 * Nx) * (1 + 2 * D * CFL)
-        diag[0] = alpha - G_A(t)
+        diag[0] =  G_A(t) +1
         diag[Nx - 1] = 1
         diag[Nx] = -1
         diag[-1] = 1
 
         # The upper diag is -mu*D except at boundaries
         udiag = np.ones(2 * Nx) * (-D * CFL)
-        udiag[0] = beta
+        udiag[0] = -1
         udiag[Nx - 1] = 0
         udiag[Nx] = 1
+        udiag = udiag[:-1]  # discard the -1 entry
 
         # The lower diag is -mu*D except at boundaries
         ldiag = np.ones(2 * Nx) * (-D * CFL)
         ldiag[Nx - 1] = 0
         ldiag[Nx] = 0
         ldiag[-1] = 0
-
-        # A second upper diagonal has to be added
-        u2diag = np.zeros(2 * Nx - 2)
-        u2diag[0] = gamma
+        ldiag = ldiag[1:]  # discard the 0th entry
 
         # A lonely upper diagonal to incorporate G_B, the BC for A depending on b
         ulonely = np.zeros(Nx)
-        ulonely[0] = G_B(t)
+        ulonely[0] = -G_B(t)
 
-        # Three entries to be added to account the conservation of mass (BC of b)
+        # Two entries to be added to account the conservation of mass (BC of b)
         first = np.zeros(Nx)
-        first[0] = D * alpha
+        first[0] = -1
 
         second = np.zeros(Nx + 1)
-        second[1] = D * beta
-
-        third = np.zeros(Nx + 2)
-        third[2] = D * gamma
-
-        # Shorten the off-diagonal vectors
-        udiag = udiag[:-1]  # discard the -1 entry
-        ldiag = ldiag[1:]  # discard the 0th entry
+        second[1] = 1
 
         # This creates a sparse matrix out of diagonals
         return diags(
-            [diag, udiag, u2diag, ulonely, ldiag, first, second, third],
-            [0, 1, 2, Nx, -1, -Nx, -Nx + 1, -Nx + 2],
+            [diag, udiag, ulonely, ldiag, first, second],
+            [0, 1, Nx, -1, -Nx, -Nx + 1],
             format="csr",
         )
 
     ## Solve the unknowns iteratively with time
     # First create an empty vector for each quantity a and b and set the first values to be the IC
-    sol_A = np.zeros(Nx * Nt )
+    sol_A = np.zeros(Nx * Nt)
     sol_A[0:Nx] = IC_A
 
     sol_B = np.zeros(Nx * Nt)
@@ -242,23 +236,29 @@ def voltametry():
         matrix = oneTimeStepMatrix(t)
         print(matrix)
         rhs = np.concatenate(
-            ([0], sol_A[(t - 1) + 1 : (t - 1) + Nx - 1], [1], [0], sol_B[(t - 1) + 1 : (t - 1) + Nx - 1], [1])
-        )
+            ([0], sol_A[Nx*(t - 1) + 1 : Nx * (t - 1) + Nx - 1], [1], [0], sol_B[Nx*(t - 1) + 1 : Nx*(t - 1) + Nx - 1], [0]))
         x = spsolve(matrix, rhs)
-        sol_A[t : t + Nx] = x[0:Nx]
-        sol_B[t : t + Nx] = x[Nx:]
-    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt.gif")
+        sol_A[Nx*t : Nx*t + Nx] = x[0:Nx]
+        sol_B[Nx*t : Nx*t + Nx] = x[Nx:]
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt.gif","Concentration A","Concentration B")
     return sol_A, sol_B
 
 
-def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
+def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr, x_A_Str,x_B_Str):
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 3))
-    ax.set(xlim=(x0, xn), ylim=(x_B.min(), x_B.max()))
+    minTot = min(x_B.min(),x_A.min())
+    maxTot = max(x_B.max(),x_A.max())
+    ax.set(xlim=(x0, xn), ylim=(minTot, maxTot))
     x = np.linspace(x0, xn, Nx)
 
-    line = ax.plot(x, x_A[0:Nx], color="k", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
-    line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2)[0]  # x_A(0), ...x_A(Nx-1)
+    line = ax.plot(x, x_A[0:Nx], color="k", lw=2,label = x_A_Str)[0]  # x_A(0), ...x_A(Nx-1)
+    line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2,label = x_B_Str)[0]  # x_A(0), ...x_A(Nx-1)
+
+    plt.legend(loc="lower right")
+    plt.title("Analytical versus Numerical Solution")
+    plt.xlabel("thtnh")
+    plt.ylabel("concentration")
 
     def animate(t):
         first = t * Nx
@@ -274,7 +274,7 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, myStr):
 
 
 if __name__ == "__main__":
-    # chronoamperometry()
+    #chronoamperometry()
     [x_A,x_B]=voltametry()
     print(x_A[0:10])
     print(x_B[0:10])
