@@ -141,7 +141,7 @@ def voltametry():
     x0 = 0
     xn = 1
     t0 = 0
-    tn = 1
+    tn = 40
 
     # Number of meshpoints and meshsizes
     Nx = 300
@@ -157,17 +157,12 @@ def voltametry():
     IC_A = 1
     IC_B = 0
 
-    # Values found for the Taylor expansion of ∂a/dx at x=0
-    alpha = -3 / 2
-    beta = 2
-    gamma = -1 / 2
-
     # Initial values
     E_start = -10
     E_0 = 1
-    t_rev = 8
+    t_rev = 20
     kappa = 35
-    alpha = 1/10
+    alpha = 0.5
 
     def Pot(t):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -181,11 +176,11 @@ def voltametry():
 
     # oneTimeStepMatrix creates a matrix that incorporates the Butler-Volmer scheme but only for one step.
     # This is similar to schemeD, only that schemeD creates a matrix involving all unknowns in time and space
-    def oneTimeStepMatrix(t):
+    def oneTimeStepMatrix(j):
         ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
         # The diagonal is 1+2*D*mu except at the boundaries
         diag = np.ones(2 * Nx) * (1 + 2 * D * CFL)
-        diag[0] =  G_A(t) +1
+        diag[0] = G_A(dt*j) +1
         diag[Nx - 1] = 1
         diag[Nx] = -1
         diag[-1] = 1
@@ -206,7 +201,7 @@ def voltametry():
 
         # A lonely upper diagonal to incorporate G_B, the BC for A depending on b
         ulonely = np.zeros(Nx)
-        ulonely[0] = -G_B(t)
+        ulonely[0] = -G_B(j*dt)
 
         # Two entries to be added to account the conservation of mass (BC of b)
         # For the moment I could only do it by creating two diagonals
@@ -230,15 +225,34 @@ def voltametry():
     sol_B = np.zeros(Nx * Nt)
     sol_B[0:Nx] = IC_B
 
+    # Then create arrays for the current I and the potential E
+    I = np.zeros(Nt) #I[0]=0
+    E = np.zeros(Nt)
+    E[0]=Pot(0)
+
     # Loop over all time-step
-    for t in range(1, Nt):
-        matrix = oneTimeStepMatrix(t)
+    for j in range(1, Nt):
+        matrix = oneTimeStepMatrix(j)
         rhs = np.concatenate(
-            ([0], sol_A[Nx*(t - 1) + 1 : Nx * (t - 1) + Nx - 1], [1], [0], sol_B[Nx*(t - 1) + 1 : Nx*(t - 1) + Nx - 1], [0]))
+            ([0], sol_A[Nx*(j - 1) + 1 : Nx * (j - 1) + Nx - 1], [1], [0], sol_B[Nx*(j - 1) + 1 : Nx*(j - 1) + Nx - 1], [0]))
         x = spsolve(matrix, rhs)
-        sol_A[Nx*t : Nx*t + Nx] = x[0:Nx]
-        sol_B[Nx*t : Nx*t + Nx] = x[Nx:]
-    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
+        sol_A[Nx*j : Nx*j + Nx] = x[0:Nx]
+        sol_B[Nx*j : Nx*j + Nx] = x[Nx:]
+        #Compute the current
+        I[j] = (x[1]-x[0])/dx
+        E[j] = Pot(j*dt)
+
+    tRange = np.linspace(t0,tn,Nt)
+    plt.figure("Current")
+    plt.plot(tRange,I)
+    plt.savefig(str(RESULTS_FOLDER / "volt_Current.png"))
+
+    plt.figure("Current vs Potential")
+    plt.plot(E, I)
+    plt.savefig(str(RESULTS_FOLDER / "volt_I_E.png"))
+
+    #plt.figure("Concentrations_for_Volt")
+    #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
     return sol_A, sol_B
 
 
