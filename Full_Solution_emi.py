@@ -167,7 +167,7 @@ def voltametry():
     E_0 = 1
     t_rev = 8
     kappa = 35
-    alpha = 1 / 2
+    alpha = 1/10
 
     def Pot(t):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -272,6 +272,6 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
 
 
 if __name__ == "__main__":
-    chronoamperometry()
+    #chronoamperometry()
     [x_A,x_B]=voltametry()
 
