@@ -135,7 +135,7 @@ def chronoamperometry():
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
-def voltametry():
+def voltametry(alpha):
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
@@ -163,7 +163,6 @@ def voltametry():
     E_0 = 0
     t_rev = 20
     kappa = 35
-    alpha = 0.1
 
     def Pot(t):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -253,9 +252,11 @@ def voltametry():
     plt.title("alpha="+str(alpha)+", T_rev="+str(t_rev)+", CFL="+str("%0.2f" % CFL))
     myStr = str("volt_I_E_"+"alpha"+str(int(alpha*10))+"T_rev"+str(t_rev)+".png")
     plt.savefig(str(RESULTS_FOLDER / myStr))
+
+
     #plt.figure("Concentrations_for_Volt")
     #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
-    return sol_A, sol_B
+    return sol_A, sol_B, I, E
 
 
 def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
@@ -289,5 +290,24 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
 
 if __name__ == "__main__":
     #chronoamperometry()
-    [x_A,x_B]=voltametry()
+    #plt.figure("Current vs Potential")
+    #for j in range(0,11):
+      #  alpha = j *0.1
+      #  [x_A,x_B,I,E]=voltametry(alpha)
+      #  plt.plot(E, I,color='r', label = alpha )
 
+    #plt.savefig(str(RESULTS_FOLDER / "volt_mult_alphas.png"))
+
+    [xA1, xB1, I1, E1] = voltametry(0.1)
+    [xA2, xB2, I2, E2] = voltametry(0.8)
+    diff = I1 - I2
+
+    t0 = 0
+    tn = 40
+    Nt = 4000
+    dt = (tn - t0) / Nt
+
+    tRange = np.linspace(t0,tn,Nt)
+    plt.figure("Difference of currents")
+    plt.plot(tRange,diff)
+    plt.savefig(str(RESULTS_FOLDER / "differenalphas_current.png"))
