@@ -139,18 +139,19 @@ def voltametry():
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
-    xn = 1
+    xn = 10
     t0 = 0
     tn = 40
 
     # Number of meshpoints and meshsizes
-    Nx = 300
+    Nx = 30
     dx = (xn - x0) / Nx
-    Nt = 400
+    Nt = 4000
     dt = (tn - t0) / Nt
 
     # Courant Friedrichs-Lewy and diffusion constant
     CFL = dt / dx**2
+    print("CFL",CFL)
     D = 1
 
     # Values at boundary in space and time
@@ -162,7 +163,7 @@ def voltametry():
     E_0 = 0
     t_rev = 20
     kappa = 35
-    alpha = 0.5
+    alpha = 0.1
 
     def Pot(t):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -249,9 +250,9 @@ def voltametry():
 
     plt.figure("Current vs Potential")
     plt.plot(E, I)
-    plt.title("alpha="+str(alpha)+", T_rev="+str(t_rev))
-    plt.savefig(str(RESULTS_FOLDER / "volt_I_E_"+"alpha"+str(alpha)+"T_rev"+str(t_rev)+".png"))
-
+    plt.title("alpha="+str(alpha)+", T_rev="+str(t_rev)+", CFL="+str("%0.2f" % CFL))
+    myStr = str("volt_I_E_"+"alpha"+str(int(alpha*10))+"T_rev"+str(t_rev)+".png")
+    plt.savefig(str(RESULTS_FOLDER / myStr))
     #plt.figure("Concentrations_for_Volt")
     #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
     return sol_A, sol_B
