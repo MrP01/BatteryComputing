@@ -15,6 +15,8 @@ class TwoComponentSolver : public HeatSolver {
   TschebFun bConcentration = TschebFun(0);
   double D_a = 1;
   double D_b = 1;
+  struct BoundaryCondition left_b_bc;
+  struct BoundaryCondition right_b_bc;
 
  public:
   TwoComponentSolver() : HeatSolver(){};
