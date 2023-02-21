@@ -159,7 +159,7 @@ def voltametry():
 
     # Initial values
     E_start = -10
-    E_0 = 1
+    E_0 = 0
     t_rev = 20
     kappa = 35
     alpha = 0.5
@@ -249,7 +249,8 @@ def voltametry():
 
     plt.figure("Current vs Potential")
     plt.plot(E, I)
-    plt.savefig(str(RESULTS_FOLDER / "volt_I_E.png"))
+    plt.title("alpha="+str(alpha)+", T_rev="+str(t_rev))
+    plt.savefig(str(RESULTS_FOLDER / "volt_I_E_"+"alpha"+str(alpha)+"T_rev"+str(t_rev)+".png"))
 
     #plt.figure("Concentrations_for_Volt")
     #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
