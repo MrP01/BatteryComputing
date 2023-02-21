@@ -10,10 +10,44 @@ void DiffusionInterface::buildUI() {
   temperatureChart->createDefaultAxes();
   temperatureChart->axes(Qt::Horizontal).first()->setRange(0, LENGTH);
   temperatureChart->axes(Qt::Vertical).first()->setRange(-0.1, 1.1);
+
+  // currentSeries->setName("Current I(t)");
+  currentChart->addSeries(currentSeries);
+  currentChart->createDefaultAxes();
+  currentChart->axes(Qt::Horizontal).first()->setTitleText("Time t");
+  currentChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
+  currentChart->axes(Qt::Horizontal).first()->setRange(0, 4e-2);
+  currentChart->axes(Qt::Vertical).first()->setRange(-20, 20);
+  QChartView *currentView = new QChartView(currentChart);
+
+  // currentVsESeries->setName("Current I(t)");
+  currentVsEChart->addSeries(currentVsESeries);
+  currentVsEChart->createDefaultAxes();
+  currentVsEChart->axes(Qt::Horizontal).first()->setTitleText("Potential E(t)");
+  currentVsEChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
+  currentVsEChart->axes(Qt::Horizontal).first()->setRange(2 * E_start, abs(2 * E_start));
+  currentVsEChart->axes(Qt::Vertical).first()->setRange(-20, 20);
+  QChartView *currentVsEView = new QChartView(currentVsEChart);
+
+  QGridLayout *lay = (QGridLayout *)centralWidget()->layout();
+  QHBoxLayout *bottom = new QHBoxLayout();
+  bottom->addWidget(currentView);
+  bottom->addWidget(currentVsEView);
+  lay->addLayout(bottom, 1, 0);
+
   setWindowTitle("Spectral Battery Computing");
 }
 
-void DiffusionInterface::step() { HeatDemonstrator::step(); }
+void DiffusionInterface::step() {
+  HeatDemonstrator::step();
+  currentSeries->append(solver()->totalTime, solver()->currentObjective());
+  currentVsESeries->append(solver()->getPotential(), solver()->currentObjective());
+  statsLabel->setText(QString("Current time: t = %1\nTime-step dt = %2\nPotential E(t) = %3\nCurrent I(t) = %4")
+                          .arg(solver()->totalTime)
+                          .arg(solver()->dt)
+                          .arg(solver()->getPotential())
+                          .arg(solver()->currentObjective()));
+}
 
 void DiffusionInterface::plotChebpoints() { HeatDemonstrator::plotChebpoints(); }
 

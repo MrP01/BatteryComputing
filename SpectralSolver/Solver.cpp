@@ -1,9 +1,13 @@
 #include "Solver.h"
 
+double TwoComponentSolver::getPotential() {
+  return (totalTime <= t_rev) ? (E_start + totalTime) : E_start + t_rev - (totalTime - t_rev);
+}
+
 double TwoComponentSolver::currentObjective() {
   double a = max(0, min(1, currentU.evaluateOn({-1})[0]));
   double b = max(0, min(1, bConcentration.evaluateOn({-1})[0]));
-  double E = (totalTime <= t_rev) ? (E_start + totalTime) : E_start + t_rev - (totalTime - t_rev);
+  double E = getPotential();
   return kappa_0 * (a * exp(200 * (1 - alph) * (E - E_0)) - b * exp(-200 * alph * (E - E_0)));
 }
 
