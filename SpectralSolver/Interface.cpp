@@ -16,7 +16,7 @@ void DiffusionInterface::buildUI() {
   currentChart->createDefaultAxes();
   currentChart->axes(Qt::Horizontal).first()->setTitleText("Time t");
   currentChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
-  currentChart->axes(Qt::Horizontal).first()->setRange(0, 4e-2);
+  currentChart->axes(Qt::Horizontal).first()->setRange(0, 4e-1);
   currentChart->axes(Qt::Vertical).first()->setRange(-6, 6);
   QChartView *currentView = new QChartView(currentChart);
 
@@ -65,4 +65,9 @@ void DiffusionInterface::plotAndLoadU0Expression(std::string expression) {
   } catch (mup::ParserError) {
     std::cout << "Could not parse expression" << std::endl;
   }
+}
+
+std::string DiffusionInterface::getExpression() {
+  std::string expr = expressionLineEdit->text().toStdString();
+  return expr.size() > 0 ? expr : "1";
 }

@@ -19,4 +19,5 @@ class DiffusionInterface : public HeatDemonstrator {
   void plotChebpoints();
   void plotCurrentU(bool adaptYAxis = false);
   void plotAndLoadU0Expression(std::string expression);
+  std::string getExpression();
 };
