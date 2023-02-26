@@ -6,10 +6,11 @@ double TwoComponentSolver::getPotential() {
 }
 
 double TwoComponentSolver::currentObjective() {
-  // double a = max(0, min(1, currentU.evaluateOn({-1})[0]));
-  // double b = max(0, min(1, bConcentration.evaluateOn({-1})[0]));
-  double a = currentU.evaluateOn({-1})[0];
-  double b = bConcentration.evaluateOn({-1})[0];
+  double a = max(0, min(1, currentU.evaluateOn({-1})[0]));
+  double b = max(0, min(1, bConcentration.evaluateOn({-1})[0]));
+  // double a = currentU.evaluateOn({-1})[0];
+  // double b = bConcentration.evaluateOn({-1})[0];
+  std::cout << "a(x=0) = " << a << ", b(x=0) = " << b << " a + b = " << a + b << std::endl;
   double E = getPotential();
   return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }

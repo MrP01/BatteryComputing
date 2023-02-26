@@ -2,13 +2,13 @@
 
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
-static const double kappa_0 = 3.5;
+static const double kappa_0 = 35;
 static const double alph = 0.5;
 static const double E_start = -10;
 static const double E_0 = 0;
-static const double t_rev = 25;
+static const double t_rev = 20;
 
-#define LENGTH 100.0
+#define LENGTH 2.0
 
 class TwoComponentSolver : public HeatSolver {
  public:
