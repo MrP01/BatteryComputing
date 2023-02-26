@@ -12,7 +12,7 @@ from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
 #plt.switch_backend("MacOSX")
-RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results"
+RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results_Emilie"
 
 ## This function relates to CHRONOAMPEROMETRY  where we first tried to solve for x AND t altogether
 # This function creates the scheme MATRIX for "a"
@@ -135,20 +135,7 @@ def chronoamperometry():
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
-def voltametry(alpha):
-    ## Set up for solving the heat equation for a
-    # Boundaries for space and time
-    x0 = 0
-    xn = 10
-    t0 = 0
-    tn = 40
-
-    # Number of meshpoints and meshsizes
-    Nx = 30
-    dx = (xn - x0) / Nx
-    Nt = 4000
-    dt = (tn - t0) / Nt
-
+def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha):
     # Courant Friedrichs-Lewy and diffusion constant
     CFL = dt / dx**2
     print("CFL",CFL)
@@ -162,7 +149,7 @@ def voltametry(alpha):
     E_start = -10
     E_0 = 0
     t_rev = 20
-    kappa = 35
+    kappa = 0.35
 
     def Pot(t):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -242,20 +229,7 @@ def voltametry(alpha):
         I[j] = (x[1]-x[0])/dx
         E[j] = Pot(j*dt)
 
-    tRange = np.linspace(t0,tn,Nt)
-    plt.figure("Current")
-    plt.plot(tRange,I)
-    plt.savefig(str(RESULTS_FOLDER / "volt_Current.png"))
 
-    plt.figure("Current vs Potential")
-    plt.plot(E, I)
-    plt.title("alpha="+str(alpha)+", T_rev="+str(t_rev)+", CFL="+str("%0.2f" % CFL))
-    myStr = str("volt_I_E_"+"alpha"+str(int(alpha*10))+"T_rev"+str(t_rev)+".png")
-    plt.savefig(str(RESULTS_FOLDER / myStr))
-
-
-    #plt.figure("Concentrations_for_Volt")
-    #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
     return sol_A, sol_B, I, E
 
 
@@ -287,27 +261,75 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
     plt.show()
     return x_A, x_B
 
+def myTesting():
+    ## Set up for solving the heat equation for a
+    # Boundaries for space and time
+    x0 = 0
+    xn = 10
+    t0 = 0
+    tn = 40
 
-if __name__ == "__main__":
-    #chronoamperometry()
-    #plt.figure("Current vs Potential")
+    # Number of meshpoints and meshsizes
+    Nx = 30
+    dx = (xn - x0) / (Nx+1)
+    Nt = 4000
+    dt = (tn - t0) / (Nt+1)
+
+    CFL = dt / dx ** 2
+
+    plt.figure("Current vs Potential")
     #for j in range(0,11):
       #  alpha = j *0.1
-      #  [x_A,x_B,I,E]=voltametry(alpha)
+      #  [x_A,x_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
       #  plt.plot(E, I,color='r', label = alpha )
 
     #plt.savefig(str(RESULTS_FOLDER / "volt_mult_alphas.png"))
 
-    [xA1, xB1, I1, E1] = voltametry(0.1)
-    [xA2, xB2, I2, E2] = voltametry(0.8)
-    diff = I1 - I2
+    alpha=0
+    [xA1, xB1, I1, E1] = voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
+    plt.figure("Current vs Potential alpha 1")
+    plt.plot(E1,I1)
+    plt.title("alpha="+str(alpha)+", T_rev="+str(20)+", T="+str(tn)+", CFL="+str(CFL))
+    plt.xlabel("E")
+    plt.ylabel("I")
+    plt.savefig(str(RESULTS_FOLDER / "alpha1.png"))
 
-    t0 = 0
-    tn = 40
-    Nt = 4000
-    dt = (tn - t0) / Nt
+
+    alpha=0.8
+    [xA2, xB2, I2, E2] = voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
+    plt.figure("Current vs Potential alpha 2")
+    plt.plot(E2, I2)
+    plt.title("alpha=" + str(alpha) + ", T_rev=" + str(20) + ", T=" + str(tn) + ", CFL=" + str(CFL))
+    plt.xlabel("E")
+    plt.ylabel("I")
+    plt.savefig(str(RESULTS_FOLDER / "alpha2.png"))
+
+    diff = I1 - I2
 
     tRange = np.linspace(t0,tn,Nt)
     plt.figure("Difference of currents")
     plt.plot(tRange,diff)
+    plt.xlabel("time")
+    plt.ylabel("difference = I_(alpha=0.1) - I_(alpha=0.8)")
     plt.savefig(str(RESULTS_FOLDER / "differenalphas_current.png"))
+
+
+if __name__ == "__main__":
+    chronoamperometry()
+    ## Set up for solving the heat equation for a
+    # Boundaries for space and time
+    x0 = 0
+    xn = 10
+    t0 = 0
+    tn = 40
+
+    # Number of meshpoints and meshsizes
+    Nx = 5
+    dx = (xn - x0) / (Nx+1)
+    Nt = 3
+    dt = (tn - t0) / (Nt+1)
+
+    alpha=0.1
+    #voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
+
+    #myTesting()
