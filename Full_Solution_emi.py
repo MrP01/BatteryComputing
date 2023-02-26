@@ -214,10 +214,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
         #Compute the current
         I_AC[j] = (x[1]-x[0])/dx
         E[j] = Pot(j*dt)
-        I[j]=I_AC[j] if AC else I[j]=I_AC[j] + delta * sin(ome * j * dt)
-
-    # Plotting the concentration of A versus that of B
-    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
+        I[j]=I_AC[j] if AC else I_AC[j] + delta * math.sin(ome * j * dt)
 
     return sol_A, sol_B, I, E
 
@@ -250,61 +247,17 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
     #plt.show()
     return x_A, x_B
 
-# Used for troubletesting
-def myTesting():
-    ## Set up for solving the heat equation for a
-    # Boundaries for space and time
-    x0 = 0
-    xn = 10
-    t0 = 0
-    tn = 40
-
-    # Number of meshpoints and meshsizes
-    Nx = 30
-    dx = (xn - x0) / (Nx+1)
-    Nt = 4000
-    dt = (tn - t0) / (Nt+1)
-
-    CFL = dt / dx ** 2
-
-    alpha=0.01
-
-    plt.figure("Current vs Potential")
-    #for j in range(0,11):
-      #  alpha = j *0.1
-      #  [x_A,x_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
-      #  plt.plot(E, I,color='r', label = alpha )
-
-    #plt.savefig(str(RESULTS_FOLDER / "volt_mult_alphas.png"))
-
-    alpha=0
-    [xA1, xB1, I1, E1] = voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
-    plt.figure("Current vs Potential alpha 1")
-    plt.plot(E1,I1)
-    plt.title("alpha="+str(alpha)+", T_rev="+str(20)+", T="+str(tn)+", CFL="+str(CFL))
-    plt.xlabel("E")
-    plt.ylabel("I")
-    plt.savefig(str(RESULTS_FOLDER / "alpha1.png"))
-
-
-    alpha=0.8
-    [xA2, xB2, I2, E2] = voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
-    plt.figure("Current vs Potential alpha 2")
-    plt.plot(E2, I2)
-    plt.title("alpha=" + str(alpha) + ", T_rev=" + str(20) + ", T=" + str(tn) + ", CFL=" + str(CFL))
-    plt.xlabel("E")
-    plt.ylabel("I")
-    plt.savefig(str(RESULTS_FOLDER / "alpha2.png"))
-
-    diff = I1 - I2
-
-    tRange = np.linspace(t0,tn,Nt)
-    plt.figure("Difference of currents")
-    plt.plot(tRange,diff)
-    plt.xlabel("time")
-    plt.ylabel("difference = I_(alpha=0.1) - I_(alpha=0.8)")
-    plt.savefig(str(RESULTS_FOLDER / "differenalphas_current.png"))
-
+# Used for plotting
+def myPlotting(x0, xn, Nx, Nt, dt, D, AC, delta, omega):
+    for j in range(0,11):
+       alpha = j *0.1
+       [x_A,x_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D, alpha, AC, delta, omega)
+       plt.figure()
+       plt.plot(E, I, label = alpha )
+       plt.xlabel("E")
+       plt.ylabel("I")
+       plt.title("alpha=" + str(alpha) + ", T_rev=" + str(20) + ", T=" + str(tn) )
+       plt.savefig(str(RESULTS_FOLDER / ("volt_alpha" + str(alpha) +".png")))
 
 if __name__ == "__main__":
     ## Set up for solving the heat equation for a
@@ -323,5 +276,19 @@ if __name__ == "__main__":
     # Other parameters
     alpha=0.1
     D=1
-    chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
-    voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,true)
+    AC=False
+    delta = 0.1
+    omega=2*math.pi
+    #chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
+    [sol_A,sol_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta,omega)
+
+    # Plotting the concentration of A versus that of B
+    if AC:
+        myStr = "volt_AC_AvsB.gif"
+    else:
+        myStr = "volt_DC_AvsB.gif"
+
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
+
+    #Plotting for different alphas
+    myPlotting(x0, xn, Nx, Nt, dt, D, AC, delta, omega)
