@@ -2,16 +2,16 @@
 
 import math
 import pathlib
-
-from scipy import special
-import matplotlib.pyplot as plt
 import numpy as np
+
+import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
+from scipy import special
 from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
-#plt.switch_backend("MacOSX")
+# plt.switch_backend("MacOSX")
 RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results_Emilie"
 
 ## This function relates to CHRONOAMPEROMETRY  where we first tried to solve for x AND t altogether
@@ -84,23 +84,9 @@ def rhsNeumann(Nx, Nt, IC, BC2, a, D): #Neumann for the first boundary and Diric
     return r
 
 ## CHRONOAMPEROMETRY is the main code for running experiment with Dirichlet BC for A and Neumann for B
-def chronoamperometry():
-    ## Set up for solving the heat equation for a
-    # Boundaries for space and time
-    x0 = 0
-    xn = 1  # i replaced a by x_0 and b by xn #should be xn=10
-    t0 = 0
-    tn = 0.2
-
-    # Number of meshpoints and meshsizes
-    Nx = 300
-    Nt = 400
-    dx = (xn - x0) / Nx
-    dt = (tn - t0) / Nt
-
+def chronoamperometry(x0,xn,t0,tn,Nx,dx,Nt,dt,D):
     # Courant Friedrichs-Lewy
     CFL = dt / dx**2
-    D = 1
 
     # Values at boundary in space and time
     BC1A = 0
@@ -135,10 +121,9 @@ def chronoamperometry():
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
-def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha):
+def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
     # Courant Friedrichs-Lewy and diffusion constant
     CFL = dt / dx**2
-    print("CFL",CFL)
     D = 1
 
     # Values at boundary in space and time
@@ -213,7 +198,8 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha):
     sol_B[0:Nx] = IC_B
 
     # Then create arrays for the current I and the potential E
-    I = np.zeros(Nt) #I[0]=0
+    I_AC = np.zeros(Nt) #I[0]=0
+    I = np.zeros(Nt)
     E = np.zeros(Nt)
     E[0]=Pot(0)
 
@@ -226,16 +212,19 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha):
         sol_A[Nx*j : Nx*j + Nx] = x[0:Nx]
         sol_B[Nx*j : Nx*j + Nx] = x[Nx:]
         #Compute the current
-        I[j] = (x[1]-x[0])/dx
+        I_AC[j] = (x[1]-x[0])/dx
         E[j] = Pot(j*dt)
+        I[j]=I_AC[j] if AC else I[j]=I_AC[j] + delta * sin(ome * j * dt)
 
+    # Plotting the concentration of A versus that of B
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, "volt_AvsB.gif","Concentration A","Concentration B")
 
     return sol_A, sol_B, I, E
 
 
 def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
     # Plotting
-    fig, ax = plt.subplots(figsize=(5, 3))
+    fig, ax = plt.subplots(figsize=(5, 5))
     minTot = min(x_B.min(),x_A.min())
     maxTot = max(x_B.max(),x_A.max())
     ax.set(xlim=(x0, xn), ylim=(minTot, maxTot))
@@ -245,22 +234,23 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
     line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2,label = x_B_Str)[0]  # x_A(0), ...x_A(Nx-1)
 
     plt.legend(loc="lower right")
-    plt.title("Analytical versus Numerical Solution")
-    plt.xlabel("thtnh")
+    plt.xlabel("x")
     plt.ylabel("concentration")
 
-    def animate(t):
-        first = t * Nx
+    def animate(j):
+        first = j * Nx
         last = first + Nx - 1
-        # print("Frame", x_A[first : last + 1].mean()) #who wroe that?
         line.set_ydata(x_A[first : last + 1])
         line2.set_ydata(x_B[first : last + 1])
+        nb=j*dt
+        plt.title("Analytical versus Numerical Solution at t="+ str("%.2f"  % nb))
 
     anim = FuncAnimation(fig, animate, interval=dt * 400, frames=Nt)
     anim.save(str(RESULTS_FOLDER / filename))
-    plt.show()
+    #plt.show()
     return x_A, x_B
 
+# Used for troubletesting
 def myTesting():
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
@@ -276,6 +266,8 @@ def myTesting():
     dt = (tn - t0) / (Nt+1)
 
     CFL = dt / dx ** 2
+
+    alpha=0.01
 
     plt.figure("Current vs Potential")
     #for j in range(0,11):
@@ -315,7 +307,6 @@ def myTesting():
 
 
 if __name__ == "__main__":
-    chronoamperometry()
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
@@ -324,12 +315,13 @@ if __name__ == "__main__":
     tn = 40
 
     # Number of meshpoints and meshsizes
-    Nx = 5
+    Nx = 500
     dx = (xn - x0) / (Nx+1)
-    Nt = 3
+    Nt = 600
     dt = (tn - t0) / (Nt+1)
 
+    # Other parameters
     alpha=0.1
-    #voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,alpha)
-
-    #myTesting()
+    D=1
+    chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
+    voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,true)
