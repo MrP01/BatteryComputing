@@ -6,6 +6,12 @@ class DiffusionInterface : public HeatDemonstrator {
   virtual TwoComponentSolver *solver() { return (TwoComponentSolver *)_solver; }
   QLineSeries *bConcentrationSeries = new QLineSeries();
 
+  QChart *currentChart = new QChart();
+  QLineSeries *currentSeries = new QLineSeries();
+
+  QChart *currentVsEChart = new QChart();
+  QLineSeries *currentVsESeries = new QLineSeries();
+
  public:
   DiffusionInterface();
   void buildUI();

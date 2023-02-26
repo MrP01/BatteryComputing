@@ -33,3 +33,4 @@ add_executable(main
   ../HeatFun/solver/TschebFun.cpp
 )
 target_link_libraries(main PUBLIC Qt6::Core Qt6::Widgets Qt6::Charts muparserx)
+target_compile_definitions(main PRIVATE SILENT=1)
