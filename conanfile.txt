@@ -1,0 +1,6 @@
+[requires]
+muparserx/4.0.8
+xtensor/0.24.2
+
+[generators]
+cmake
