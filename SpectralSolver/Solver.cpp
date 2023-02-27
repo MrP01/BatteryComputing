@@ -2,7 +2,7 @@
 
 double TwoComponentSolver::getPotential() {
   double t = 2.0 * totalTime;
-  return (t <= t_rev) ? (E_start + t) : E_start + t_rev - (t - t_rev);
+  return ((t <= t_rev) ? (E_start + t) : E_start + t_rev - (t - t_rev));
 }
 
 double TwoComponentSolver::currentObjective() {
@@ -11,6 +11,7 @@ double TwoComponentSolver::currentObjective() {
   double a = currentU.evaluateOn({-1})[0];
   double b = bConcentration.evaluateOn({-1})[0];
   // std::cout << "a(x=0) = " << a << ", b(x=0) = " << b << ", a + b = " << a + b << std::endl;
+  // double E = getPotential() + 0.4 * sin(3.5 * 2 * totalTime);
   double E = getPotential();
   return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }
