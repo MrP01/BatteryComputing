@@ -6,9 +6,9 @@ static const double kappa_0 = 35;
 static const double alph = 0.2;
 static const double E_start = -10;
 static const double E_0 = 0;
-static const double t_rev = 20;
+static const double t_rev = 12.5;
 
-#define LENGTH 10.0
+#define LENGTH 8.0
 
 class TwoComponentSolver : public HeatSolver {
  public:
@@ -19,7 +19,7 @@ class TwoComponentSolver : public HeatSolver {
   struct BoundaryCondition right_b_bc;
 
  public:
-  TwoComponentSolver() : HeatSolver() { dt = 5e-06; };
+  TwoComponentSolver() : HeatSolver() { dt = 5e-05; };
   void setup(Vector u0);
   void iterate();
   double getPotential();
