@@ -16,8 +16,8 @@ void DiffusionInterface::buildUI() {
   currentChart->createDefaultAxes();
   currentChart->axes(Qt::Horizontal).first()->setTitleText("Time t");
   currentChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
-  currentChart->axes(Qt::Horizontal).first()->setRange(0, 4e-2);
-  currentChart->axes(Qt::Vertical).first()->setRange(-6, 6);
+  currentChart->axes(Qt::Horizontal).first()->setRange(0, 2 * t_rev / 4);
+  currentChart->axes(Qt::Vertical).first()->setRange(-1, 1);
   QChartView *currentView = new QChartView(currentChart);
 
   // currentVsESeries->setName("Current I(t)");
@@ -25,8 +25,8 @@ void DiffusionInterface::buildUI() {
   currentVsEChart->createDefaultAxes();
   currentVsEChart->axes(Qt::Horizontal).first()->setTitleText("Potential E(t)");
   currentVsEChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
-  currentVsEChart->axes(Qt::Horizontal).first()->setRange(2 * E_start, abs(2 * E_start));
-  currentVsEChart->axes(Qt::Vertical).first()->setRange(-6, 6);
+  currentVsEChart->axes(Qt::Horizontal).first()->setRange(1.4 * E_start, abs(1.4 * E_start));
+  currentVsEChart->axes(Qt::Vertical).first()->setRange(-1.0, 1.0);
   QChartView *currentVsEView = new QChartView(currentVsEChart);
 
   QGridLayout *lay = (QGridLayout *)centralWidget()->layout();
@@ -65,4 +65,9 @@ void DiffusionInterface::plotAndLoadU0Expression(std::string expression) {
   } catch (mup::ParserError) {
     std::cout << "Could not parse expression" << std::endl;
   }
+}
+
+std::string DiffusionInterface::getExpression() {
+  std::string expr = expressionLineEdit->text().toStdString();
+  return expr.size() > 0 ? expr : "1";
 }
