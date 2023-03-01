@@ -121,7 +121,7 @@ def chronoamperometry(x0,xn,t0,tn,Nx,dx,Nt,dt,D):
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
-def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
+def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,DC,delta, ome):
     # Courant Friedrichs-Lewy and diffusion constant
     CFL = dt / dx**2
     D = 1
@@ -136,15 +136,17 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
     t_rev = 20
     kappa = 0.35
 
-    def Pot(t):  # This function returns our potential
+    def Pot(t,DC):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
+        if not DC:
+            E = E + delta*math.sin(ome*t)
         return E
 
-    def G_A(t): # This function represents the first term of our Butler-Volmer function
-        return kappa * dx * math.exp((1 - alpha) * (Pot(t) - E_0))
+    def G_A(t,DC): # This function represents the first term of our Butler-Volmer function
+        return kappa * dx * math.exp((1 - alpha) * (Pot(t,DC) - E_0))
 
-    def G_B(t): # This function represents the positive part of the second term of our Butler-Volmer function
-        return kappa * dx * math.exp((-alpha) * (Pot(t) - E_0))
+    def G_B(t,DC): # This function represents the positive part of the second term of our Butler-Volmer function
+        return kappa * dx * math.exp((-alpha) * (Pot(t,DC) - E_0))
 
     # oneTimeStepMatrix creates a matrix that incorporates the Butler-Volmer scheme but only for one step.
     # This is similar to schemeD, only that schemeD creates a matrix involving all unknowns in time and space
@@ -152,7 +154,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
         ## Create a matrix for one timestep. The unknowns are (A0...A_N-1,B0,...B_N-1)
         # The diagonal is 1+2*D*mu except at the boundaries
         diag = np.ones(2 * Nx) * (1 + 2 * D * CFL)
-        diag[0] = G_A(dt*j) +1
+        diag[0] = G_A(dt*j,DC) +1
         diag[Nx - 1] = 1
         diag[Nx] = -1
         diag[-1] = 1
@@ -173,7 +175,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
 
         # A lonely upper diagonal to incorporate G_B, the BC for A depending on b
         ulonely = np.zeros(Nx)
-        ulonely[0] = -G_B(j*dt)
+        ulonely[0] = -G_B(j*dt,DC)
 
         # Two entries to be added to account the conservation of mass (BC of b)
         # For the moment I could only do it by creating two diagonals
@@ -201,7 +203,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
     I_AC = np.zeros(Nt) #I[0]=0
     I = np.zeros(Nt)
     E = np.zeros(Nt)
-    E[0]=Pot(0)
+    E[0]=Pot(0,True) #Storing the potential values for DC
 
     # Loop over all time-step
     for j in range(1, Nt):
@@ -212,10 +214,8 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta, ome):
         sol_A[Nx*j : Nx*j + Nx] = x[0:Nx]
         sol_B[Nx*j : Nx*j + Nx] = x[Nx:]
         #Compute the current
-        I_AC[j] = (x[1]-x[0])/dx
-        E[j] = Pot(j*dt)
-        I[j]=I_AC[j] if AC else I_AC[j] + delta * math.sin(ome * j * dt)
-
+        I[j] = (x[1]-x[0])/dx
+        E[j] = Pot(j*dt,True)
     return sol_A, sol_B, I, E
 
 
@@ -274,21 +274,21 @@ if __name__ == "__main__":
     dt = (tn - t0) / (Nt+1)
 
     # Other parameters
-    alpha=0.1
+    alpha=0.5
     D=1
-    AC=False
+    DC=False
     delta = 0.1
     omega=2*math.pi
     #chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
-    [sol_A,sol_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,AC,delta,omega)
+    [sol_A,sol_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,DC,delta,omega)
 
     # Plotting the concentration of A versus that of B
-    if AC:
-        myStr = "volt_AC_AvsB.gif"
-    else:
+    if DC:
         myStr = "volt_DC_AvsB.gif"
+    else:
+        myStr = "volt_AC_AvsB.gif"
 
-    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
+    #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
 
     #Plotting for different alphas
-    myPlotting(x0, xn, Nx, Nt, dt, D, AC, delta, omega)
+    myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
