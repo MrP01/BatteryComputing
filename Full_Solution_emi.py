@@ -134,7 +134,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,DC,delta, ome):
     E_start = -10
     E_0 = 0
     t_rev = 20
-    kappa = 0.35
+    kappa = 35
 
     def Pot(t,DC):  # This function returns our potential
         E = E_start + t if t < t_rev else E_start - t + 2 * t_rev
@@ -216,6 +216,7 @@ def voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D,alpha,DC,delta, ome):
         #Compute the current
         I[j] = (x[1]-x[0])/dx
         E[j] = Pot(j*dt,True)
+
     return sol_A, sol_B, I, E
 
 
@@ -249,34 +250,35 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str,x_B_Str):
 
 # Used for plotting
 def myPlotting(x0, xn, Nx, Nt, dt, D, AC, delta, omega):
-    for j in range(0,11):
-       alpha = j *0.1
-       [x_A,x_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D, alpha, AC, delta, omega)
-       plt.figure()
-       plt.plot(E, I, label = alpha )
-       plt.xlabel("E")
-       plt.ylabel("I")
-       plt.title("alpha=" + str(alpha) + ", T_rev=" + str(20) + ", T=" + str(tn) )
-       plt.savefig(str(RESULTS_FOLDER / ("volt_alpha" + str(alpha) +".png")))
+    #for j in range(0,11):
+    #alpha = j *0.1
+    alpha=0.2
+    [x_A,x_B,I,E]=voltametry(x0,xn,t0,tn,Nx,dx,Nt,dt,D, alpha, AC, delta, omega)
+    plt.figure()
+    plt.plot(E, I, label = alpha )
+    plt.xlabel("E")
+    plt.ylabel("I")
+    plt.title("alpha=" + str(alpha) + ", T_rev=" + str(20) + ", T=" + str(tn) )
+    plt.savefig(str(RESULTS_FOLDER / ("volt_alpha" + str(alpha) +".png")))
 
 if __name__ == "__main__":
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
-    xn = 10
+    xn = 6
     t0 = 0
     tn = 40
 
     # Number of meshpoints and meshsizes
     Nx = 500
-    dx = (xn - x0) / (Nx+1)
+    dx = (xn - x0) / (Nx-1)
     Nt = 600
-    dt = (tn - t0) / (Nt+1)
+    dt = (tn - t0) / (Nt-1)
 
     # Other parameters
-    alpha=0.5
+    alpha=0.2
     D=1
-    DC=False
+    DC=True
     delta = 0.1
     omega=2*math.pi
     #chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
@@ -288,7 +290,7 @@ if __name__ == "__main__":
     else:
         myStr = "volt_AC_AvsB.gif"
 
-    #plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
 
     #Plotting for different alphas
     myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
