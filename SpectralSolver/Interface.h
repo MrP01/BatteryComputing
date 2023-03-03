@@ -1,4 +1,4 @@
-#include "../../HeatFun/solver/Interface.h"
+#include "../HeatFun/solver/Interface.h"
 #include "Solver.h"
 
 class DiffusionInterface : public HeatDemonstrator {

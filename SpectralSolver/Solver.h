@@ -1,4 +1,4 @@
-#include "../../HeatFun/solver/Solver.h"
+#include "../HeatFun/solver/Solver.h"
 
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
@@ -9,7 +9,7 @@ static const double E_0 = 0;
 static const double delta_E = 0.3;
 static const double t_rev = 20;
 
-#define LENGTH 8.0
+#define LENGTH 6.0
 
 class TwoComponentSolver : public HeatSolver {
  public:

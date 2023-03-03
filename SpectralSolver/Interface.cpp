@@ -17,7 +17,7 @@ void DiffusionInterface::buildUI() {
   currentChart->axes(Qt::Horizontal).first()->setTitleText("Time t");
   currentChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
   currentChart->axes(Qt::Horizontal).first()->setRange(0, 2 * t_rev / 4);
-  currentChart->axes(Qt::Vertical).first()->setRange(-1, 1);
+  currentChart->axes(Qt::Vertical).first()->setRange(-22, 22);
   QChartView *currentView = new QChartView(currentChart);
 
   // currentVsESeries->setName("Current I(t)");
@@ -26,7 +26,7 @@ void DiffusionInterface::buildUI() {
   currentVsEChart->axes(Qt::Horizontal).first()->setTitleText("Potential E(t)");
   currentVsEChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
   currentVsEChart->axes(Qt::Horizontal).first()->setRange(1.4 * E_start, abs(1.4 * E_start));
-  currentVsEChart->axes(Qt::Vertical).first()->setRange(-1.0, 1.0);
+  currentVsEChart->axes(Qt::Vertical).first()->setRange(-1, 1);
   QChartView *currentVsEView = new QChartView(currentVsEChart);
 
   QGridLayout *lay = (QGridLayout *)centralWidget()->layout();
@@ -40,13 +40,19 @@ void DiffusionInterface::buildUI() {
 
 void DiffusionInterface::step() {
   HeatDemonstrator::step();
-  currentSeries->append(solver()->totalTime, solver()->currentObjective());
-  currentVsESeries->append(solver()->getPotential(), solver()->currentObjective());
+  currentSeries->append(solver()->totalTime, solver()->currentU.derivative().evaluateOn({-1.0})[0] * 2.0 / LENGTH);
+  currentVsESeries->append(
+      solver()->getPotential(), solver()->currentU.derivative().evaluateOn({-1.0})[0] * 2.0 / LENGTH);
   statsLabel->setText(QString("Current time: t = %1\nTime-step dt = %2\nPotential E(t) = %3\nCurrent I(t) = %4")
                           .arg(solver()->totalTime)
                           .arg(solver()->dt)
                           .arg(solver()->getPotential())
                           .arg(solver()->currentObjective()));
+  double absSum = xt::sum(xt::abs(solver()->currentU.coefficients))();
+  std::cout << "Abs Sum: " << absSum << std::endl;
+  if (absSum > 1000 || std::isnan(absSum)) {
+    killTimer(_timerId);
+  }
 }
 
 void DiffusionInterface::plotChebpoints() { HeatDemonstrator::plotChebpoints(); }

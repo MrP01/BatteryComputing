@@ -28,9 +28,9 @@ add_executable(main
   SpectralSolver/main.cpp
   SpectralSolver/Interface.cpp
   SpectralSolver/Solver.cpp
-  ../HeatFun/solver/Interface.cpp
-  ../HeatFun/solver/Solver.cpp
-  ../HeatFun/solver/TschebFun.cpp
+  HeatFun/solver/Interface.cpp
+  HeatFun/solver/Solver.cpp
+  HeatFun/solver/TschebFun.cpp
 )
 target_link_libraries(main PUBLIC Qt6::Core Qt6::Widgets Qt6::Charts muparserx)
 target_compile_definitions(main PRIVATE SILENT=1)
