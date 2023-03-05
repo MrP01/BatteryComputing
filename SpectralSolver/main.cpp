@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
   DiffusionInterface window;
   window.buildUI();
   window.setupExpression("1");
-  window.resize(1380, 892);
+  window.resize(1380, 960);
   window.show();
   return app.exec();
 }

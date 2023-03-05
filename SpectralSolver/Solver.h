@@ -20,10 +20,10 @@ class TwoComponentSolver : public HeatSolver {
   struct BoundaryCondition right_b_bc;
 
  public:
-  TwoComponentSolver() : HeatSolver() { dt = 5e-05; };
+  TwoComponentSolver() : HeatSolver() { dt = 5e-03; };
   void setup(Vector u0);
   void iterate();
-  double getPotential();
+  double getDCPotential();
   double currentObjective();
   void implicitlyEnforceBC();
 };
