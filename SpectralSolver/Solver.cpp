@@ -6,16 +6,10 @@ double TwoComponentSolver::getPotential() {
 }
 
 double TwoComponentSolver::currentObjective() {
-  // double a = max(0, min(1, currentU.evaluateOn({-1})[0]));
-  // double b = max(0, min(1, bConcentration.evaluateOn({-1})[0]));
   double a = currentU.evaluateOn({-1})[0];
   // double b = bConcentration.evaluateOn({-1})[0];
   double b = 1 - a;
-  // std::cout << "a(x=0) = " << a << ", b(x=0) = " << b << ", a + b = " << a + b << std::endl;
-  // double E = getPotential() + 0.4 * sin(3.5 * 2 * totalTime);
-  double E = getPotential();
-  std::cout << "Alright okay: " << kappa_0 * a * exp((1 - alph) * (E - E_0)) << " minus "
-            << kappa_0 * b * exp(-alph * (E - E_0)) << std::endl;
+  double E = getPotential() + delta_E * sin(3.5 * 2 * totalTime);
   return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }
 
@@ -59,15 +53,13 @@ void TwoComponentSolver::iterate() {
   // TschebFun previousB = bConcentration;
   // bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
   // forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
-
-  // print("Constructed TschebFun with", currentU.coefficients);
 }
 
 void TwoComponentSolver::implicitlyEnforceBC() {
   size_t N = currentU.order();
   Vector fixed_coefficients = xt::view(currentU.coefficients, xt::range(0, N - 2));
 
-  double E = getPotential();
+  double E = getPotential() + delta_E * sin(3.5 * 2 * totalTime);
   Vector K = xt::arange<double>(0, N - 2);
   double gamma_1 = exp((1 - alph) * (E - E_0));
   double gamma_2 = exp(-alph * (E - E_0));
