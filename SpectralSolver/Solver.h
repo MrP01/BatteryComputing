@@ -14,8 +14,8 @@ static const double t_rev = 20;
 class TwoComponentSolver : public HeatSolver {
  public:
   TschebFun bConcentration = TschebFun(0);
-  double D_a = 1;
-  double D_b = 1;
+  double D_a = 1.0;
+  double D_b = 1.0;
   struct BoundaryCondition left_b_bc;
   struct BoundaryCondition right_b_bc;
 
@@ -25,4 +25,5 @@ class TwoComponentSolver : public HeatSolver {
   void iterate();
   double getPotential();
   double currentObjective();
+  void implicitlyEnforceBC();
 };

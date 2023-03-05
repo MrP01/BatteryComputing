@@ -41,20 +41,44 @@ void TwoComponentSolver::setup(Vector u0) {
 }
 
 void TwoComponentSolver::iterate() {
-  left_bc.value = currentObjective() * LENGTH / 2.0;
-  left_b_bc.value = -D_a / D_b * left_bc.value;
+  // left_bc.value = currentObjective() * LENGTH / 2.0;
+  // left_b_bc.value = -D_a / D_b * left_bc.value;
   // left_bc.value = 0;
   // left_b_bc.value = 1;
-  // std::cout << "Set left BC: type " << left_bc.type << " value: " << left_bc.value << std::endl;
 
   // Solve for A's concentration
-  alpha = D_a * pow(2.0 / LENGTH, 2.0);
-  HeatSolver::iterate();
+  // alpha = D_a * pow(2.0 / LENGTH, 2.0);
+  // HeatSolver::iterate();
+
+  TschebFun previousU = currentU;
+  currentU = previousU + previousU.derivative().derivative() * (dt * D_a * pow(2.0 / LENGTH, 2.0));
+  totalTime += dt;
+  implicitlyEnforceBC();
 
   // Solve for B's concentration
-  TschebFun previousB = bConcentration;
-  bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
-  forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
+  // TschebFun previousB = bConcentration;
+  // bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
+  // forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
 
   // print("Constructed TschebFun with", currentU.coefficients);
+}
+
+void TwoComponentSolver::implicitlyEnforceBC() {
+  size_t N = currentU.order();
+  Vector fixed_coefficients = xt::view(currentU.coefficients, xt::range(0, N - 2));
+
+  double E = getPotential();
+  Vector K = xt::arange<double>(0, N - 2);
+  double gamma_1 = exp((1 - alph) * (E - E_0));
+  double gamma_2 = exp(-alph * (E - E_0));
+  double sigma_2 = xt::sum(fixed_coefficients)();
+  double sigma_4 = xt::sum(
+      (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * xt::pow(K, 2.0)) * xt::pow(-1.0, K) * fixed_coefficients)();
+  double F1 = (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * pow(N - 1, 2.0)) * pow(-1.0, N - 1);
+  double F2 = (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * pow(N - 2, 2.0)) * pow(-1.0, N - 2);
+  std::cout << "Well: " << gamma_1 << ", " << gamma_2 << ", " << sigma_2 << ", " << sigma_4 << ", " << F1 << ", " << F2
+            << std::endl;
+
+  currentU.coefficients[N - 1] = (F2 * (sigma_2 - right_bc.value) - sigma_4 + kappa_0 * gamma_2) / (F1 - F2);
+  currentU.coefficients[N - 2] = right_bc.value - sigma_2 - currentU.coefficients[N - 1];
 }
