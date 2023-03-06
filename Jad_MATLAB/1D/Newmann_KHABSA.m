@@ -14,7 +14,7 @@ NBC1 = -1./sqrt(pi*(T0+dt:dt:T));
 U = A\bs;
 U = full(U);
 counter = 0;
-figure 
+figure
 plot(a:dx:b,ones(1,Nx+1)*IC)
 xlim([a,b])
 ylim([0,1.3])
@@ -77,7 +77,7 @@ c0 = [1,2,2:Nx-1,(2:Nx-1)+1,(2:Nx-1)-1,Nx-1,Nx];
 nnz0 = [1+m,-m,ones(1,Nx-2)*(1+2*m),-ones(1,Nx-2)*m,-ones(1,Nx-2)*m,-m,1+2*m];
 
 %% Create the matrix
-A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);     
+A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);
 end
 
 function [b] = Create_RHS(Nx,Nt,m,NBC1,BC2,IC,dt,dx)
@@ -94,4 +94,3 @@ nnzo = ones(1,Nx)*IC;
 
 b = sparse([rl,rr,ro],[cl,cr,co],[nnzl,nnzr,nnzo]);
 end
-

@@ -28,7 +28,7 @@ I = zeros(length(vec),Nt);
 % counter2 = counter2+1;
 for t = T0:dt:T-dt
 
-[Upy0_U,Upy0_V,Vpy0_U,Vpy0_V]= Define_Parameters_x_less_x1 (1,D,t,T,dy);    
+[Upy0_U,Upy0_V,Vpy0_U,Vpy0_V]= Define_Parameters_x_less_x1 (1,D,t,T,dy);
 [A] = Create_matrix_f(Nx,Ny,dt/(dx)^2,dt/(dy)^2,dx,dy,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,x1,ax,bx,ay,by,Upy0_U,Upy0_V,Vpy0_U,Vpy0_V);
 [bs] = Create_RHS_f(Nx,Ny,dt/(dx)^2,dt/(dy)^2,BCx2U,BCy2U,BCx2V,BCy2V,dx,dy,U,V,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,ax,bx,ay,by,x1,Upy0_U,Upy0_V,Vpy0_U,Vpy0_V);
 Ut = (A\bs)';
@@ -56,12 +56,3 @@ dbstop at 24 in Plot_Results
 % s(1,i) = name+" = "+vec(i);
 % end
 % legend(s)
-
-
-
-
-
-
-
-
-

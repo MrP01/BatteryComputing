@@ -1,8 +1,7 @@
 #include "Solver.h"
 
 double TwoComponentSolver::getDCPotential() {
-  double t = 1.0 * totalTime;
-  return ((t <= t_rev) ? (E_start + t) : E_start + t_rev - (t - t_rev));
+  return ((totalTime <= t_rev) ? (E_start + totalTime) : E_start + t_rev - (totalTime - t_rev));
 }
 
 double TwoComponentSolver::currentObjective() {

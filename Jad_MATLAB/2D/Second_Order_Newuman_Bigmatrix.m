@@ -23,7 +23,7 @@ U = full(U);
 [X,Y]=meshgrid(ax:dx:bx,ay:dy:by);
 [Z] = create_Z(U,Nx,Ny,0,NBCx1,BCx2,NBCy1,BCy2,IC,dx,dy);
 toc
-figure 
+figure
 surf(X,Y,Z)
 xlim([ax,bx])
 ylim([ay,by])
@@ -83,7 +83,7 @@ nnz6 = ones(1,length(r6))*-1;
 r = [r1,r2,r3,r4,r5,r6];
 c = [c1,c2,c3,c4,c5,c6];
 nnz = [nnz1,nnz2,nnz3,nnz4,nnz5,nnz6];
-A = sparse(r,c,nnz);     
+A = sparse(r,c,nnz);
 end
 
 function [b] = Create_RHS(Nx,Ny,Nt,mx,my,NBCx1,NBCy1,BCx2,BCy2,IC,dx,dy,dt)
@@ -104,7 +104,7 @@ r6 = 1:Nx*Ny;
 
 r = [r2,r3,r4,r5,r6];
 c = ones(1,length(r));
-nnz =[ones(1,length(r2))*-dt/dx*NBCx1,ones(1,length(r3))*BCx2*mx,ones(1,length(r4))*-dt/dy*NBCy1,ones(1,length(r5))*my*BCy2,ones(1,length(r6))*IC]; 
+nnz =[ones(1,length(r2))*-dt/dx*NBCx1,ones(1,length(r3))*BCx2*mx,ones(1,length(r4))*-dt/dy*NBCy1,ones(1,length(r5))*my*BCy2,ones(1,length(r6))*IC];
 b = sparse(r,c,nnz);
 end
 
@@ -133,4 +133,3 @@ function [Z] = create_Z(U,Nx,Ny,c,NBCx1,BCx2,NBCy1,BCy2,IC,dx,dy)
         Z = ones(size(Z))*IC;
     end
 end
-

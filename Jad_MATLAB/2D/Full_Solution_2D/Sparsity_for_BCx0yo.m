@@ -8,7 +8,7 @@ function[rA1,cA1,nnzA1,rA2,cA2,nnzA2] = Sparsity_for_BCx0yo(Uy0_U,Uy0_V,Vy0_U,Vy
 if x ~=ay %for x<x1
 [rA1b,cA1b,nnzAU1b,nnzAV1b,~,~,~,~] = create_sparsity_pattern(Upy0_U,Upy0_V,Vpy0_U,Vpy0_V,Nx,Ny,"y=0",ay+dx,x,dx);
 else
-rA1b = []; 
+rA1b = [];
 cA1b = [];
 nnzAU1b = [];
 nnzAV1b = [];

@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v3.0.0-alpha.4
+    rev: v3.0.0-alpha.6
     hooks:
       - id: prettier
         stages:
@@ -18,7 +18,7 @@ repos:
           - --safe
           - --quiet
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.239
+    rev: v0.0.254
     hooks:
       - id: ruff
   - repo: https://github.com/pre-commit/pygrep-hooks

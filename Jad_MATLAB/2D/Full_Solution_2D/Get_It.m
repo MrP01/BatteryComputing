@@ -1,6 +1,6 @@
 function [It] = Get_It (Z,dx,dy,ay,x1)
 %This function computes the current by integrating the normal derivative
-%of concentration a(U variable) along y=0 only for x<x1 
+%of concentration a(U variable) along y=0 only for x<x1
 l = length(Z(1,round(ay/dx)+1:round(x1/dx)+1));
     I = zeros(1,l);
     for i = 1:l

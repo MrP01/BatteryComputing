@@ -1,6 +1,6 @@
 function [ZU,ZV] = create_Z(U_plot,V_plot,Nx,Ny,c,BCx2U,BCy2U,BCx2V,BCy2V,ICU,dx,Uy0_U,Uy0_V,Ux0_U,Ux0_V,x,Upy0_U,Upy0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,Vpy0_U,Vpy0_V,ICV)
-%This function creates both ZU and ZV which are the values of U and V to be 
-% drawn on the grid 
+%This function creates both ZU and ZV which are the values of U and V to be
+% drawn on the grid
 
 %Defining constants to be used:
     x1 = round(x/dx);
@@ -13,7 +13,7 @@ function [ZU,ZV] = create_Z(U_plot,V_plot,Nx,Ny,c,BCx2U,BCy2U,BCx2V,BCy2V,ICU,dx
     ZU = zeros(Ny+2,Nx+2);
     ZV = zeros(Ny+2,Nx+2);
 
-%Specifying the Dirichlet BCs 
+%Specifying the Dirichlet BCs
     ZU(end,:)=ones(1,Nx+2)*BCy2U;
     ZV(end,:)=ones(1,Nx+2)*BCy2V;
     ZU(:,end) = ones(Ny+2,1)*BCx2U;

@@ -24,11 +24,11 @@ r2U = (Nx-1)*Ny+1:Nx*Ny;
 r3U = 1:Nx*Ny;
 
 r1V = r1U+Nx*Ny;
-r2V = r2U+Nx*Ny; 
+r2V = r2U+Nx*Ny;
 r3V = r3U+Nx*Ny;
 
 r = [r1U,r2U,r3U,r1V,r2V,r3V,rbU1a,rbV1a,rbU1b,rbV1b,rb2];
 c = ones(1,length(r));
-nnz =[ones(1,length(r1U))*BCx2U*mx,ones(1,length(r2U))*my*BCy2U,U,ones(1,length(r1V))*BCx2V*mx*D,ones(1,length(r2V))*my*BCy2V*D,V,my*nnzbU1a,my*D*nnzbV1a,my*nnzbU1b,my*D*nnzbV1b,mx*nnzbU2,mx*D*nnzbV2]; 
+nnz =[ones(1,length(r1U))*BCx2U*mx,ones(1,length(r2U))*my*BCy2U,U,ones(1,length(r1V))*BCx2V*mx*D,ones(1,length(r2V))*my*BCy2V*D,V,my*nnzbU1a,my*D*nnzbV1a,my*nnzbU1b,my*D*nnzbV1b,mx*nnzbU2,mx*D*nnzbV2];
 b = sparse(r,c,nnz);
 end

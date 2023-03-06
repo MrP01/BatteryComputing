@@ -61,5 +61,5 @@ r = [rA1,rA2,rU1,rU2,rU3,rU4,rU5,rV1,rV2,rV3,rV4,rV5];
 c = [cA1,cA2,cU1,cU2,cU3,cU4,cU5,cV1,cV2,cV3,cV4,cV5];
 nnz = [nnzA1,nnzA2,nnzU1,nnzU2,nnzU3,nnzU4,nnzU5,nnzV1,nnzV2,nnzV3,nnzV4,nnzV5];
 
-A = sparse(r,c,nnz);     
+A = sparse(r,c,nnz);
 end

@@ -16,14 +16,14 @@ NBC1 = zeros(1,(Nx-1)*Nt);
 U = A\bs;
 U = full(U);
 counter = 0;
-figure 
+figure
 plot(a:dx:b,ones(1,Nx+1)*IC)
 xlim([a,b])
 ylim([0,IC*1.3])
 D = zeros(1,length(T0:dt:T-dt));
 for t = T0:dt:T-dt
     pause(0.1)
-    NBC1 = 
+    NBC1 =
     plot(a:dx:b,[-(NBC1(1,counter+1)*dx-U(1+(Nx-1)*counter)),U(1+(Nx-1)*counter:(Nx-1)+(Nx-1)*counter)',BC2])
     hold on
 %     if t~=0
@@ -80,7 +80,7 @@ c0 = [1,2,2:Nx-1,(2:Nx-1)+1,(2:Nx-1)-1,Nx-1,Nx];
 nnz0 = [1+m,-m,ones(1,Nx-2)*(1+2*m),-ones(1,Nx-2)*m,-ones(1,Nx-2)*m,-m,1+2*m];
 
 %% Create the matrix
-A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);     
+A = sparse([r1,r2,r3,r0],[c1,c2,c3,c0],[nnz1,nnz2,nnz3,nnz0]);
 end
 
 function [b] = Create_RHS(Nx,Nt,m,NBC1,BC2,IC,dt,dx)
@@ -97,4 +97,3 @@ nnzo = [-dt/dx*NBC1(1,2)+IC,ones(1,Nx-2)*IC,m*BC2+IC];
 
 b = sparse([rl,rr,ro],[cl,cr,co],[nnzl,nnzr,nnzo]);
 end
-

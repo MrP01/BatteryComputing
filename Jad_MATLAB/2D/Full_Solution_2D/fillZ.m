@@ -25,7 +25,7 @@ end
         for n = 2:l6
             sum = sum+Zpy0_V(1,n)*ZV(n,i);
         end
-    ZZ(1,i) = sum;         
+    ZZ(1,i) = sum;
         else
         sum = Zy0_U(1,1);
         for n = 2:l1
@@ -35,7 +35,7 @@ end
         for n = 2:l2
             sum = sum+Zy0_V(1,n)*ZV(n,i);
         end
-    ZZ(1,i) = sum; 
+    ZZ(1,i) = sum;
         end
     end
         ZZ(1,1) = (ZZ(2,1)+ZZ(1,2))/2;

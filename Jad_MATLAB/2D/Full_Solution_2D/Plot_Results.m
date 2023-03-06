@@ -26,8 +26,8 @@ counter = 1;
 I = zeros(1,Nt);
 
 for t = T0:dt:T-dt
-    
-    
+
+
     [ZU,ZV] = create_Z(U_plot,V_plot,Nx,Ny,counter,BCx2U,BCy2U,BCx2V,BCy2V,ICU,dx,Uy0_U,Uy0_V,Ux0_U,Ux0_V,x1,Upy0_U,Upy0_V,Vy0_U,Vy0_V,Vx0_U,Vx0_V,Vpy0_U,Vpy0_V,ICV);
     I(1,counter)=Get_It(ZU,dx,dy,ay,x1);
     counter = counter+1;

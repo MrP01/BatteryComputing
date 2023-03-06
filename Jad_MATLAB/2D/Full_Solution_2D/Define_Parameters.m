@@ -2,13 +2,13 @@ function [ax,bx,ay,by,T0,T,dx,dy,dt,D,Uy0_U,Uy0_V,Ux0_U,Ux0_V,Vy0_U,Vy0_V,Vx0_U,
 %In this function, every parameter is defined with brief comment explaining
 %what they are
 ax = 0; %Lowest x value for U and V
-bx = 10; %Highest x value for U and V 
+bx = 10; %Highest x value for U and V
 ay = ax;
 by = bx;
 T0 = 0; %Starting time
 T = 15; %Ending time
 dx = 0.08; %Space increment
-dy = dx; 
+dy = dx;
 dt = 0.1; %Time increment
 D = 1; %Check explanation (diffusion coeff)
 x1 = 1;%Specifying where BC at y=0 change
