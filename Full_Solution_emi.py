@@ -12,7 +12,7 @@ from scipy.sparse.linalg import spsolve
 
 # Python code for External viewer on Mac
 # plt.switch_backend("MacOSX")
-RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results_Emilie"
+RESULTS_FOLDER = pathlib.Path(__file__).resolve().parent / "results"
 
 
 ## This function relates to CHRONOAMPEROMETRY  where we first tried to solve for x AND t altogether
