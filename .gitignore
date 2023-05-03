@@ -4,8 +4,6 @@ __pycache__/
 .idea/
 .vscode/
 .DS_Store
-report/
-literature/
 build/
 stuff/
 HeatFun

@@ -1,0 +1,80 @@
+\documentclass{prettytex/ox/mmsc-special-topic}
+\input{customisations.tex}
+\addbibresource{sources.bib}
+\tikzexternalize[prefix=tikz/]
+
+\newcommand{\topictitle}{Battery Computing}
+\newcommand{\candidatenumber}{1072462}
+\newcommand{\course}{Scientific Computing}
+
+\title{\topictitle}
+\author{Candidate \candidatenumber}
+\date{\today}
+
+\begin{document}
+  \pagestyle{plain}
+  \mmscSpecialHeader[casestudy]
+
+  \begin{abstract}
+    \label{abstract}
+    This work shall attempt to
+    \vspace*{0.2cm}
+
+    \noindent
+    \textbf{Our Goal:}
+    Numerically obtain the solution $\{a(x, T), b(x, T)\}$ of
+    \vspace*{-0.2cm}
+    $$\begin{cases}
+        % \setstretch{1}
+        \frac{\partial a}{\partial t} = D_a \frac{\partial^2 a}{\partial x^2}, & a: \R^+ \times [0, T] \mapsto [0, 1],\, T \in \R^+,\; D_a \in \R^+, \\[-0.2em]
+        \frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}, & b: \R^+ \times [0, T] \mapsto [0, 1],\, D_b \in \R^+,               \\[-0.2em]
+        a(\infty, t) = 1,\; b(\infty, t) = 0                                   & \forall t \in [0, T]                                                \\[-0.2em]
+        a(x, 0) = 1,\;\; b(x, 0) = 0                                           & \forall x \in (0, \infty)                                           \\[-0.2em]
+        a(0, t) = 0,\; \frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0
+      \end{cases}$$
+    \vspace*{0.05cm}
+
+    The implementation bla bla
+  \end{abstract}
+
+  \pagebreak
+  \pagestyle{normal}
+
+  \begin{figure}[H]
+    \centering
+    Figure
+    \caption{Wohoo}
+    \label{fig:fig}
+  \end{figure}
+
+  Let $\N$ denote the nonnegative integers, so $0 \in \N$.
+  Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
+  \autoref{fig:fig}.
+
+  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, we can derive that
+  $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
+  where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, which in turn are defined by
+  $$U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)\,.$$
+
+  In order to enforce a von-Neumann boundary condition on the left and a Dirichlet boundary condition on the right,
+  we are interested in explicitly setting coefficients $a_k$ such that
+  $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \tilde{l} \quad \text{ and } \quad a(1) = r, \quad \text{ where } \quad \tilde{l}, r \in \R\,.$$
+
+  Using the Chebyshev series ansatz
+  $$a(x, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k(x)$$
+  we have that
+  $$\frac{\dd a}{\ddx} = \sum_{k=0}^{N-1} a_k^{(t)} \frac{\dd T_k}{\ddx}(x)\,,$$
+  so we are interested in
+  $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} \frac{\dd T_k}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} k U_{k-1}(-1)\,.$$
+
+  Following from TODO (explained on Wikipedia), we know that
+  $$U_k(-1) = (-1)^k (k+1) \quad \text{ and } \quad T_k(1) = 1 \quad \forall k \in \N\,,$$
+  which turns our conditions into algebraic conditions w.r.t. the coefficients $a_k^{(t)}$,
+  $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} k^2 (-1)^{k-1} \overset{!}{=} \tilde{l} \quad \text{ and } \quad a|_{x=1} = \sum_{k=0}^{N-1} a_k^{(t)} \overset{!}{=} r\,.$$
+
+  Knowing that the heat equation Forward Euler numerical scheme modifies all but the two highest-degree coefficients in the series, we expand:
+  \begin{align*}
+    a_x(-1, t) & = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) & = & \overbrace{-\sum_{k=0}^{N-3} a_k^{(t)} k^2 (-1)^{k}}^{:= \Sigma_3} & - & (N-2)^2 (-1)^{N-2} a_{N-2} & - & (N-1)^2 (-1)^{N-1} a_{N-1} & = l\,, \\
+    a(1, t)    & = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)   & = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              & + & a_{N-2}                    & + & a_{N-1}                    & = r\,,
+  \end{align*}
+\end{document}
