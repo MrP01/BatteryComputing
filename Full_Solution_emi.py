@@ -12,6 +12,7 @@ from scipy.sparse.linalg import spsolve
 
 # Latex rendering
 plt.rcParams['text.usetex'] = True
+plt.rcParams["font.family"] = "mathpazo"
 
 # Python code for External viewer on Mac
 # plt.switch_backend("MacOSX")
@@ -121,11 +122,10 @@ def chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D):
         real_A[j * Nx : (j + 1) * Nx] = special.erf(x / (2 * h))
 
     # Plot only one instance
-    print("here")
-    plotChrono(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal_", "Numerical Solution", "Real Solution",0)
-    plotChrono(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal_", "Numerical Solution", "Real Solution",1)
-    plotChrono(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal_", "Numerical Solution", "Real Solution",Nt)
-    print("printed")
+"""     plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "Numerical Solution", "Real Solution",0, False)
+    plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "Numerical Solution", "Real Solution",1,False)
+    plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "$A$", "$B$", Nt-1,True)
+  """
     # Compare real to numerical solution
     #plotAnimate(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal.gif", "Numerical Solution", "Real Solution")
 
@@ -269,7 +269,7 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str, x_B_Str):
     # plt.show()
     return x_A, x_B
 
-def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFrame_j):
+def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFrame_j,leg):
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 5))
     minTot = min(x_B.min(), x_A.min())
@@ -280,9 +280,11 @@ def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFra
     line = ax.plot(x, x_A[0:Nx], color="k", lw=2, label=x_A_Str)[0]  # x_A(0), ...x_A(Nx-1)
     line2 = ax.plot(x, x_B[0:Nx], color="r", lw=2, label=x_B_Str)[0]  # x_A(0), ...x_A(Nx-1)
 
-    plt.legend(loc="lower right")
-    plt.xlabel("$x$")
-    plt.ylabel("concentration")
+    if leg:
+        plt.legend(loc="lower right", fontsize=20)
+
+    plt.xlabel("$x$", fontsize = 20)
+    plt.ylabel("Concentration", fontsize = 20)
 
     j=timeFrame_j
 
@@ -298,14 +300,12 @@ def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFra
 
     intTime = int(time*100)
     intTimeStr = str(intTime)
-    plt.title("Analytical versus Numerical Solution at t=" + timeStr)
+    plt.title("$t=$" + timeStr, fontsize = 25)
 
-    print(intTime)
-    print(type(intTime))
     # Save some figures
     filename = filetype + intTimeStr + ".png"
-    print(filename, type(filename))
     plt.savefig(str(RESULTS_FOLDER / filename))
+
     # plt.show()
     return x_A, x_B
 
@@ -328,9 +328,9 @@ if __name__ == "__main__":
     ## Set up for solving the heat equation for a
     # Boundaries for space and time
     x0 = 0
-    xn = 6
+    xn = 20
     t0 = 0
-    tn = 40
+    tn = 10
 
     # Number of meshpoints and meshsizes
     Nx = 500
@@ -345,16 +345,16 @@ if __name__ == "__main__":
     delta = 0.1
     omega = 2 * math.pi
 
-    chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
-    #[sol_A, sol_B, I, E] = voltametry(x0, xn, t0, tn, Nx, dx, Nt, dt, D, alpha, DC, delta, omega)
+    #chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
+    [sol_A, sol_B, I, E] = voltametry(x0, xn, t0, tn, Nx, dx, Nt, dt, D, alpha, DC, delta, omega)
 
     # Plotting the concentration of A versus that of B
-    # if DC:
-    #     myStr = "volt_DC_AvsB.gif"
-    # else:
-    #     myStr = "volt_AC_AvsB.gif"
+     if DC:
+         myStr = "volt_DC_AvsB.gif"
+     else:
+         myStr = "volt_AC_AvsB.gif"
 
-    # plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
+     plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
 
     # # Plotting for different alphas
-    # myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
+     myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
