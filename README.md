@@ -1,3 +1,5 @@
 # Welcome
 
-This is a case study in computing.
+This is a Case Study in Scientific Computing.
+
+![Screenshot](report/figures/screenshot.png)
