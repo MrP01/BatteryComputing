@@ -11,6 +11,8 @@
 \author{Candidate \candidatenumber}
 \date{\today}
 
+% TODO: verify oxidation reaction
+
 \begin{document}
   \pagestyle{plain}
   \mmscSpecialHeader[casestudy]
@@ -50,7 +52,17 @@
   \pagebreak
 
   \section{Problem Introduction}
-  Clearly, batteries relevant.
+  Energy storage and its associated challenges are clearly among the most relevant questions, not only for the industrial but also the private sector.
+  Politically, many nations in the world are steering towards greener energy supplies.
+  Renewable energy sources such as wind and sun usually have a fundamental issue however, their availability is subject to an immense amount of fluctuation, which the energy grid must compensate through short- and long-term energy storage.
+
+  Long-term solutions include for example pumped-storage hydroelectricity facilities, but these must be complemented with short-term storage approaches such as Lithium-Ion or Lithium-Iron-Phosphate ($\text{LiFePO}_4$) batteries.
+  Most modern batteries exploit electrochemical reactions to relate electrical potentials with chemical potentials and their associated difference ($\rightarrow$ voltage).
+  The oxidation reaction we considere here is
+  $$A \Rightarrow B + e^-?$$
+  where $A$ and $B$ can be any chemicals and $e^-$ is an electron.
+
+  More bla bla later on.
 
   \begin{figure}[H]
     \centering
@@ -111,8 +123,9 @@
 
   Knowing that the heat equation Forward Euler numerical scheme modifies all but the two highest-degree coefficients in the series, we expand:
   \begin{align*}
-    a_x(-1, t) & = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) & = & \overbrace{-\sum_{k=0}^{N-3} a_k^{(t)} k^2 (-1)^{k}}^{:= \Sigma_3} & - & (N-2)^2 (-1)^{N-2} a_{N-2} & - & (N-1)^2 (-1)^{N-1} a_{N-1} & = l\,, \\
-    a(1, t)    & = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)   & = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              & + & a_{N-2}                    & + & a_{N-1}                    & = r\,,
+    a_x(-1, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) =   & \overbrace{-\sum_{k=0}^{N-3} a_k^{(t)} k^2 (-1)^{k}}^{:= \Sigma_3} - (N-2)^2 (-1)^{N-2} a_{N-2}                  \\
+                                                         & -(N-1)^2 (-1)^{N-1} a_{N-1} = l\,,                                                                               \\
+    a(1, t)    = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)     = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              + a_{N-2}                    + a_{N-1} = r\,,
   \end{align*}
 
   \subsection{Enforcing Boundary Conditions}
