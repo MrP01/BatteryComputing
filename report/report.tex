@@ -46,6 +46,12 @@
   \pagebreak
   \pagestyle{normal}
 
+  \tableofcontents
+  \pagebreak
+
+  \section{Problem Introduction}
+  Clearly, batteries relevant.
+
   \begin{figure}[H]
     \centering
     Figure
@@ -53,10 +59,35 @@
     \label{fig:fig}
   \end{figure}
 
+  \subsection{Chronoamperometry}
+  \subsection{DC Voltammetry}
+  \subsection{AC Voltammetry}
+
+  \section{Mathematical Background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
   Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
   \autoref{fig:fig}.
 
+  \subsection{Laplace Integral Transform}
+  What is Laplace?
+
+  Proof for Laplace's differentiation theorem.
+
+  \subsection{Chebyshev Polynomials}
+  Proof of $U_k(-1)$'s value.
+
+  \section{Finite Differences}
+  Construct $A \vec{x} = \vec{b}$.
+
+  \subsection{Results}
+
+  \section{Analytical Approaches}
+  \subsection{Similarity Solution}
+  \subsection{Integral Equation}
+  \subsubsection{Derivation}
+  \subsubsection{Numerical Solution}
+
+  \section{Spectral Method}
   From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, we can derive that
   $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
   where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, which in turn are defined by
@@ -83,4 +114,21 @@
     a_x(-1, t) & = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) & = & \overbrace{-\sum_{k=0}^{N-3} a_k^{(t)} k^2 (-1)^{k}}^{:= \Sigma_3} & - & (N-2)^2 (-1)^{N-2} a_{N-2} & - & (N-1)^2 (-1)^{N-1} a_{N-1} & = l\,, \\
     a(1, t)    & = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)   & = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              & + & a_{N-2}                    & + & a_{N-1}                    & = r\,,
   \end{align*}
+
+  \subsection{Enforcing Boundary Conditions}
+  Von Neumann on the left
+
+  \subsection{Implicit Euler}
+
+  \subsection{Implementation}
+  The solver was implemented in C++.
+
+  % \inputminted{cpp}{../SpectralSolver/Solver.h}
+
+  \subsection{Results}
+  Chronoamperometry,
+  DC Voltammetry,
+  AC Voltammetry
+
+  \section{Conclusion}
 \end{document}
