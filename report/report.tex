@@ -70,16 +70,9 @@
 
   \begin{figure}[H]
     \centering
-    \inputtikz{figure1}
+    \inputtikz{battery-schema}
     \caption{Wohoo.}
-    \label{fig:fig1}
-  \end{figure}
-
-  \begin{figure}[H]
-    \centering
-    \inputtikz{figure2}
-    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
-    \label{fig:fig2}
+    \label{fig:battery-schema}
   \end{figure}
 
   As stated on \Cpageref{abstract}, we consider the following \gls{pde}s in the concentrations $a, b \in \C^2(\Omega)$
@@ -95,7 +88,6 @@
   \section{Mathematical Background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
   Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
-  \autoref{fig:fig1}.
 
   \subsection{Laplace Integral Transform}
   What is Laplace?
@@ -113,12 +105,18 @@
     Proof for Laplace's differentiation theorem.
   \end{proof}
 
-
   \subsection{Chebyshev Polynomials}
   Proof of $U_k(-1)$'s value.
 
   \section{Finite Differences}
   Construct $A \vec{x} = \vec{b}$.
+
+  \begin{figure}[H]
+    \centering
+    \inputtikz{fd-scheme}
+    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
+    \label{fig:fd-scheme}
+  \end{figure}
 
   \subsection{Results}
 
