@@ -1,3 +1,5 @@
+\usepackage{tikz-3dplot}
+\usetikzlibrary{3d}
 
 \setlength{\headheight}{19.53pt}
 \setlength{\headsep}{1.8em}
@@ -5,3 +7,13 @@
 \setminted{fontsize=\footnotesize}
 \AfterEndEnvironment{minted}{\vspace*{-0.8cm}}
 \renewcommand{\operatorcolor}{black}
+
+\tikzset{
+  paper/.style={draw, fill=none},
+  irregular border/.style={decoration={irregular fractal line, amplitude=0.2},
+      decorate,
+    },
+  ragged border/.style={ decoration={random steps, segment length=7mm, amplitude=2mm},
+      decorate,
+    }
+}

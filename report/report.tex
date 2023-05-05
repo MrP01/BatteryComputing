@@ -11,6 +11,10 @@
 \author{Candidate \candidatenumber}
 \date{\today}
 
+\makenoidxglossaries
+\newacronym{pde}{PDE}{Partial Differential Equation}
+\newacronym{ode}{ODE}{Ordinary Differential Equation}
+
 % TODO: verify oxidation reaction
 
 \begin{document}
@@ -60,16 +64,29 @@
   Most modern batteries exploit electrochemical reactions to relate electrical potentials with chemical potentials and their associated difference ($\rightarrow$ voltage).
   The oxidation reaction we considere here is
   $$A \Rightarrow B + e^-?$$
-  where $A$ and $B$ can be any chemicals and $e^-$ is an electron.
+  where $A$ and $B$ can be any chemicals and $e^-$ is an electron \parencite{Gavaghan2000Jan}.
 
   More bla bla later on.
 
   \begin{figure}[H]
     \centering
-    Figure
-    \caption{Wohoo}
-    \label{fig:fig}
+    \inputtikz{figure1}
+    \caption{Wohoo.}
+    \label{fig:fig1}
   \end{figure}
+
+  \begin{figure}[H]
+    \centering
+    \inputtikz{figure2}
+    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
+    \label{fig:fig2}
+  \end{figure}
+
+  As stated on \Cpageref{abstract}, we consider the following \gls{pde}s in the concentrations $a, b \in \C^2(\Omega)$
+  \begin{align}
+    \label{eq:pde-a} \frac{\partial a}{\partial t} = D_a \frac{\partial^2 a}{\partial x^2} \\
+    \label{eq:pde-b} \frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}
+  \end{align}
 
   \subsection{Chronoamperometry}
   \subsection{DC Voltammetry}
@@ -78,12 +95,24 @@
   \section{Mathematical Background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
   Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
-  \autoref{fig:fig}.
+  \autoref{fig:fig1}.
 
   \subsection{Laplace Integral Transform}
   What is Laplace?
 
-  Proof for Laplace's differentiation theorem.
+  Laplace transforms are especially valuable for physical systems as many of them expose exponentially decaying and/or periodic behaviours which the Laplace transform is well-suited for due to the form of its kernel.
+  Decaying behaviour is captured by the real component of the argument $s$, $\Re(s)$, whereas periodicities are captured by the imaginary part $\Im(s)$\footnote{Consider for comparision the Fourier transform $\cF(a)(\omega) := \int_{-\infty}^{\infty} a(t) \e^{\i \omega t} \,\ddt$ which captures periodic frequencies, where the kernel automatically follows multiplication along the unit circle due to the imaginary-valued exponent $\i\omega t$ (the argument $\omega \in \R$ is real-valued). Intuitively, the Laplace transform coincides with the Fourier transform if evaluated at $s = \i \omega$.}.
+
+  \begin{theorem}{Laplace Transform of the Derivative}{laplace-diff}
+    Given a function $a(t)$ and a corresponding Laplace-transform $\hat{a}(s) = \cL\{a\}(s)$, the transform of the derivative $a'(t)$ of the original function is given by
+    $$\cL\{a'\}(s) = \cL\left\{t \mapsto \frac{\partial a}{\partial t}\right\}(s) = s\hat{a}(s) - a_0\,,$$
+    where $a_0 := a(t=0)$.
+  \end{theorem}
+
+  \begin{proof}
+    Proof for Laplace's differentiation theorem.
+  \end{proof}
+
 
   \subsection{Chebyshev Polynomials}
   Proof of $U_k(-1)$'s value.
@@ -96,7 +125,13 @@
   \section{Analytical Approaches}
   \subsection{Similarity Solution}
   \subsection{Integral Equation}
-  \subsubsection{Derivation}
+  \subsubsection{Derivation using the Laplace Transform}
+  As mentioned above, the Laplace Integral Transform is especially useful in the context of differential equations, mostly due to \Cref{thm:laplace-diff}.
+  Applying it to our \textit{partial} differential diffusion equation \Cref{eq:pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation.
+  Similarly, \glstext{ode}s could be turned into algebraic equations using a similar approach.
+
+  Starting from \Cref{eq:pde-a}
+
   \subsubsection{Numerical Solution}
 
   \section{Spectral Method}
@@ -144,4 +179,8 @@
   AC Voltammetry
 
   \section{Conclusion}
+
+  \pagebreak
+  \printbibliography
+  \printnoidxglossary[type=acronym]
 \end{document}
