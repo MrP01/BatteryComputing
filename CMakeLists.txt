@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(heatfun)
 
-add_definitions("-std=c++20")
-add_definitions("-O3")  # optimisation level 3
-add_definitions("-g")  # gcc adds debug information (confer `man gcc`)
+# add_definitions("-std=c++20")
+# add_definitions("-O3")  # optimisation level 3
+# add_definitions("-g")  # gcc adds debug information (confer `man gcc`)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -31,3 +31,12 @@ add_executable(main
 )
 target_link_libraries(main PUBLIC Qt6::Core Qt6::Widgets Qt6::Charts xtensor muparserx)
 target_compile_definitions(main PRIVATE SILENT=1)
+
+add_executable(generatePlots
+  SpectralSolver/plots.cpp
+  SpectralSolver/Solver.cpp
+  HeatFun/solver/Solver.cpp
+  HeatFun/solver/TschebFun.cpp
+)
+target_link_libraries(generatePlots PUBLIC xtensor muparserx fmt)
+target_compile_definitions(generatePlots PRIVATE SILENT=1)

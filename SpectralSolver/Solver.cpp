@@ -6,6 +6,14 @@ double TwoComponentSolver::getDCPotential() {
 
 double TwoComponentSolver::getACPotential() { return getDCPotential() + delta_E * sin(3.5 * 2 * totalTime); }
 
+double TwoComponentSolver::currentObjective() {
+  double a = currentU.evaluateOn({-1})[0];
+  double b = bConcentration.evaluateOn({-1})[0];
+  // double b = 1 - a;
+  double E = getACPotential();
+  return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
+}
+
 double TwoComponentSolver::integrateConvolution(double t) {
   double convolutionIntegral = 0;
   double tau = 0;
@@ -14,14 +22,6 @@ double TwoComponentSolver::integrateConvolution(double t) {
     tau += dt;
   }
   return convolutionIntegral * dt;
-}
-
-double TwoComponentSolver::currentObjective() {
-  double a = currentU.evaluateOn({-1})[0];
-  // double b = bConcentration.evaluateOn({-1})[0];
-  double b = 1 - a;
-  double E = getACPotential();
-  return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }
 
 void TwoComponentSolver::setup(Vector u0) {
@@ -86,4 +86,14 @@ void TwoComponentSolver::implicitlyEnforceBC() {
 
   currentU.coefficients[N - 1] = (F2 * (sigma_2 - right_bc.value) - sigma_4 + kappa_0 * gamma_2) / (F1 - F2);
   currentU.coefficients[N - 2] = right_bc.value - sigma_2 - currentU.coefficients[N - 1];
+}
+
+void TwoComponentSolver::exportToFile(std::string filename, size_t n_points) {
+  std::ofstream out_file(filename);
+  out_file << "x,a,b" << std::endl;
+  Vector X = xt::linspace(0.0, LENGTH, n_points);
+  auto result = xt::concatenate(xt::xtuple(xt::atleast_2d(X), xt::atleast_2d(currentU.evaluateOnInterval(X, 0, LENGTH)),
+      xt::atleast_2d(bConcentration.evaluateOnInterval(X, 0, LENGTH))));
+  xt::dump_csv(out_file, xt::transpose(result));
+  std::cout << "Exported a(x), b(x) in its current state to " << filename << std::endl;
 }

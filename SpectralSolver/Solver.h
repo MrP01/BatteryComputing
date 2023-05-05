@@ -28,5 +28,6 @@ class TwoComponentSolver : public HeatSolver {
   double getACPotential();
   double currentObjective();
   double integrateConvolution(double t);
+  void exportToFile(std::string filename, size_t n_points);
   void implicitlyEnforceBC();
 };
