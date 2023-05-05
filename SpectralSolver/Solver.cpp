@@ -68,6 +68,7 @@ void TwoComponentSolver::iterate() {
   // forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
 
   currentLog.push_back(currentObjective());
+  dcPotentialLog.push_back(getDCPotential());
 }
 
 void TwoComponentSolver::implicitlyEnforceBC() {
