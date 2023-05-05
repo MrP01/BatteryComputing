@@ -105,6 +105,12 @@
     Proof for Laplace's differentiation theorem.
   \end{proof}
 
+  \begin{theorem}{Initial Value}{initial-value}
+    For a function $a \in \cC^2(\Omega)$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
+    $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{t \rightarrow 0^+} a(t)$$
+    relates $a$'s \textit{initial value} with the transform evaluated at $s \rightarrow \infty$.
+  \end{theorem}
+
   \subsection{Chebyshev Polynomials}
   Proof of $U_k(-1)$'s value.
 
@@ -122,13 +128,27 @@
 
   \section{Analytical Approaches}
   \subsection{Similarity Solution}
-  \subsection{Integral Equation}
+  \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
   As mentioned above, the Laplace Integral Transform is especially useful in the context of differential equations, mostly due to \Cref{thm:laplace-diff}.
   Applying it to our \textit{partial} differential diffusion equation \Cref{eq:pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation.
   Similarly, \glstext{ode}s could be turned into algebraic equations using a similar approach.
 
-  Starting from \Cref{eq:pde-a}
+  Starting from \Cref{eq:pde-a}, we Laplace-transform both sides and then apply \Cref{thm:laplace-diff} in time $t$ to arrive at
+  \begin{align*}
+    \frac{\partial a}{\partial t}                                   & = D_a \frac{\partial^2 a}{\partial x^2} \quad                             & \textcolor{gray}{\text{Laplace-transform w.r.t. } t} \\
+    \cL\left\{t \mapsto \frac{\partial a}{\partial t}\right\}       & = D_a \cL\left\{t \mapsto \frac{\partial^2 a}{\partial x^2}\right\} \quad & \textcolor{gray}{\text{Use \Cref{thm:laplace-diff}}} \\
+    s \hat{a}(s) - a_0(x)                                           & = D_a \frac{\partial^2 \hat{a}}{\partial x^2} \quad                       & \textcolor{gray}{\text{Rearrange}}                   \\
+    \frac{\partial^2 \hat{a}}{\partial x^2} + \frac{s}{D_a} \hat{a} & = \frac{a_0(x)}{D_a}
+  \end{align*}
+  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$, leads us to the solution
+  \begin{equation}
+    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}t} + c_2 \e^{-\sqrt{\frac{s}{D_a}}t} + D_1\,,\quad c_1, c_2 \in \R
+    \label{eq:laplace-solution}
+  \end{equation}
+
+  The constant $c_1$ then vanishes when applying the initial value theorem (\Cref{thm:initial-value}) because $a(t=0)$
+  $$$$.
 
   \subsubsection{Numerical Solution}
 

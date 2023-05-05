@@ -60,6 +60,8 @@ void TwoComponentSolver::iterate() {
   totalTime += dt;
   implicitlyEnforceBC();
 
+  bConcentration = -currentU + 1.0;
+
   // Solve for B's concentration
   // TschebFun previousB = bConcentration;
   // bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
