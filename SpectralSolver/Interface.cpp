@@ -46,11 +46,14 @@ void DiffusionInterface::buildUI() {
 
 void DiffusionInterface::step() {
   HeatDemonstrator::step();
-  statsLabel->setText(QString("Current time: t = %1\nTime-step dt = %2\nPotential E(t) = %3\nCurrent I(t) = %4")
+  statsLabel->setText(QString("Current time: t = %1\nTime-step dt = %2\nPotential E(t) = %3\nCurrent I(t) = "
+                              "%4\nConvolution Integral: %5\nExpected Value: %6")
                           .arg(solver()->totalTime)
                           .arg(solver()->dt)
                           .arg(solver()->getDCPotential())
-                          .arg(solver()->currentObjective()));
+                          .arg(solver()->currentObjective())
+                          .arg(solver()->integrateConvolution(solver()->totalTime))
+                          .arg(sqrt(M_PI) / (1 + exp(E_0 - solver()->getACPotential()))));
   double absSum = xt::sum(xt::abs(solver()->currentU.coefficients))();
   std::cout << "Abs Sum: " << absSum << std::endl;
   if (absSum > 1000 || std::isnan(absSum)) {

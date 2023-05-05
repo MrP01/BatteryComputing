@@ -4,11 +4,23 @@ double TwoComponentSolver::getDCPotential() {
   return ((totalTime <= t_rev) ? (E_start + totalTime) : E_start + t_rev - (totalTime - t_rev));
 }
 
+double TwoComponentSolver::getACPotential() { return getDCPotential() + delta_E * sin(3.5 * 2 * totalTime); }
+
+double TwoComponentSolver::integrateConvolution(double t) {
+  double convolutionIntegral = 0;
+  double tau = 0;
+  for (auto &&I : currentLog) {
+    convolutionIntegral += I / sqrt(t - tau);
+    tau += dt;
+  }
+  return convolutionIntegral * dt;
+}
+
 double TwoComponentSolver::currentObjective() {
   double a = currentU.evaluateOn({-1})[0];
   // double b = bConcentration.evaluateOn({-1})[0];
   double b = 1 - a;
-  double E = getDCPotential() + delta_E * sin(3.5 * 2 * totalTime);
+  double E = getACPotential();
   return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }
 
@@ -52,13 +64,15 @@ void TwoComponentSolver::iterate() {
   // TschebFun previousB = bConcentration;
   // bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
   // forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
+
+  currentLog.push_back(currentObjective());
 }
 
 void TwoComponentSolver::implicitlyEnforceBC() {
   size_t N = currentU.order();
   Vector fixed_coefficients = xt::view(currentU.coefficients, xt::range(0, N - 2));
 
-  double E = getDCPotential() + delta_E * sin(3.5 * 2 * totalTime);
+  double E = getACPotential();
   Vector K = xt::arange<double>(0, N - 2);
   double gamma_1 = exp((1 - alph) * (E - E_0));
   double gamma_2 = exp(-alph * (E - E_0));

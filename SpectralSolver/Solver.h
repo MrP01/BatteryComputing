@@ -18,12 +18,15 @@ class TwoComponentSolver : public HeatSolver {
   double D_b = 1.0;
   struct BoundaryCondition left_b_bc;
   struct BoundaryCondition right_b_bc;
+  std::vector<double> currentLog = {};
 
  public:
   TwoComponentSolver() : HeatSolver() { dt = 5e-03; };
   void setup(Vector u0);
   void iterate();
   double getDCPotential();
+  double getACPotential();
   double currentObjective();
+  double integrateConvolution(double t);
   void implicitlyEnforceBC();
 };
