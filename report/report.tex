@@ -176,7 +176,27 @@
   When $D = 1$, $a + b = 1$ because. % TODO
 
   \subsection{Similarity Solution}
-  Without considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}), the diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be
+  Without considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}) which couples $a$ with $b$, the diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be solved independently through a similarity solution approach.
+  The idea behind the latter is to turn the \gls{pde} into an \gls{ode} by introducing a variable $\eta \in \R$ that depends on both other variables $x$ and $t$.
+  For a diffusion-type equation, the correct ansatz would be letting
+  $$a(x, t) = f(\eta), \quad \eta := \frac{x}{\sqrt{t}}\,,$$
+  with $f: \R \mapsto \R$ and substituting back into \Cref{eq:problem-pde-a} accordingly.
+  Respecting the chain rule on derivatives of $f$ accordingly, we arrive at
+  $$\frac{\partial a}{\partial t} = -\frac{1}{2} x t^{-\frac{3}{2}} f'(\eta) = D_a \frac{\partial^2 a}{\partial x^2} = D_a t^{-1} f''(\eta)$$
+  where we multiply both sides by $t$ to arrive at a simple form
+  \begin{align}
+    \label{eq:similarity-solution-ode} D_a f''(\eta) + \frac{1}{2} \eta f'(\eta) & = 0\,,
+  \end{align}
+  which can be solved by substituting $h(\eta) := f'(\eta)$ and solving $D_a \frac{\dd h}{\dd \eta} = \frac{-1}{2} \eta h(\eta)$ by separation of variables:
+  $$\int\frac{\dd h}{h} = \frac{-1}{2D_a} \int \eta \,\dd\eta \quad \Rightarrow \quad \ln(h) = -\frac{\eta^2}{4D_a} + \tilde{c_1} \quad\Rightarrow\quad h(\eta) = c_1 \e^{\frac{-1}{4D_a}\eta^2}\,,$$
+  which in turn may be integrated to get $f(\eta)$ and thereby $a(x, t)$,
+  $$f(\eta) = c_1 \int \e^{\frac{-1}{4D_a}\eta^2} \dd\eta = c_1 \sqrt{D_a \pi} \erf\left(\frac{\eta}{2 \sqrt{D_a}}\right) + c_2\,.$$
+  Substituting back, we get
+  \begin{align}
+    a(x, t) & = c_1 \sqrt{D_a \pi} \erf\left(\frac{x}{2 \sqrt{D_a x}}\right) + c_2\,, \\
+    b(x, t) & = c_3 \sqrt{D_b \pi} \erf\left(\frac{x}{2 \sqrt{D_b x}}\right) + c_4\,,
+  \end{align}
+  where the solution of $b(x, t)$ is obtained by the same procedure.
 
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
@@ -339,4 +359,10 @@
   \pagebreak
   \printbibliography
   \printnoidxglossary[type=acronym]
+
+  \appendix
+  \section{Implementation}
+  The results above were obtained using implementations of the numerical methods described.
+  Three (independent) solvers are available, in MATLAB and in Python and the spectral solver (cf. the folder named \texttt{SpectralSolver}) which is written in C++.
+  All code is available on GitHub, in the \href{https://github.com/MrP01/BatteryComputing}{MrP01/BatteryComputing} repository.
 \end{document}
