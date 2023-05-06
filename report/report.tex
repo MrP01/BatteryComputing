@@ -283,6 +283,8 @@
 
   \subsubsection{Numerical Verification}
   Numerically integrating the left-hand side convolution in \Cref{eq:numerical-verification} using a quadrature rule and comparing it with the right-hand side, from the spectral solver we obtain a relatively close match as can be seen in \Cref{fig:voltammetry-convolution}.
+  Because the integrand contains a singularity at $t = \tau$.
+  In order to avoid such a situation in a numerical integration method, we excluded values where $t = \tau$ from the integral.
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-convolution}
