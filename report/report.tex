@@ -123,6 +123,15 @@
   \end{theorem}
 
   \subsection{Chebyshev Polynomials}
+  \begin{definition}{Chebyshev polynomial}{chebpoly}
+    \chebyshev\footnote{Named after Pafnuty Lvovich \chebyshev, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
+    \begin{align*}
+      T_k(x) = T_k(\cos \theta) := \cos(k \theta) = \frac{1}{2} (z^k + z^{-k}) \\
+      z := \e^{i \theta},\quad x := \Re(z) = \cos(\theta) = \frac{1}{2}(z + z^{-1})
+    \end{align*}
+    for degree $k \in \N$. Then, $T_0(x) = 1$, $T_1(x) = x$, $T_2(x) = 2x^2-1$, and so on.
+  \end{definition}
+
   Proof of $U_k(-1)$'s value.
 
   \section{Finite Differences}
@@ -138,6 +147,8 @@
   \subsection{Results}
 
   \section{Analytical Approaches}
+  When $D = 1$, $a + b = 1$ because.
+
   \subsection{Similarity Solution}
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
@@ -152,9 +163,9 @@
     s \hat{a}(s) - a_0(x)                                           & = D_a \frac{\partial^2 \hat{a}}{\partial x^2} \quad                       & \textcolor{gray}{\text{Rearrange}}                   \\
     \frac{\partial^2 \hat{a}}{\partial x^2} + \frac{s}{D_a} \hat{a} & = \frac{a_0(x)}{D_a}
   \end{align*}
-  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$, leads us to the solution
+  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$, leads us to the general solution
   \begin{equation}
-    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}t} + c_2 \e^{-\sqrt{\frac{s}{D_a}}t} + D_1\,,\quad c_1, c_2 \in \R
+    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}t} + c_2 \e^{-\sqrt{\frac{s}{D_a}}t} + c_3\,,\quad c_1, c_2 \in \R
     \label{eq:laplace-solution}
   \end{equation}
 
@@ -170,7 +181,7 @@
   \end{figure}
 
   \section{Spectral Method}
-  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, we can derive that
+  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$ (\Cref{def:chebpoly}), we can derive that
   $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
   where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, which in turn are defined by
   $$U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)\,.$$
@@ -204,7 +215,7 @@
   \subsection{Implicit Euler}
 
   \subsection{Implementation}
-  The solver was implemented in C++.
+  The solver was implemented in C++, using TschebFun and is based on the HeatFun numerical integrator.
 
   % \inputminted{cpp}{../SpectralSolver/Solver.h}
 

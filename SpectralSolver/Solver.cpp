@@ -59,23 +59,26 @@ void TwoComponentSolver::iterate() {
 
   TschebFun previousU = currentU;
   currentU = previousU + previousU.derivative().derivative() * (dt * D_a * pow(2.0 / LENGTH, 2.0));
-  totalTime += dt;
-  implicitlyEnforceBC();
+  implicitlyEnforceBCs();
 
-  bConcentration = -currentU + 1.0;
-
-  // Solve for B's concentration
-  // TschebFun previousB = bConcentration;
-  // bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
-  // forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
+  if (D_a == D_b) {
+    bConcentration = -currentU + 1.0;
+  } else {
+    // Solve for B's concentration
+    TschebFun previousB = bConcentration;
+    bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
+    forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
+  }
 
   currentLog.push_back(currentObjective());
   dcPotentialLog.push_back(getDCPotential());
   convolutionIntegralLog.push_back(integrateConvolution());
   convolutionRHSLog.push_back(convolutionRHS());
+
+  totalTime += dt;
 }
 
-void TwoComponentSolver::implicitlyEnforceBC() {
+void TwoComponentSolver::implicitlyEnforceBCs() {
   size_t N = currentU.order();
   Vector fixed_coefficients = xt::view(currentU.coefficients, xt::range(0, N - 2));
 
@@ -83,6 +86,7 @@ void TwoComponentSolver::implicitlyEnforceBC() {
   Vector K = xt::arange<double>(0, N - 2);
   double gamma_1 = exp((1 - alph) * (E - E_0));
   double gamma_2 = exp(-alph * (E - E_0));
+
   double sigma_2 = xt::sum(fixed_coefficients)();
   double sigma_4 = xt::sum(
       (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * xt::pow(K, 2.0)) * xt::pow(-1.0, K) * fixed_coefficients)();

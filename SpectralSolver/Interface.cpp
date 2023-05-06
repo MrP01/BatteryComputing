@@ -52,7 +52,7 @@ void DiffusionInterface::step() {
                           .arg(solver()->dt)
                           .arg(solver()->getDCPotential())
                           .arg(solver()->currentObjective())
-                          .arg(solver()->integrateConvolution(solver()->totalTime))
+                          .arg(solver()->integrateConvolution())
                           .arg(solver()->convolutionRHS()));
   double absSum = xt::sum(xt::abs(solver()->currentU.coefficients))();
   // std::cout << "Abs Sum: " << absSum << std::endl;

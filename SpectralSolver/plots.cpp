@@ -21,14 +21,19 @@ void voltammetryCurrentPlots(double delta_E) {
   TwoComponentSolver solver;
   solver.delta_E = delta_E;
   solver.setup(xt::ones<double>({ORDER}));
+
+  auto start = std::chrono::system_clock::now();
   solver.runUntil(40);
+  auto end = std::chrono::system_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
   std::ofstream out_file(fmt::format("results/voltammetry-current-{}.csv", delta_E));
   out_file << "t,E_dc,I,C_l,C_r" << std::endl;
   auto result = xt::concatenate(xt::xtuple(xt::atleast_2d(xt::arange(0.0, solver.totalTime - solver.dt, solver.dt)),
       xt::atleast_2d(xt::adapt(solver.dcPotentialLog)), xt::atleast_2d(xt::adapt(solver.currentLog)),
       xt::atleast_2d(xt::adapt(solver.convolutionIntegralLog)), xt::atleast_2d(xt::adapt(solver.convolutionRHSLog))));
   xt::dump_csv(out_file, xt::view(xt::transpose(result), xt::range(0, result.shape()[1], 16)));
-  std::cout << "Saved delta_E = " << delta_E << " plot export" << std::endl;
+  std::cout << "Saved delta_E = " << delta_E << " plot export. Took " << elapsed.count() << " ms." << std::endl;
 }
 
 void voltammetryCompareK0s() {}

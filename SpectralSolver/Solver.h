@@ -14,7 +14,7 @@ class TwoComponentSolver : public HeatSolver {
  public:
   TschebFun bConcentration = TschebFun(0);
   double D_a = 1.0;
-  double D_b = 1.0;
+  double D_b = 1.5;
   double delta_E = 0.3;
   struct BoundaryCondition left_b_bc;
   struct BoundaryCondition right_b_bc;
@@ -34,5 +34,5 @@ class TwoComponentSolver : public HeatSolver {
   double integrateConvolution();
   double convolutionRHS();
   void exportToFile(std::string filename, size_t n_points);
-  void implicitlyEnforceBC();
+  void implicitlyEnforceBCs();
 };
