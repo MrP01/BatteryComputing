@@ -59,15 +59,15 @@ void TwoComponentSolver::iterate() {
 
   TschebFun previousU = currentU;
   currentU = previousU + previousU.derivative().derivative() * (dt * D_a * pow(2.0 / LENGTH, 2.0));
-  implicitlyEnforceBCs();
 
   if (D_a == D_b) {
+    implicitlyEnforceBCs();
     bConcentration = -currentU + 1.0;
   } else {
     // Solve for B's concentration
     TschebFun previousB = bConcentration;
     bConcentration = previousB + previousB.derivative().derivative() * (dt * D_b * pow(2.0 / LENGTH, 2.0));
-    forceBoundaryConditions(&bConcentration, left_b_bc, right_b_bc);
+    implicitlyEnforceABCs();
   }
 
   currentLog.push_back(currentObjective());
@@ -95,6 +95,37 @@ void TwoComponentSolver::implicitlyEnforceBCs() {
 
   currentU.coefficients[N - 1] = (F2 * (sigma_2 - right_bc.value) - sigma_4 + kappa_0 * gamma_2) / (F1 - F2);
   currentU.coefficients[N - 2] = right_bc.value - sigma_2 - currentU.coefficients[N - 1];
+}
+
+void TwoComponentSolver::implicitlyEnforceABCs() {
+  size_t N = currentU.order();
+  Vector fixed_coefficients = xt::view(currentU.coefficients, xt::range(0, N - 2));
+
+  double E = getACPotential();
+  Vector K = xt::arange<double>(0, N - 2);
+  double gamma_1 = exp((1 - alph) * (E - E_0));
+  double gamma_2 = exp(-alph * (E - E_0));
+
+  double sigma_2 = xt::sum(fixed_coefficients)();
+  double sigma_4 = xt::sum(
+      (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * xt::pow(K, 2.0)) * xt::pow(-1.0, K) * fixed_coefficients)();
+  double sigma_5 = 0;
+  double sigma_7 = 0;
+  double sigma_8 = 0;
+  double Q = 0;
+  double D = D_b / D_a;
+  double f_1 = 0;
+  double f_2 = 0;
+  double F_1 = (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * pow(N - 1, 2.0)) * pow(-1.0, N - 1);
+  double F_2 = (kappa_0 * (gamma_1 + gamma_2) + (2.0 / LENGTH) * pow(N - 2, 2.0)) * pow(-1.0, N - 2);
+
+  double r_a = right_bc.value, r_b = right_b_bc.value;
+  double minusOneToThe = pow(-1.0, N - 2);
+  double numerator =
+      D * (sigma_7 + f_2 * (r_b - sigma_5)) -
+      kappa_0 * (sigma_8 + minusOneToThe * (gamma_1 * (r_a - sigma_2 - Q) + gamma_2 * (r_b - sigma_5)) - gamma_1 * Q);
+  double denominator = 2 * minusOneToThe * (D * gamma_1 + gamma_2) * kappa_0 - D * (f_1 - f_2);
+  bConcentration.coefficients[N - 1] = numerator / denominator;
 }
 
 void TwoComponentSolver::exportToFile(std::string filename, size_t n_points) {

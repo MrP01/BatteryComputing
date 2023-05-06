@@ -18,7 +18,7 @@ void DiffusionInterface::buildUI() {
   currentChart->createDefaultAxes();
   currentChart->axes(Qt::Horizontal).first()->setTitleText("Time t");
   currentChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
-  currentChart->axes(Qt::Horizontal).first()->setRange(0, 2 * t_rev);
+  currentChart->axes(Qt::Horizontal).first()->setRange(0, 2 * solver()->t_rev);
   currentChart->axes(Qt::Vertical).first()->setRange(-0.6, 0.6);
   currentChart->legend()->hide();
   QChartView *currentView = new QChartView(currentChart);
@@ -29,7 +29,7 @@ void DiffusionInterface::buildUI() {
   currentVsEChart->createDefaultAxes();
   currentVsEChart->axes(Qt::Horizontal).first()->setTitleText("Potential E(t)");
   currentVsEChart->axes(Qt::Vertical).first()->setTitleText("Current I(t)");
-  currentVsEChart->axes(Qt::Horizontal).first()->setRange(1.2 * E_start, abs(1.2 * E_start));
+  currentVsEChart->axes(Qt::Horizontal).first()->setRange(1.2 * solver()->E_start, abs(1.2 * solver()->E_start));
   currentVsEChart->axes(Qt::Vertical).first()->setRange(-0.6, 0.6);
   currentVsEChart->legend()->hide();
   QChartView *currentVsEView = new QChartView(currentVsEChart);

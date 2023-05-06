@@ -1,0 +1,17 @@
+\pgfplotsset{/pgfplots/group/.cd,
+  horizontal sep=1.5cm,
+  vertical sep=1.5cm
+}
+\begin{tikzpicture}
+  \begin{axis}[
+      width=0.7\linewidth,
+      height=0.5\linewidth,
+      xlabel={$E_{dc}(t)$},
+      ylabel={$I(t)$},
+      legend pos={south east}
+    ]
+    \addplot [no marks, blue, line width=2pt] table [x=E_dc, y=I, col sep=comma] {../results/voltammetry-current-0-0.csv}; \addlegendentry{$E_0 = 0$}
+    \addplot [no marks, green, line width=1.2pt] table [x=E_dc, y=I, col sep=comma] {../results/voltammetry-current-0--4.csv}; \addlegendentry{$E_0 = -4$}
+    \addplot [no marks, magenta, line width=1.2pt] table [x=E_dc, y=I, col sep=comma] {../results/voltammetry-current-0-4.csv}; \addlegendentry{$E_0 = 4$}
+  \end{axis}
+\end{tikzpicture}
