@@ -31,14 +31,16 @@
     \textbf{Our Goal:}
     Numerically obtain the solution $\{a(x, T), b(x, T)\}$ of
     \vspace*{-0.2cm}
-    $$\begin{cases}
-        % \setstretch{1}
-        \frac{\partial a}{\partial t} = D_a \frac{\partial^2 a}{\partial x^2}, & a: \R^+ \times [0, T] \mapsto [0, 1],\, T \in \R^+,\; D_a \in \R^+, \\[-0.2em]
-        \frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}, & b: \R^+ \times [0, T] \mapsto [0, 1],\, D_b \in \R^+,               \\[-0.2em]
-        a(\infty, t) = 1,\; b(\infty, t) = 0                                   & \forall t \in [0, T]                                                \\[-0.2em]
-        a(x, 0) = 1,\;\; b(x, 0) = 0                                           & \forall x \in (0, \infty)                                           \\[-0.2em]
-        a(0, t) = 0,\; \frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0
-      \end{cases}$$
+    \begin{subequations}
+      \begin{empheq}[left={\empheqlbrace}]{align}
+        \label{eq:problem-pde-a} &\frac{\partial a}{\partial t} = D_a \frac{\partial^2 a}{\partial x^2}, & a: \R^+ \times [0, T] \mapsto [0, 1],\, T \in \R^+,\; D_a \in \R^+, \\
+        \label{eq:problem-pde-b} &\frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}, & b: \R^+ \times [0, T] \mapsto [0, 1],\, D_b \in \R^+,               \\
+        \label{eq:problem-bcs} &a(\infty, t) = 1,\; b(\infty, t) = 0,                                  & \text{boundary conditions } \forall\, t \in [0, T]\,,               \\
+        \label{eq:problem-ics} &a(x, 0) = 1,\;\; b(x, 0) = 0,                                          & \text{initial conditions }\forall\, x \in (0, \infty)\,,            \\
+        \label{eq:problem-mass-conservation} &\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0 \,, &
+      \end{empheq}
+    \end{subequations}
+    and optionally, $a(0, t) = 0$, which corresponds to \underline{Chronoamperometry} or $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ which is set according to a special \underline{Linear Sweep Voltammetry} method with $I(t)$ given by \Cref{eq:current}.
     \vspace*{0.05cm}
 
     The implementation bla bla
@@ -62,7 +64,7 @@
   Renewable energy sources such as wind and sun usually have a fundamental issue however, their availability is subject to an immense amount of fluctuation, which the energy grid must compensate through short- and long-term energy storage.
 
   Long-term solutions include for example pumped-storage hydroelectricity facilities, but these must be complemented with short-term storage approaches such as Lithium-Ion or Lithium-Iron-Phosphate ($\text{LiFePO}_4$) batteries.
-  Most modern batteries exploit electrochemical reactions to relate electrical potentials with chemical potentials and their associated difference ($\rightarrow$ voltage).
+  Most modern batteries exploit electrochemical reactions to relate electrical potentials with chemical potentials and their associated difference ($\rightarrow$ voltage) and convert energy accordingly.
   The oxidation reaction we considere here is
   $$A \Rightarrow B + e^-?$$
   where $A$ and $B$ can be any chemicals and $e^-$ is an electron \parencite{Gavaghan2000Jan}.
@@ -90,6 +92,10 @@
   \end{equation}
 
   \subsection{Linear Sweep AC Voltammetry}
+  \begin{equation}
+    E(t) = E_{dc}(t) + \Delta E \sin(\omega t)\,.
+    \label{eq:ac-potential}
+  \end{equation}
 
   \section{Mathematical Background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
@@ -102,6 +108,11 @@
     Given a function $a: \R \mapsto \R$, its Laplace transform $\hat{a}: \C \mapsto \C$ is given by
     $$\hat{a}(s) = \cL\{a\}(s) = \int_{0}^{\infty} a(t) \e^{-st} \,\ddt\,.$$
   \end{definition}
+
+  A notation commonly employed in the context of signal processing is $a(t) \;\laplace\; \hat{a}(s)$ to signify a \textit{transformation pair}, so
+  $$a(t) \;\laplace\; \hat{a}(s) \quad\Longleftrightarrow\quad \hat{a}(s) = \cL\{t \mapsto a(t)\}(s)\,.$$
+  In the following, we will mostly consider functions of two variables $a: \R \times \R \mapsto \R$ (the concentration of a chemical being a function of time $t \in \R$ and space $x \in \R$).
+  In these cases, we are only transforming in one variable, namely $t$, and we will consider $x$ only as a parameter of the transformation pair.
 
   Laplace transforms are especially valuable for physical systems as many of them expose exponentially decaying and/or periodic behaviours which the Laplace transform is well-suited for due to the form of its kernel.
   Decaying behaviour is captured by the real component of the argument $s$, $\Re(s)$, whereas periodicities are captured by the imaginary part $\Im(s)$\footnote{Consider for comparision the Fourier transform $\cF(a)(\omega) := \int_{-\infty}^{\infty} a(t) \e^{\i \omega t} \,\ddt$ which captures periodic frequencies, where the kernel automatically follows multiplication along the unit circle due to the imaginary-valued exponent $\i\omega t$ (the argument $\omega \in \R$ is real-valued). Intuitively, the Laplace transform coincides with the Fourier transform if evaluated at $s = \i \omega$.}.
@@ -138,7 +149,7 @@
     for degree $k \in \N$. Then, $T_0(x) = 1$, $T_1(x) = x$, $T_2(x) = 2x^2-1$, and so on.
   \end{definition}
 
-  \begin{definition}{Chebyshev Polynomial of the Second Kind}{chebpoly}
+  \begin{definition}{Chebyshev Polynomial of the Second Kind}{chebpoly2ndkind}
     Chebyshev polynomials $U_k: \R \mapsto \R$ are functions satisfying
     \begin{align*}
       U_k(\cos \theta) \sin \theta := \sin\left((k+1) \theta\right)
@@ -162,9 +173,11 @@
   \subsection{Results}
 
   \section{Analytical Approaches}
-  When $D = 1$, $a + b = 1$ because.
+  When $D = 1$, $a + b = 1$ because. % TODO
 
   \subsection{Similarity Solution}
+  Without considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}), the diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be
+
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
   As mentioned above, the Laplace Integral Transform is especially useful in the context of differential equations, mostly due to \Cref{thm:laplace-diff}.
@@ -198,6 +211,7 @@
 
   In principle, this is already a complete result in and of itself, as it provides the full solution on the entire domain in frequency-space \footnote{Frequency space is a term borrowed from Fourier analysis, where we say that the transformed functions reside in ``frequency space''. The usage is the same for Laplace's transformation.}. If one obtains the Laplace-transform of the current expression \Cref{eq:current} and performs the inverse transform of $\hat{a}$, even just numerically, the linear sweep voltammetry problem is solved in full as a similar procedure leads to the solution of the other concentration $b$.
 
+  \subsubsection{At the Boundary}
   Within the scope of this report, we will consider an integral equation relating current $I(t)$ and the potential $E(t)$ to verify our numerical results.
   Inverse-transforming \Cref{eq:laplace-solution} at $x = 0$ where our boundary condition is given and using the convolution theorem (\Cref{thm:convolution-theorem}), we arrive at
   \begin{align*}
@@ -208,26 +222,44 @@
     $\cL\{t \mapsto \frac{1}{\sqrt{\pi t}}\}(s) = \frac{1}{\sqrt{\pi}} \int_0^\infty t^{-\frac{1}{2}} \e^{-st} \,\ddt = \frac{1}{\sqrt{\pi}} \int_0^\infty \cancel{t^{-\frac{1}{2}}} \e^{-su^2} \cancel{t^{\frac{1}{2}}}\,\ddu = \left[\erf(\sqrt{s} u) / \sqrt{s}\right]_0^\infty$ where we used a substitution $u = \sqrt{t}$ to resolve the product in the integrand, resulting in the Gaussian integral and subsequently, the error function $\erf(\sqrt{s}u)$ which satisfies $\erf(0) = 0$ and $\erf(\infty) = 1$ so the full transformation pair is $\frac{1}{\sqrt{\pi t}} \;\laplace\; \frac{1}{\sqrt{s}}$.
   \end{proof}
 
+  \subsubsection{Simplification when $D = 1$ and $\kappa_0 \gg 1$}
   When $D = 1$, this results in the following expressions for $a(x=0, t)$ and $b(x=0, t)$,
+  \begin{align}
+    \label{eq:laplace-a} a(x=0, t) & = 1 - (I * g)(t) = 1 - \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,, \\
+    \label{eq:laplace-b} b(x=0, t) & = 1 - a(x=0, t) = \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,,
+  \end{align}
+  which can be even further simplified when considering $\kappa_0 \gg 1$, where from \Cref{eq:current} we have the following relationship of $I(t)$, $E(t)$ and $b_0(t)$
   \begin{align*}
-    a(x=0, t) = 1 - (I * g)(t) = 1 - \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,, \\
-    b(x=0, t) = 1 - a(x=0, t) = \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,,
+    I(t) & = \kappa_0 (1-b_0) \e^{(1-\alpha) V} - \kappa_0 b_0 \e^{-\alpha V} \\
+         & = \kappa_0 \left[(1-b_0) \e^V - b_0\right] \e^{-\alpha V}          \\
+         & = \kappa_0 \left[\e^V - (1+\e^V) b_0\right] \e^{-\alpha V}
   \end{align*}
-  which we will verify numerically.
+  where $V(t) := E(t) - E_0(t)$, $a_0 = a(x=0, t)$ and $b_0 = b(x=0, t)$.
+  It can be further rearranged and simplified to yield an approximation to $b_0$,
+  \begin{align*}
+    \frac{I(t)}{\kappa_0 \e^{-\alpha V}} = \e^V - (1+\e^V) b_0 \quad \Leftrightarrow \quad
+    b_0 = \frac{\e^V - \frac{I(t)}{\kappa_0 \e^{-\alpha V}}}{1+\e^V} \approx \frac{\e^V}{1 + \e^V} \quad \text{ when } \kappa_0 \gg 1\,,
+  \end{align*}
+  which can be combined with \Cref{eq:laplace-b} to obtain
+  \begin{equation}
+    b_0 = \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau \approx \frac{1}{1+\e^{-V}} \quad \Leftrightarrow \quad \int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau \approx \frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}\,,
+    \label{eq:numerical-verification}
+  \end{equation}
+  which we will use to numerically verify our results.
 
-  \subsubsection{Numerical Solution}
+  \subsubsection{Numerical Verification}
+  Numerically integrating the left-hand side convolution in \Cref{eq:numerical-verification} using a quadrature rule and comparing it with the right-hand side, from the spectral solver we obtain a relatively close match as can be seen in \Cref{fig:voltammetry-convolution}.
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-convolution}
-    \caption{Convolution Integrals}
+    \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the DC and AC case with parameter $\Delta E = 0.3$ over the DC potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
     \label{fig:voltammetry-convolution}
   \end{figure}
 
   \section{Spectral Method}
-  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$ (\Cref{def:chebpoly}), we can derive that
+  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, confer \Cref{def:chebpoly}, we can derive that
   $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
-  where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, which in turn are defined by
-  $$U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)\,.$$
+  where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, $U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)$, confer \Cref{def:chebpoly2ndkind}.
 
   In order to enforce a von-Neumann boundary condition on the left and a Dirichlet boundary condition on the right,
   we are interested in explicitly setting coefficients $a_k$ such that
@@ -255,7 +287,7 @@
   \subsection{Enforcing Boundary Conditions}
   Von Neumann on the left
 
-  \subsection{Implicit Euler}
+  \subsection{Stability and Implicit Euler}
 
   \subsection{Implementation}
   The solver was implemented in C++, using TschebFun and is based on the HeatFun numerical integrator.
@@ -285,16 +317,18 @@
   \begin{figure}[H]
     \centering
     \inputtikz{different-E0s}
-    \caption{Voltammetry Current $I(t)$ vs the DC Potential $E_{dc}(t)$}
+    \caption{Voltammetry Current $I(t)$ vs. the DC Potential $E_{dc}(t)$}
     \label{fig:different-E0s}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-current}
-    \caption{Voltammetry Current $I(t)$ vs the DC Potential $E_{dc}(t)$}
+    \caption{Voltammetry Current $I(t)$ vs. the DC Potential $E_{dc}(t)$}
     \label{fig:voltammetry-current}
   \end{figure}
+
+  \subsection{Convergence behaviour}
 
   \section{Conclusion}
 

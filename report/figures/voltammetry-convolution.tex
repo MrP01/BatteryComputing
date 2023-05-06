@@ -8,11 +8,11 @@
       height=0.3\linewidth,
       width=0.4\linewidth,
     ]
-    \nextgroupplot[title={DC}]
-    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.csv};
-    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.csv};
-    \nextgroupplot[title={AC, $\Delta E = 0.3$}]
-    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.3.csv};
-    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.3.csv};
+    \nextgroupplot[title={DC}, xlabel={$E_{dc}(t)$}, ylabel={Integral value}]
+    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0-0.csv};
+    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0-0.csv};
+    \nextgroupplot[title={AC, $\Delta E = 0.3$}, xlabel={$E_{dc}(t)$}]
+    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
+    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
   \end{groupplot}
 \end{tikzpicture}
