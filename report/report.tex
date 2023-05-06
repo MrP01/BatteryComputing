@@ -161,16 +161,23 @@
     \frac{\partial a}{\partial t}                                   & = D_a \frac{\partial^2 a}{\partial x^2} \quad                             & \textcolor{gray}{\text{Laplace-transform w.r.t. } t} \\
     \cL\left\{t \mapsto \frac{\partial a}{\partial t}\right\}       & = D_a \cL\left\{t \mapsto \frac{\partial^2 a}{\partial x^2}\right\} \quad & \textcolor{gray}{\text{Use \Cref{thm:laplace-diff}}} \\
     s \hat{a}(s) - a_0(x)                                           & = D_a \frac{\partial^2 \hat{a}}{\partial x^2} \quad                       & \textcolor{gray}{\text{Rearrange}}                   \\
-    \frac{\partial^2 \hat{a}}{\partial x^2} + \frac{s}{D_a} \hat{a} & = \frac{a_0(x)}{D_a}
+    \frac{\partial^2 \hat{a}}{\partial x^2} - \frac{s}{D_a} \hat{a} & = -\frac{a_0(x)}{D_a}
   \end{align*}
-  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$, leads us to the general solution
+  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$ and resulting particular solution $\hat{a}_p(s, x) = \cL\{-1\}(s) = \frac{1}{s}$\footnote{$\cL\{1\} = \int_{0}^{\infty} \e^{-st} \,\ddt = \frac{1}{s} \left[\e^{-st}\right]_0^\infty = \frac{-1}{s}$.}, leads us to the homogeneous solution
   \begin{equation}
-    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}t} + c_2 \e^{-\sqrt{\frac{s}{D_a}}t} + c_3\,,\quad c_1, c_2 \in \R
-    \label{eq:laplace-solution}
+    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}x} + c_2 \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s}\,,\quad c_1, c_2 \in \R\,.
+    \label{eq:laplace-pre-solution}
   \end{equation}
 
-  The constant $c_1$ then vanishes when applying the initial value theorem (\Cref{thm:initial-value}) because $a(t=0)$
-  $$$$.
+  The constant $c_1$ then vanishes when applying the initial value theorem (\Cref{thm:initial-value})
+  $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{s \rightarrow \infty} \underbrace{c_1 s \e^{\sqrt{\frac{s}{D_a}}x}}_{\rightarrow \infty} + \underbrace{c_2 s \e^{-\sqrt{\frac{s}{D_a}}x}}_{\rightarrow 0} + 1 = \lim_{t \rightarrow 0^+} a(t) = 1$$
+  because $c_1 \neq 0$ would cause its corresponding term to explode. Considering the other boundary condition $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad \Leftrightarrow \quad \frac{\partial \hat{a}}{\partial x} = \hat{I}(s) := \cL\{I\}(s)$$, we obtain $c_2 = \frac{-\hat{I}}{\sqrt{s}}$.
+  So \Cref{eq:laplace-pre-solution} becomes
+  \begin{equation}
+    \hat{a}(s, x) = c_2 \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s} \,,\quad c_2 \in \R\,,
+    \label{eq:laplace-solution}
+  \end{equation}
+  which, evaluated at $x = 0$, becomes $\hat{a}(s, 0) = c_2 + \frac{1}{s}$.
 
   \subsubsection{Numerical Solution}
   \begin{figure}[H]
