@@ -16,6 +16,7 @@
 \newacronym{ode}{ODE}{Ordinary Differential Equation}
 
 % TODO: verify oxidation reaction
+% TODO: check that all \cL{...} are used on mappings and not values
 
 \begin{document}
   \pagestyle{plain}
@@ -83,6 +84,11 @@
 
   \subsection{Chronoamperometry}
   \subsection{Linear Sweep Voltammetry}
+  \begin{equation}
+    I(t) = \kappa_0 \left(a \e^{(1-\alpha) (E(t) - E_0)} - b \e^{-\alpha (E(t) - E_0)}\right)_{x=0}
+    \label{eq:current}
+  \end{equation}
+
   \subsection{Linear Sweep AC Voltammetry}
 
   \section{Mathematical Background}
@@ -123,7 +129,7 @@
   \end{theorem}
 
   \subsection{Chebyshev Polynomials}
-  \begin{definition}{Chebyshev polynomial}{chebpoly}
+  \begin{definition}{Chebyshev Polynomial of the First Kind}{chebpoly}
     \chebyshev\footnote{Named after Pafnuty Lvovich \chebyshev, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
     \begin{align*}
       T_k(x) = T_k(\cos \theta) := \cos(k \theta) = \frac{1}{2} (z^k + z^{-k}) \\
@@ -131,6 +137,15 @@
     \end{align*}
     for degree $k \in \N$. Then, $T_0(x) = 1$, $T_1(x) = x$, $T_2(x) = 2x^2-1$, and so on.
   \end{definition}
+
+  \begin{definition}{Chebyshev Polynomial of the Second Kind}{chebpoly}
+    Chebyshev polynomials $U_k: \R \mapsto \R$ are functions satisfying
+    \begin{align*}
+      U_k(\cos \theta) \sin \theta := \sin\left((k+1) \theta\right)
+    \end{align*}
+    for degree $k \in \N$. Then, $U_0(x) = 1$, $U_1(x) = 2x$, $U_2(x) = 4x^2-1$, and so on.
+  \end{definition}
+  Note that Chebyhsev polynomials of the first and second kind fulfill the same recurrence relationship, $T_{k+1}(x) = 2x T_k(x) - T_{k-1}(x)$ and $U_{k+1}(x) = 2x U_k(x) - U_{k-1}(x)$. The difference between them arises from the second polynomial respectively which is $T_1(x)=x$ for the first kind and $U_1(x) = 2x = 2 T_1(x)$ for the second kind.
 
   Proof of $U_k(-1)$'s value.
 
@@ -163,21 +178,42 @@
     s \hat{a}(s) - a_0(x)                                           & = D_a \frac{\partial^2 \hat{a}}{\partial x^2} \quad                       & \textcolor{gray}{\text{Rearrange}}                   \\
     \frac{\partial^2 \hat{a}}{\partial x^2} - \frac{s}{D_a} \hat{a} & = -\frac{a_0(x)}{D_a}
   \end{align*}
-  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$ and resulting particular solution $\hat{a}_p(s, x) = \cL\{-1\}(s) = \frac{1}{s}$\footnote{$\cL\{1\} = \int_{0}^{\infty} \e^{-st} \,\ddt = \frac{1}{s} \left[\e^{-st}\right]_0^\infty = \frac{-1}{s}$.}, leads us to the homogeneous solution
+  where $\hat{a} := \cL\{a\}$ and $a_0(x) := a(x, t=0)$, which is a second-order constant-coefficient \glsdesc{ode} in space $x$. Its characteristic polynomial is $\lambda^2 + \frac{s}{D_a} = 0$ which, together with the initial condition $a_0 = 1$ and resulting particular solution $\hat{a}_p(x, s) = \cL\{-1\}(s) = \frac{1}{s}$\footnote{$\cL\{1\} = \int_{0}^{\infty} \e^{-st} \,\ddt = \frac{1}{s} \left[\e^{-st}\right]_0^\infty = \frac{-1}{s}$.}, leads us to the general solution
   \begin{equation}
-    \hat{a}(s, x) = c_1 \e^{\sqrt{\frac{s}{D_a}}x} + c_2 \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s}\,,\quad c_1, c_2 \in \R\,.
+    \hat{a}(x, s) = c_1 \e^{\sqrt{\frac{s}{D_a}}x} + c_2 \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s D_a}\,,\quad c_1, c_2 \in \R\,.
     \label{eq:laplace-pre-solution}
   \end{equation}
 
   The constant $c_1$ then vanishes when applying the initial value theorem (\Cref{thm:initial-value})
-  $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{s \rightarrow \infty} \underbrace{c_1 s \e^{\sqrt{\frac{s}{D_a}}x}}_{\rightarrow \infty} + \underbrace{c_2 s \e^{-\sqrt{\frac{s}{D_a}}x}}_{\rightarrow 0} + 1 = \lim_{t \rightarrow 0^+} a(t) = 1$$
-  because $c_1 \neq 0$ would cause its corresponding term to explode. Considering the other boundary condition $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad \Leftrightarrow \quad \frac{\partial \hat{a}}{\partial x} = \hat{I}(s) := \cL\{I\}(s)$$, we obtain $c_2 = \frac{-\hat{I}}{\sqrt{s}}$.
+  $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{s \rightarrow \infty} \underbrace{c_1 s \e^{\sqrt{\frac{s}{D_a}}x}}_{\rightarrow \infty} + \underbrace{c_2 s \e^{-\sqrt{\frac{s}{D_a}}x}}_{\rightarrow 0} + 1 \overset{!}{=} \lim_{t \rightarrow 0^+} a(t) = 1$$
+  because $c_1 \neq 0$ would cause its corresponding term to explode. Considering the other boundary condition of linear sweep voltammetry
+  $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad \Leftrightarrow \quad \frac{\partial \hat{a}}{\partial x} \overset{!}{=} \hat{I}(s) \quad \Leftrightarrow \quad c_2 \sqrt{\frac{s}{D_a}} \e^{0} = \hat{I}(s)\,,$$
+  where $\hat{I}(s) := \cL\{I\}(s)$ and we obtain $c_2(s) = \frac{-\hat{I}(s)}{\sqrt{s}}$.
   So \Cref{eq:laplace-pre-solution} becomes
   \begin{equation}
-    \hat{a}(s, x) = c_2 \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s} \,,\quad c_2 \in \R\,,
+    \hat{a}(x, s) = \frac{-\hat{I}(s)}{\sqrt{s}} \e^{-\sqrt{\frac{s}{D_a}}x} + \frac{1}{s D_a}\,,
     \label{eq:laplace-solution}
   \end{equation}
-  which, evaluated at $x = 0$, becomes $\hat{a}(s, 0) = c_2 + \frac{1}{s}$.
+  which, evaluated at $x = 0$, becomes $\hat{a}(s, 0) = \frac{-\hat{I}(s)}{\sqrt{s}} + \frac{1}{s D_a}$, depending on the Laplace transform of the current $I(t)$.
+
+  In principle, this is already a complete result in and of itself, as it provides the full solution on the entire domain in frequency-space \footnote{Frequency space is a term borrowed from Fourier analysis, where we say that the transformed functions reside in ``frequency space''. The usage is the same for Laplace's transformation.}. If one obtains the Laplace-transform of the current expression \Cref{eq:current} and performs the inverse transform of $\hat{a}$, even just numerically, the linear sweep voltammetry problem is solved in full as a similar procedure leads to the solution of the other concentration $b$.
+
+  Within the scope of this report, we will consider an integral equation relating current $I(t)$ and the potential $E(t)$ to verify our numerical results.
+  Inverse-transforming \Cref{eq:laplace-solution} at $x = 0$ where our boundary condition is given and using the convolution theorem (\Cref{thm:convolution-theorem}), we arrive at
+  \begin{align*}
+    a(x, t) = -\cL^{-1}\left\{s \mapsto \hat{I}(s) \cdot \hat{g}(s)\right\}(t) + \cL^{-1}\left\{s \mapsto \frac{1}{s D_a}\right\}(t) = -(I * g)(t) + \frac{1}{D_a}\,,
+  \end{align*}
+  where we introduced $\hat{g}(s) := \frac{1}{\sqrt{s}} = \cL\{g\}(s)$ the Laplace transfrom of $g(t) = \frac{1}{\sqrt{\pi t}}$.
+  \begin{proof}
+    $\cL\{t \mapsto \frac{1}{\sqrt{\pi t}}\}(s) = \frac{1}{\sqrt{\pi}} \int_0^\infty t^{-\frac{1}{2}} \e^{-st} \,\ddt = \frac{1}{\sqrt{\pi}} \int_0^\infty \cancel{t^{-\frac{1}{2}}} \e^{-su^2} \cancel{t^{\frac{1}{2}}}\,\ddu = \left[\erf(\sqrt{s} u) / \sqrt{s}\right]_0^\infty$ where we used a substitution $u = \sqrt{t}$ to resolve the product in the integrand, resulting in the Gaussian integral and subsequently, the error function $\erf(\sqrt{s}u)$ which satisfies $\erf(0) = 0$ and $\erf(\infty) = 1$ so the full transformation pair is $\frac{1}{\sqrt{\pi t}} \;\laplace\; \frac{1}{\sqrt{s}}$.
+  \end{proof}
+
+  When $D = 1$, this results in the following expressions for $a(x=0, t)$ and $b(x=0, t)$,
+  \begin{align*}
+    a(x=0, t) = 1 - (I * g)(t) = 1 - \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,, \\
+    b(x=0, t) = 1 - a(x=0, t) = \int_{0}^{t} \frac{I(\tau)}{\sqrt{\pi (t - \tau)}} \,\dd\tau\,,
+  \end{align*}
+  which we will verify numerically.
 
   \subsubsection{Numerical Solution}
   \begin{figure}[H]
@@ -262,7 +298,7 @@
 
   \section{Conclusion}
 
-  \begin{table}
+  \begin{table}[H]
     \caption{Runtime Comparison}
   \end{table}
 

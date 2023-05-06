@@ -1,3 +1,4 @@
+\usepackage{cancel}
 \usepackage{tikz-3dplot}
 \usetikzlibrary{3d}
 
@@ -20,4 +21,13 @@
   ragged border/.style={ decoration={random steps, segment length=7mm, amplitude=2mm},
       decorate,
     }
+}
+
+\newcommand{\laplace}{\mbox{\setlength{\unitlength}{0.1em}%
+    \begin{picture}(20,10)%
+      \put(2,3){\circle{4}}%
+      \put(4,3){\line(1,0){13}}%
+      \put(18,3){\circle*{4}}%
+    \end{picture}%
+  }%
 }
