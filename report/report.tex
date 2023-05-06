@@ -162,6 +162,7 @@
 
   \section{Finite Differences}
   Construct $A \vec{x} = \vec{b}$.
+  $$\frac{U_{j}^{(n+1)} - U_{j}^{(n)}}{\Delta t} = \alpha \frac{U_{j+1}^{(n)} - 2 U_{j}^{(n)} + U_{j-1}^{(n)}}{(\Delta x)^2}, \quad U_j^{(0)} = u_0(x_j)$$
 
   \begin{figure}[H]
     \centering
@@ -209,6 +210,7 @@
   $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad\Rightarrow\quad c_1 = \sqrt{t} I(t) \text{ and } c_2 = 1 - \sqrt{D_a \pi t} I(t)\,.$$
 
   % TODO: maybe write down the full expressions? Is maths correct?
+  % TODO: When $D = 1$, we have ...
 
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
@@ -289,6 +291,28 @@
   \end{figure}
 
   \section{Spectral Method}
+  The basic idea of a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
+  \begin{equation}
+    f_N(\xi) = \sum_{k=0}^{N-1} a_k T_k(\xi), \quad k \in \{0, ..., N-1\},\quad N \in \N, N > 1\,,
+    \label{eq:truncated-cheb-series}
+  \end{equation}
+  where we choose the basis of Chebyshev polynomials of the first kind.
+
+  An initial condition may be obtained by
+  One wishes to interpolate through data points
+
+  \begin{theorem}{Chebyshev series coefficient formula}{cheb-coefficient-integrals}
+    For any function $f: [-1, 1] \mapsto \R$, one can obtain the \chebyshev series coefficients $a_k$, $k \in \N$ as
+    \begin{align*}
+      a_0 & = \frac{1}{\pi} \langle f, T_0 \rangle =  \frac{1}{\pi} \int_0^\pi f(\cos \theta) \dd\theta                                   \\
+      a_k & = \frac{2}{\pi} \langle f, T_k \rangle = \frac{2}{\pi} \int_0^\pi f(\cos \theta) \cos(k \theta) \dd\theta, \quad k \neq 0 \,.
+    \end{align*}
+  \end{theorem}
+
+  Because the domain we are interested in $[0, L]$ as specified in \Cref{eq:problem-pde-a,eq:problem-mass-conservation} is not $[-1, 1]$, we rescale the expansion as follows when evaluating:
+  $$f_N(x) = f_N\left(\xi = \frac{2 x}{L} - 1\right)$$
+  to get from $x \in [0, L]$ to $\xi \in [-1, 1]$.
+
   From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, confer \Cref{def:chebpoly}, we can derive that
   $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
   where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, $U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)$, confer \Cref{def:chebpoly2ndkind}.
