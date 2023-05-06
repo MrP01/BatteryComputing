@@ -176,7 +176,7 @@
   When $D = 1$, $a + b = 1$ because. % TODO
 
   \subsection{Similarity Solution}
-  Without considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}) which couples $a$ with $b$, the diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be solved independently through a similarity solution approach.
+  The diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be solved independently through a similarity solution approach.
   The idea behind the latter is to turn the \gls{pde} into an \gls{ode} by introducing a variable $\eta \in \R$ that depends on both other variables $x$ and $t$.
   For a diffusion-type equation, the correct ansatz would be letting
   $$a(x, t) = f(\eta), \quad \eta := \frac{x}{\sqrt{t}}\,,$$
@@ -197,6 +197,18 @@
     b(x, t) & = c_3 \sqrt{D_b \pi} \erf\left(\frac{x}{2 \sqrt{D_b x}}\right) + c_4\,,
   \end{align}
   where the solution of $b(x, t)$ is obtained by the same procedure.
+  Using \Cref{eq:problem-bcs} and \Cref{eq:problem-ics} one can determine $$c_2 = 1 - \sqrt{D_a \pi} c_1\quad \text{ and }\quad c_4 = -\sqrt{D_b \pi} c_3\,.$$
+  The spatial derivatives are given by
+  $$\frac{\partial a}{\partial x} = c_1 \e^{-\frac{x^2}{4D_at}} t^{-\frac{1}{2}} \quad \text{ and }\quad \frac{\partial b}{\partial x} = c_3 \e^{-\frac{x^2}{4D_bt}} t^{-\frac{1}{2}}\,.$$
+  Further considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}) which couples $a$ with $b$, one can derive a relation between $c_1$ and $c_3$,
+  $$c_3 = -\frac{D_a}{D_b} \e^{\left(\frac{1}{D_b} - \frac{1}{D_a}\right) \frac{x^2}{4t}} c_1 = -\frac{D_a}{D_b} \e^{\frac{(D_a-D_b) x^2}{4t D_a D_b}} c_1\,.$$
+
+  In the case of \underline{Chronoamperometry}, the constant $c_1$ is determined by letting
+  $$a(x=0, t) = 0 \quad\Rightarrow\quad c_2 = 1 - \sqrt{D_a\pi} c_1 = 0 \quad\Rightarrow\quad c_1 = \frac{1}{\sqrt{D_a \pi}}\,,$$
+  whereas for \underline{Linear Sweep Voltammetry} it is determined by
+  $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad\Rightarrow\quad c_1 = \sqrt{t} I(t) \text{ and } c_2 = 1 - \sqrt{D_a \pi t} I(t)\,.$$
+
+  % TODO: maybe write down the full expressions? Is maths correct?
 
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
