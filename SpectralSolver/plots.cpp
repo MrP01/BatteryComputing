@@ -45,7 +45,7 @@ void voltammetryCurrentPlots(double delta_E, double E_0) {
   std::cout << "Saved delta_E = " << delta_E << ", " << E_0 << " plot. Took " << elapsed.count() << " ms." << std::endl;
 }
 
-void voltammetryCompareK0s(double delta_E) {
+void voltammetryCompareE0s(double delta_E) {
   double E_0s[] = {-4, 0, 4};
   for (size_t i = 0; i < sizeof(E_0s) / sizeof(E_0s[0]); i++)
     voltammetryCurrentPlots(delta_E, E_0s[i]);
@@ -57,9 +57,9 @@ void voltammetryConvergence() {}
 int main() {
   chronoPlots();
   voltammetryPlots();
-  voltammetryCompareK0s(0.0);
-  voltammetryCompareK0s(0.1);
-  voltammetryCompareK0s(0.2);
-  voltammetryCompareK0s(0.3);
+  voltammetryCompareE0s(0.0);
+  voltammetryCompareE0s(0.1);
+  voltammetryCompareE0s(0.2);
+  voltammetryCompareE0s(0.3);
   return 0;
 }

@@ -18,10 +18,11 @@ double TwoComponentSolver::integrateConvolution() {
   double convolutionIntegral = 0;
   double tau = 0;
   for (auto &&I : currentLog) {
-    convolutionIntegral += I / sqrt(totalTime - tau);
+    if (tau != totalTime)
+      convolutionIntegral += I / sqrt(totalTime - tau) * dt;
     tau += dt;
   }
-  return convolutionIntegral * dt;
+  return convolutionIntegral;
 }
 
 double TwoComponentSolver::convolutionRHS() { return sqrt(M_PI) / (1 + exp(E_0 - getACPotential())); }
