@@ -5,11 +5,19 @@
 #define N_POINTS 400
 #define ORDER 15
 
-void chronoPlots() {}
+void chronoPlots() {
+  TwoComponentSolver solver;
+  solver.setupChronoamperometry(xt::ones<double>({ORDER}));
+  double times[] = {0.1, 0.5, 1, 2, 4, 10};
+  for (size_t i = 0; i < sizeof(times) / sizeof(times[0]); i++) {
+    solver.runUntil(times[i]);
+    solver.exportToFile(fmt::format("results/chronoamperometry-{}.csv", times[i]), N_POINTS);
+  }
+}
 
 void voltammetryPlots() {
   TwoComponentSolver solver;
-  solver.setup(xt::ones<double>({ORDER}));
+  solver.setupLinSweep(xt::ones<double>({ORDER}));
   double times[] = {5, 10, 15, 25, 30, 35};
   for (size_t i = 0; i < sizeof(times) / sizeof(times[0]); i++) {
     solver.runUntil(times[i]);
@@ -21,7 +29,7 @@ void voltammetryCurrentPlots(double delta_E, double E_0) {
   TwoComponentSolver solver;
   solver.delta_E = delta_E;
   solver.E_0 = E_0;
-  solver.setup(xt::ones<double>({ORDER}));
+  solver.setupLinSweep(xt::ones<double>({ORDER}));
 
   auto start = std::chrono::system_clock::now();
   solver.runUntil(40);
@@ -47,7 +55,7 @@ void chronoConvergence() {}
 void voltammetryConvergence() {}
 
 int main() {
-  // chronoPlots();
+  chronoPlots();
   voltammetryPlots();
   voltammetryCompareK0s(0.0);
   voltammetryCompareK0s(0.1);

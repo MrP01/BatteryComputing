@@ -28,6 +28,8 @@ class TwoComponentSolver : public HeatSolver {
  public:
   TwoComponentSolver() : HeatSolver() { dt = 5e-03; };
   void setup(Vector u0);
+  void setupChronoamperometry(Vector u0);
+  void setupLinSweep(Vector u0);
   void iterate();
   double getDCPotential();
   double getACPotential();

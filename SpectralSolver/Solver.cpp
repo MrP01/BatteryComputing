@@ -30,21 +30,24 @@ void TwoComponentSolver::setup(Vector u0) {
   HeatSolver::setup(u0);
   bConcentration = TschebFun::interpolantThrough(u0 - 1);
 
-  // left_bc.type = Dirichlet;
-  left_bc.type = Neumann;
+  // Defaults to Chronoamperometry
+  left_bc.type = Dirichlet;
   left_bc.value = 0;
   right_bc.type = Dirichlet;
   right_bc.value = 1;
-  // std::cout << "Set left BC: type " << left_bc.type << " value: " << left_bc.value << std::endl;
-  // std::cout << "Set right BC: type " << right_bc.type << " value: " << right_bc.value << std::endl;
 
-  // left_b_bc.type = Dirichlet;
-  left_b_bc.type = Neumann;
+  left_b_bc.type = Dirichlet;
   left_b_bc.value = 0;
   right_b_bc.type = Dirichlet;
   right_b_bc.value = 0;
-  // std::cout << "Set left b BC: type " << left_b_bc.type << " value: " << left_b_bc.value << std::endl;
-  // std::cout << "Set right b BC: type " << right_b_bc.type << " value: " << right_b_bc.value << std::endl;
+}
+
+void TwoComponentSolver::setupChronoamperometry(Vector u0) { setup(u0); }
+
+void TwoComponentSolver::setupLinSweep(Vector u0) {
+  setup(u0);
+  left_bc.type = Neumann;
+  left_b_bc.type = Neumann;
 }
 
 void TwoComponentSolver::iterate() {
@@ -61,7 +64,10 @@ void TwoComponentSolver::iterate() {
   currentU = previousU + previousU.derivative().derivative() * (dt * D_a * pow(2.0 / LENGTH, 2.0));
 
   if (D_a == D_b) {
-    implicitlyEnforceBCs();
+    if (left_bc.type == Neumann)
+      implicitlyEnforceBCs();
+    else
+      forceBoundaryConditions(&currentU, left_bc, right_bc);
     bConcentration = -currentU + 1.0;
   } else {
     // Solve for B's concentration
