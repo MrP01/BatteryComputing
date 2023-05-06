@@ -82,8 +82,8 @@
   \end{align}
 
   \subsection{Chronoamperometry}
-  \subsection{DC Voltammetry}
-  \subsection{AC Voltammetry}
+  \subsection{Linear Sweep Voltammetry}
+  \subsection{Linear Sweep AC Voltammetry}
 
   \section{Mathematical Background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
@@ -91,6 +91,11 @@
 
   \subsection{Laplace Integral Transform}
   What is Laplace?
+
+  \begin{definition}{Laplace Integral Transform}{laplace}
+    Given a function $a: \R \mapsto \R$, its Laplace transform $\hat{a}: \C \mapsto \C$ is given by
+    $$\hat{a}(s) = \cL\{a\}(s) = \int_{0}^{\infty} a(t) \e^{-st} \,\ddt\,.$$
+  \end{definition}
 
   Laplace transforms are especially valuable for physical systems as many of them expose exponentially decaying and/or periodic behaviours which the Laplace transform is well-suited for due to the form of its kernel.
   Decaying behaviour is captured by the real component of the argument $s$, $\Re(s)$, whereas periodicities are captured by the imaginary part $\Im(s)$\footnote{Consider for comparision the Fourier transform $\cF(a)(\omega) := \int_{-\infty}^{\infty} a(t) \e^{\i \omega t} \,\ddt$ which captures periodic frequencies, where the kernel automatically follows multiplication along the unit circle due to the imaginary-valued exponent $\i\omega t$ (the argument $\omega \in \R$ is real-valued). Intuitively, the Laplace transform coincides with the Fourier transform if evaluated at $s = \i \omega$.}.
@@ -106,6 +111,12 @@
   \end{proof}
 
   \begin{theorem}{Initial Value}{initial-value}
+    For a function $a \in \cC^2(\Omega)$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
+    $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{t \rightarrow 0^+} a(t)$$
+    relates $a$'s \textit{initial value} with the transform evaluated at $s \rightarrow \infty$.
+  \end{theorem}
+
+  \begin{theorem}{Laplace Convolution}{convolution-theorem}
     For a function $a \in \cC^2(\Omega)$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
     $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{t \rightarrow 0^+} a(t)$$
     relates $a$'s \textit{initial value} with the transform evaluated at $s \rightarrow \infty$.
@@ -151,10 +162,11 @@
   $$$$.
 
   \subsubsection{Numerical Solution}
-  \begin{figure}
+  \begin{figure}[H]
     \centering
-    \inputtikz{ac-voltammetry}
-    \caption{AC Voltammetry}
+    \inputtikz{voltammetry-convolution}
+    \caption{Convolution Integrals}
+    \label{fig:voltammetry-convolution}
   \end{figure}
 
   \section{Spectral Method}
@@ -197,11 +209,18 @@
   % \inputminted{cpp}{../SpectralSolver/Solver.h}
 
   \subsection{Results}
-  Chronoamperometry,
-  DC Voltammetry,
-  AC Voltammetry
+  Chronoamperometry (step potential),
+  DC Linear Sweep Voltammetry,
+  AC Linear Sweep Voltammetry
 
-  \begin{figure}
+  \begin{figure}[H]
+    \centering
+    \inputtikz{ac-voltammetry}
+    \caption{AC Voltammetry}
+    \label{fig:ac-voltammetry}
+  \end{figure}
+
+  \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-current}
     \caption{Voltammetry Current $I(t)$ vs the DC Potential $E_{dc}(t)$}
@@ -209,6 +228,10 @@
   \end{figure}
 
   \section{Conclusion}
+
+  \begin{table}
+    \caption{Runtime Comparison}
+  \end{table}
 
   \pagebreak
   \printbibliography

@@ -14,15 +14,17 @@ double TwoComponentSolver::currentObjective() {
   return kappa_0 * (a * exp((1 - alph) * (E - E_0)) - b * exp(-alph * (E - E_0)));
 }
 
-double TwoComponentSolver::integrateConvolution(double t) {
+double TwoComponentSolver::integrateConvolution() {
   double convolutionIntegral = 0;
   double tau = 0;
   for (auto &&I : currentLog) {
-    convolutionIntegral += I / sqrt(t - tau);
+    convolutionIntegral += I / sqrt(totalTime - tau);
     tau += dt;
   }
   return convolutionIntegral * dt;
 }
+
+double TwoComponentSolver::convolutionRHS() { return sqrt(M_PI) / (1 + exp(E_0 - getACPotential())); }
 
 void TwoComponentSolver::setup(Vector u0) {
   HeatSolver::setup(u0);
@@ -69,6 +71,8 @@ void TwoComponentSolver::iterate() {
 
   currentLog.push_back(currentObjective());
   dcPotentialLog.push_back(getDCPotential());
+  convolutionIntegralLog.push_back(integrateConvolution());
+  convolutionRHSLog.push_back(convolutionRHS());
 }
 
 void TwoComponentSolver::implicitlyEnforceBC() {

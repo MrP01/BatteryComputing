@@ -53,9 +53,9 @@ void DiffusionInterface::step() {
                           .arg(solver()->getDCPotential())
                           .arg(solver()->currentObjective())
                           .arg(solver()->integrateConvolution(solver()->totalTime))
-                          .arg(sqrt(M_PI) / (1 + exp(E_0 - solver()->getACPotential()))));
+                          .arg(solver()->convolutionRHS()));
   double absSum = xt::sum(xt::abs(solver()->currentU.coefficients))();
-  std::cout << "Abs Sum: " << absSum << std::endl;
+  // std::cout << "Abs Sum: " << absSum << std::endl;
   if (absSum > 1000 || std::isnan(absSum)) {
     killTimer(_timerId);
   }

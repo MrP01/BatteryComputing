@@ -1,0 +1,18 @@
+\pgfplotsset{/pgfplots/group/.cd,
+  horizontal sep=1.5cm,
+  vertical sep=1.5cm
+}
+\begin{tikzpicture}
+  \begin{groupplot}[
+      group style={group size=2 by 1},
+      height=0.3\linewidth,
+      width=0.4\linewidth,
+    ]
+    \nextgroupplot[title={DC}]
+    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.csv};
+    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.csv};
+    \nextgroupplot[title={AC, $\Delta E = 0.3$}]
+    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.3.csv};
+    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.3.csv};
+  \end{groupplot}
+\end{tikzpicture}

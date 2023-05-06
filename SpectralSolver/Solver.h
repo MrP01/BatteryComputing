@@ -21,6 +21,8 @@ class TwoComponentSolver : public HeatSolver {
 
   std::vector<double> currentLog = {};
   std::vector<double> dcPotentialLog = {};
+  std::vector<double> convolutionIntegralLog = {};
+  std::vector<double> convolutionRHSLog = {};
 
  public:
   TwoComponentSolver() : HeatSolver() { dt = 5e-03; };
@@ -29,7 +31,8 @@ class TwoComponentSolver : public HeatSolver {
   double getDCPotential();
   double getACPotential();
   double currentObjective();
-  double integrateConvolution(double t);
+  double integrateConvolution();
+  double convolutionRHS();
   void exportToFile(std::string filename, size_t n_points);
   void implicitlyEnforceBC();
 };
