@@ -3,7 +3,10 @@
 \addbibresource{sources.bib}
 \tikzexternalize[prefix=tikz/]
 
-\newcommand{\topictitle}{Battery Computing}
+\newcommand{\topictitle}{
+  Numerical Solution of an Electrochemical Cell Model \\
+  \normalsize using Analytical Approaches, Finite Differences and a Spectral Method
+}
 \newcommand{\candidatenumber}{1072462}
 \newcommand{\course}{Scientific Computing}
 
@@ -12,8 +15,8 @@
 \date{\today}
 
 \makenoidxglossaries
-\newacronym{pde}{PDE}{Partial Differential Equation}
 \newacronym{ode}{ODE}{Ordinary Differential Equation}
+\newacronym{pde}{PDE}{Partial Differential Equation}
 
 % TODO: verify oxidation reaction
 % TODO: check that all \cL{...} are used on mappings and not values
@@ -24,7 +27,7 @@
 
   \begin{abstract}
     \label{abstract}
-    This work shall attempt to
+    In this project report we will review the central concepts utilised in the group work conducted to make progress in the \gls{pde} problem associated with the electrochemical model of a battery cell and present numerical results.
     \vspace*{0.2cm}
 
     \noindent
@@ -40,16 +43,16 @@
         \label{eq:problem-mass-conservation} &\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0 \,, &
       \end{empheq}
     \end{subequations}
-    and optionally, $a(0, t) = 0$, which corresponds to \underline{Chronoamperometry} or $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ which is set according to a special \underline{Linear Sweep Voltammetry} method with $I(t)$ given by \Cref{eq:current}.
+    and optionally, the further boundary condition $a(0, t) = 0$, which corresponds to \underline{Chronoamperometry} or $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ which is set according to a special \underline{Linear Sweep Voltammetry} method with $I(t)$ given in \Cref{eq:current}.
     \vspace*{0.05cm}
 
-    The implementation bla bla
+    The Finite Difference Approximations are implemented in MATLAB and Python, whereas the Spectral Method is implemented in C++ using \tschebfun.
   \end{abstract}
 
   \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/screenshot.png}
-    \caption{Graphical User Interface}
+    \caption{The Graphical User Interface of the Spectral Solver.}
   \end{figure}
 
   \pagebreak
@@ -160,19 +163,6 @@
 
   Proof of $U_k(-1)$'s value.
 
-  \section{Finite Differences}
-  Construct $A \vec{x} = \vec{b}$.
-  $$\frac{U_{j}^{(n+1)} - U_{j}^{(n)}}{\Delta t} = \alpha \frac{U_{j+1}^{(n)} - 2 U_{j}^{(n)} + U_{j-1}^{(n)}}{(\Delta x)^2}, \quad U_j^{(0)} = u_0(x_j)$$
-
-  \begin{figure}[H]
-    \centering
-    \inputtikz{fd-scheme}
-    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
-    \label{fig:fd-scheme}
-  \end{figure}
-
-  \subsection{Results}
-
   \section{Analytical Approaches}
   When $D = 1$, $a + b = 1$ because. % TODO
 
@@ -194,8 +184,8 @@
   $$f(\eta) = c_1 \int \e^{\frac{-1}{4D_a}\eta^2} \dd\eta = c_1 \sqrt{D_a \pi} \erf\left(\frac{\eta}{2 \sqrt{D_a}}\right) + c_2\,.$$
   Substituting back, we get
   \begin{align}
-    a(x, t) & = c_1 \sqrt{D_a \pi} \erf\left(\frac{x}{2 \sqrt{D_a x}}\right) + c_2\,, \\
-    b(x, t) & = c_3 \sqrt{D_b \pi} \erf\left(\frac{x}{2 \sqrt{D_b x}}\right) + c_4\,,
+    a(x, t) & = c_1 \sqrt{D_a \pi} \erf\left(\frac{x}{2 \sqrt{D_a t}}\right) + c_2\,, \\
+    b(x, t) & = c_3 \sqrt{D_b \pi} \erf\left(\frac{x}{2 \sqrt{D_b t}}\right) + c_4\,,
   \end{align}
   where the solution of $b(x, t)$ is obtained by the same procedure.
   Using \Cref{eq:problem-bcs} and \Cref{eq:problem-ics} one can determine $$c_2 = 1 - \sqrt{D_a \pi} c_1\quad \text{ and }\quad c_4 = -\sqrt{D_b \pi} c_3\,.$$
@@ -291,6 +281,19 @@
     \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the DC and AC case with parameter $\Delta E = 0.3$ over the DC potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
     \label{fig:voltammetry-convolution}
   \end{figure}
+
+  \section{Finite Differences}
+  Construct $A \vec{x} = \vec{b}$.
+  $$\frac{U_{j}^{(n+1)} - U_{j}^{(n)}}{\Delta t} = \alpha \frac{U_{j+1}^{(n)} - 2 U_{j}^{(n)} + U_{j-1}^{(n)}}{(\Delta x)^2}, \quad U_j^{(0)} = u_0(x_j)$$
+
+  \begin{figure}[H]
+    \centering
+    \inputtikz{fd-scheme}
+    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
+    \label{fig:fd-scheme}
+  \end{figure}
+
+  \subsection{Results}
 
   \section{Spectral Method}
   The basic idea of a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
