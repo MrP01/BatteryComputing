@@ -201,7 +201,7 @@
   Similar results are available for the Fourier transform and other integral transforms.
 
   \subsection{Chebyshev Polynomials}
-  In order to talk about
+  In order to introduce the spectral method in \Cref{sec:spectral-method}, let us first define the basis in which the spectral method will operate - the basis of Chebyshev polynomials of the first kind (\Cref{def:chebpoly}).
 
   \begin{definition}{Chebyshev Polynomial of the First Kind}{chebpoly}
     \chebyshev\footnote{Named after Pafnuty Lvovich \chebyshev, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
@@ -212,6 +212,8 @@
     for degree $k \in \N$. Then, $T_0(x) = 1$, $T_1(x) = x$, $T_2(x) = 2x^2-1$, and so on.
   \end{definition}
 
+  There are not only Chebyshev polynomials of the first kind, but also those of the second kind (\Cref{def:chebpoly2ndkind}) which we introduce in order to deduce a differentiation result we will use later in \Cref{sec:spectral-method}.
+
   \begin{definition}{Chebyshev Polynomial of the Second Kind}{chebpoly2ndkind}
     Chebyshev polynomials $U_k: \R \mapsto \R$ are functions satisfying
     \begin{align*}
@@ -221,7 +223,13 @@
   \end{definition}
   Note that Chebyhsev polynomials of the first and second kind fulfill the same recurrence relationship, $T_{k+1}(x) = 2x T_k(x) - T_{k-1}(x)$ and $U_{k+1}(x) = 2x U_k(x) - U_{k-1}(x)$. The difference between them arises from the second polynomial respectively which is $T_1(x)=x$ for the first kind and $U_1(x) = 2x = 2 T_1(x)$ for the second kind.
 
-  Proof of $U_k(-1)$'s value.
+  Further note that $T_k(1) = T_k(\cos 0) = 1$, $T_k(-1) = T_k(\cos \pi) = \cos(k \pi) = (-1)^k$.
+  Similarly, for the Chebyshev polynomials of the second kind,
+  \begin{align}
+    \label{eq:cheb2ndkind-critical-value-1} U_k(1)   & = U_k(\cos 0) = \lim_{\theta \rightarrow 0} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow 0} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1)\,, \\
+    \label{eq:cheb2ndkind-critical-value--1} U_k(-1) & = \lim_{\theta \rightarrow \pi} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow \pi} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1) (-1)^k\,,
+  \end{align}
+  following from their \Cref{def:chebpoly2ndkind} and using de L'Hospital's rule to find the value of the $\frac{0}{0}$ situation.
 
   \section{Analytical Approaches}
   \label{sec:analytical-approaches}
@@ -265,7 +273,7 @@
 
   From our solution, we obtain a current of the form
   \begin{equation*}
-    I(t) = \frac{d}{dx} a(x,t) \bigg|_{x=0} = \frac{2}{\sqrt{\pi}} \frac{1}{2\sqrt{t}}e^{-(x/2\sqrt{t})^2} = \frac{1}{\sqrt{\pi t}}.
+    I(t) = \frac{d}{dx} a(x,t) \bigg|_{x=0} = \frac{2}{\sqrt{\pi}} \frac{1}{2\sqrt{t}}e^{-(x/2\sqrt{t})^2} = \frac{1}{\sqrt{\pi t}}\,.
   \end{equation*}
 
   \subsection{Voltammetry Integral Equation}
@@ -382,21 +390,21 @@
   An initial condition may be obtained by
   One wishes to interpolate through data points
 
-  \begin{theorem}{Chebyshev series coefficient formula}{cheb-coefficient-integrals}
-    For any function $f: [-1, 1] \mapsto \R$, one can obtain the \chebyshev series coefficients $a_k$, $k \in \N$ as
-    \begin{align*}
-      a_0 & = \frac{1}{\pi} \langle f, T_0 \rangle =  \frac{1}{\pi} \int_0^\pi f(\cos \theta) \dd\theta                                   \\
-      a_k & = \frac{2}{\pi} \langle f, T_k \rangle = \frac{2}{\pi} \int_0^\pi f(\cos \theta) \cos(k \theta) \dd\theta, \quad k \neq 0 \,.
-    \end{align*}
-  \end{theorem}
+  % \begin{theorem}{Chebyshev series coefficient formula}{cheb-coefficient-integrals}
+  %   For any function $f: [-1, 1] \mapsto \R$, one can obtain the \chebyshev series coefficients $a_k$, $k \in \N$ as
+  %   \begin{align*}
+  %     a_0 & = \frac{1}{\pi} \langle f, T_0 \rangle =  \frac{1}{\pi} \int_0^\pi f(\cos \theta) \dd\theta                                   \\
+  %     a_k & = \frac{2}{\pi} \langle f, T_k \rangle = \frac{2}{\pi} \int_0^\pi f(\cos \theta) \cos(k \theta) \dd\theta, \quad k \neq 0 \,.
+  %   \end{align*}
+  % \end{theorem}
 
   Because the domain we are interested in $[0, L]$ as specified in \Cref{eq:problem-pde-a,eq:problem-mass-conservation} is not $[-1, 1]$, we rescale the expansion as follows when evaluating:
   $$f_N(x) = f_N\left(\xi = \frac{2 x}{L} - 1\right)$$
   to get from $x \in [0, L]$ to $\xi \in [-1, 1]$.
 
   From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, confer \Cref{def:chebpoly}, we can derive that
-  $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \frac{\dd\theta}{\ddx} = ... = k U_{k-1}(x)\,,$$
-  where $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, $U_k(\cos \theta) \sin(\theta) = \sin\left((n+1) \theta\right)$, confer \Cref{def:chebpoly2ndkind}.
+  $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \cdot \frac{\dd\theta}{\ddx} = -k \sin(k\theta) \cdot \frac{1}{-\sin \theta} = k \frac{\sin(k\theta)}{\sin \theta} = k U_{k-1}(x)\,,$$
+  where we recall that $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, $U_k(\cos \theta) \sin(\theta) = \sin\left((k+1) \theta\right)$, confer \Cref{def:chebpoly2ndkind}.
 
   In order to enforce a von-Neumann boundary condition on the left and a Dirichlet boundary condition on the right,
   we are interested in explicitly setting coefficients $a_k$ such that
@@ -409,7 +417,7 @@
   so we are interested in
   $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} \frac{\dd T_k}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} k U_{k-1}(-1)\,.$$
 
-  Following from TODO (explained on Wikipedia), we know that
+  Following from \Cref{def:chebpoly} and \Cref{eq:cheb2ndkind-critical-value--1}, we know that
   $$U_k(-1) = (-1)^k (k+1) \quad \text{ and } \quad T_k(1) = 1 \quad \forall k \in \N\,,$$
   which turns our conditions into algebraic conditions w.r.t. the coefficients $a_k^{(t)}$,
   $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} k^2 (-1)^{k-1} \overset{!}{=} \tilde{l} \quad \text{ and } \quad a|_{x=1} = \sum_{k=0}^{N-1} a_k^{(t)} \overset{!}{=} r\,.$$
