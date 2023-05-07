@@ -42,7 +42,7 @@
         \label{eq:problem-pde-b} &\frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}, & b: \R^+ \times [0, T] \mapsto [0, 1],\, D_b \in \R^+,               \\
         \label{eq:problem-bcs} &a(\infty, t) = 1,\; b(\infty, t) = 0,                                  & \text{boundary conditions } \forall\, t \in [0, T]\,,               \\
         \label{eq:problem-ics} &a(x, 0) = 1,\;\; b(x, 0) = 0,                                          & \text{initial conditions }\forall\, x \in (0, \infty)\,,            \\
-        \label{eq:problem-mass-conservation} &\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0 \,, &
+        \label{eq:problem-mass-conservation} &\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0 \,, & \text{ where } D := D_b / D_a
       \end{empheq}
     \end{subequations}
     and optionally, the further boundary condition $a(0, t) = 0$, which corresponds to \underline{Chronoamperometry} or $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ which is set according to a special \underline{Linear Sweep Voltammetry} method with $I(t)$ given in \Cref{eq:current}.
@@ -137,17 +137,22 @@
 
   In the following, we will introduce necessary mathematical background on Laplace transforms and Chebyshev polynomials (\Cref{sec:math-background}), obtain an analytical solution using a similarity solution and Laplace-transform approach in \Cref{sec:analytical-approaches}, discuss the finite difference scheme one can use to solve the problem numerically in \Cref{sec:finite-differences} and finally introduce the Chebyshev spectral method used for most results in this report (\Cref{sec:spectral-method}).
 
+  \pagebreak
   \section{Mathematical Background}
   \label{sec:math-background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
   Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
 
-  \subsection{Laplace Integral Transform}
-  What is Laplace?
+  \subsection{The Laplace Integral Transform}
+  This subsection will provide a short introduction of the Laplace transform and state theorems necessary for later treatment. What is the Laplace transform?
+  A near-bijective, \emph{linear} integral transformation from one function space to another, cf. \Cref{def:laplace}.
+  The mapping is injective, as given by Lerch's theorem. Surjectivity of the transformation is a more delicate matter and does not always hold.
+  However, for most practical use-cases the transformation is one-to-one.
+  Even if so, bijectivity would only hold up to differences on a subset of the domain of measure zero (so when two functions are equal \textit{almost everywhere}).
 
   \begin{definition}{Laplace Integral Transform}{laplace}
     Given a function $a: \R \mapsto \R$, its Laplace transform $\hat{a}: \C \mapsto \C$ is given by
-    $$\hat{a}(s) = \cL\{a\}(s) = \int_{0}^{\infty} a(t) \e^{-st} \,\ddt\,.$$
+    $$\hat{a}(s) = \cL\{a\}(s) := \int_{0}^{\infty} a(t) \e^{-st} \,\ddt\,.$$
   \end{definition}
 
   A notation commonly employed in the context of signal processing is $a(t) \;\laplace\; \hat{a}(s)$ to signify a \textit{transformation pair}, so
@@ -158,6 +163,11 @@
   Laplace transforms are especially valuable for physical systems as many of them expose exponentially decaying and/or periodic behaviours which the Laplace transform is well-suited for due to the form of its kernel.
   Decaying behaviour is captured by the real component of the argument $s$, $\Re(s)$, whereas periodicities are captured by the imaginary part $\Im(s)$\footnote{Consider for comparision the Fourier transform $\cF(a)(\omega) := \int_{-\infty}^{\infty} a(t) \e^{\i \omega t} \,\ddt$ which captures periodic frequencies, where the kernel automatically follows multiplication along the unit circle due to the imaginary-valued exponent $\i\omega t$ (the argument $\omega \in \R$ is real-valued). Intuitively, the Laplace transform coincides with the Fourier transform if evaluated at $s = \i \omega$.}.
 
+  In order to transform a function $\hat{a}$ from the frequency domain back to its original $a$ in the time domain, much like finding antiderivatives, one can use a lookup-table of known transformation pairs $a\;\laplace\;\hat{a}$ and harness the linearity of the Laplace transform $\cL$.
+  For highly composite functions where tables cannot help, the inverse is given by Mellin's inverse formula which is also an integral.
+
+  The most important result in the context of this report is the differentiation theorem, \Cref{thm:laplace-diff}, which we will only state here and use later.
+
   \begin{theorem}{Laplace Transform of the Derivative}{laplace-diff}
     Given a function $a(t)$ and a corresponding Laplace-transform $\hat{a}(s) = \cL\{a\}(s)$, the transform of the derivative $a'(t)$ of the original function is given by
     $$\cL\{a'\}(s) = \cL\left\{t \mapsto \frac{\partial a}{\partial t}\right\}(s) = s\hat{a}(s) - a_0\,,$$
@@ -165,22 +175,34 @@
   \end{theorem}
 
   \begin{proof}
-    Proof for Laplace's differentiation theorem.
+    From \Cref{def:laplace} directly, we have
+    \begin{align*}
+      \cL\{a'\}(s) & = \int_{0}^{\infty} a'(t) \e^{-st} \,\ddt = [a(t) \e^{-st}]_{t=0}^{\infty} + s \int_{0}^{\infty} a(t) \e^{-st} \,\ddt                                                                         \\
+                   & = \underbrace{\lim_{t \rightarrow \infty} \left(a(t) \e^{-st}\right)}_{\rightarrow 0, \text{ as } s > 0 \text{ and } a \text{ grows slow}} - a(0) \e^{0} + s \cL\{a\}(s) = s\hat{a}(s) - a(0)
+    \end{align*}
+    using integration by parts. The upper boundary term as $t \rightarrow \infty$ vanishes because $s > 0$ and $a$ is assumed to grow slower than $\e^{-st}$.
   \end{proof}
 
+  Another important result is the initial value theorem (\Cref{thm:initial-value}) which will later allow us to use a boundary condition of $a$ on the transformed $\hat{a}$.
+
   \begin{theorem}{Initial Value}{initial-value}
-    For a function $a \in \cC^2(\Omega)$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
+    For a function $a: \R \mapsto \R$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
     $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{t \rightarrow 0^+} a(t)$$
     relates $a$'s \textit{initial value} with the transform evaluated at $s \rightarrow \infty$.
   \end{theorem}
+
+  Highly relevant in signal processing and the theory of linear time-invariant systems, the convolution theorem (\Cref{thm:convolution-theorem}) allows us to rewrite a convolution of two functions as the product of their Laplace transforms.
 
   \begin{theorem}{Laplace Convolution}{convolution-theorem}
-    For a function $a \in \cC^2(\Omega)$ with corresponding Laplace-transform $\hat{a} = \cL\{a\}$,
-    $$\lim_{s \rightarrow \infty} s \hat{a}(s) = \lim_{t \rightarrow 0^+} a(t)$$
-    relates $a$'s \textit{initial value} with the transform evaluated at $s \rightarrow \infty$.
+    Given two functions $a: \R \mapsto \R$ and $b: \R \mapsto \R$,
+    $$\cL\{a * b\} = \cL\{a\} \cdot \cL\{b\}, \quad \text{ where }\quad (a * b)(t) = \int_{0}^{t} a(\tau) b(t-\tau)\,\ddt\,.$$
   \end{theorem}
 
+  Similar results are available for the Fourier transform and other integral transforms.
+
   \subsection{Chebyshev Polynomials}
+  In order to talk about
+
   \begin{definition}{Chebyshev Polynomial of the First Kind}{chebpoly}
     \chebyshev\footnote{Named after Pafnuty Lvovich \chebyshev, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
     \begin{align*}
@@ -300,7 +322,7 @@
   \begin{align*}
     I(t) & = \kappa_0 (1-b_0) \e^{(1-\alpha) V} - \kappa_0 b_0 \e^{-\alpha V} \\
          & = \kappa_0 \left[(1-b_0) \e^V - b_0\right] \e^{-\alpha V}          \\
-         & = \kappa_0 \left[\e^V - (1+\e^V) b_0\right] \e^{-\alpha V}
+         & = \kappa_0 \left[\e^V - (1+\e^V) b_0\right] \e^{-\alpha V}\,,
   \end{align*}
   where $V(t) := E(t) - E_0(t)$, $a_0 = a(x=0, t)$ and $b_0 = b(x=0, t)$.
   It can be further rearranged and simplified to yield an approximation to $b_0$,
@@ -337,6 +359,14 @@
     \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
     \label{fig:fd-scheme}
   \end{figure}
+
+  The current may then be obtained through the forward difference approximation
+  \begin{equation}
+    I(t) = \frac{\partial a}{\partial x}\bigg|_{x=0} \approx \frac{U_1^m - U_0^m}{\Delta x}
+  \end{equation}
+
+  \subsection{The 2D Case}
+  % TODO: Jad please tell me one or two sentences here
 
   \subsection{Results}
 
