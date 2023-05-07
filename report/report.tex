@@ -233,7 +233,10 @@
 
   \section{Analytical Approaches}
   \label{sec:analytical-approaches}
-  When $D = 1$, $a + b = 1$ because. % TODO
+  This section will consider a similarity solution and Laplace-transform approach to find analytical relationships between the solution and current.
+  Note first of all that when $D = 1$, we have that $a + b = 1$ following from the mass conservation \Cref{eq:problem-mass-conservation}
+  $$D = 1 \quad\Rightarrow\quad \frac{\partial}{\partial x} (a + b) = 0 \quad\Rightarrow\quad \text{integrate to get } a + b = \text{const}.\,,$$
+  which we can combine with the initial conditions \Cref{eq:problem-ics} to find the constant equal to one and hence $a + b = 1\; \forall\; x\in[0, \infty), t\in\R$.
 
   \subsection{Similarity Solution}
   The diffusion equations \Cref{eq:problem-pde-a} and \Cref{eq:problem-pde-b} can be solved independently through a similarity solution approach.
@@ -265,22 +268,21 @@
 
   In the case of \underline{Chronoamperometry}, the constant $c_1$ is determined by letting
   $$a(x=0, t) = 0 \quad\Rightarrow\quad c_2 = 1 - \sqrt{D_a\pi} c_1 = 0 \quad\Rightarrow\quad c_1 = \frac{1}{\sqrt{D_a \pi}}\,,$$
-  whereas for \underline{Linear Sweep Voltammetry} it is determined by
+  which then, using the spatial derivatives given above, leads us to a current of the form
+  \begin{equation*}
+    I(t) = \frac{\partial a}{\partial x}\bigg|_{x=0} = \frac{c_1}{\sqrt{t}} = \frac{1}{\sqrt{D_a \pi t}}\,,
+  \end{equation*}
+  whereas for \underline{Linear Sweep Voltammetry} the constant is determined by that very current
   $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad\Rightarrow\quad c_1 = \sqrt{t} I(t) \text{ and } c_2 = 1 - \sqrt{D_a \pi t} I(t)\,.$$
 
   % TODO: maybe write down the full expressions? Is maths correct?
   % TODO: When $D = 1$, we have ...
 
-  From our solution, we obtain a current of the form
-  \begin{equation*}
-    I(t) = \frac{d}{dx} a(x,t) \bigg|_{x=0} = \frac{2}{\sqrt{\pi}} \frac{1}{2\sqrt{t}}e^{-(x/2\sqrt{t})^2} = \frac{1}{\sqrt{\pi t}}\,.
-  \end{equation*}
-
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
   As mentioned above, the Laplace Integral Transform is especially useful in the context of differential equations, mostly due to \Cref{thm:laplace-diff}.
-  Applying it to our \textit{partial} differential diffusion equation \Cref{eq:problem-pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation.
-  Similarly, \glstext{ode}s could be turned into algebraic equations using a similar approach.
+  Applying it to our \textit{partial} differential diffusion equation \Cref{eq:problem-pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation which is usually much easier.
+  Similarly, \glstext{ode}s could be turned into algebraic equations using an analogous approach.
 
   Starting from \Cref{eq:problem-pde-a}, we Laplace-transform both sides and then apply \Cref{thm:laplace-diff} in time $t$ to arrive at
   \begin{align*}
@@ -358,13 +360,30 @@
 
   \section{Finite Differences}
   \label{sec:finite-differences}
-  Construct $A \vec{x} = \vec{b}$.
-  $$\frac{U_{j}^{(n+1)} - U_{j}^{(n)}}{\Delta t} = \alpha \frac{U_{j+1}^{(n)} - 2 U_{j}^{(n)} + U_{j-1}^{(n)}}{(\Delta x)^2}, \quad U_j^{(0)} = u_0(x_j)$$
+  The problem at hand may be solved by employing an \emph{implicit} finite difference scheme that approximates the derivatives in \Cref{eq:problem-pde-a,eq:problem-pde-b}, as follows:
+  \begin{align}
+    \label{eq:fd-scheme-a} \frac{A_{j}^{(n+1)} - A_{j}^{(n)}}{\Delta t} & = D_a \frac{A_{j+1}^{(n+1)} - 2 A_{j}^{(n+1)} + A_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad A_j^{(0)} = 1\,, \\
+    \frac{B_{j}^{(n+1)} - B_{j}^{(n)}}{\Delta t}                        & = D_b \frac{B_{j+1}^{(n+1)} - 2 B_{j}^{(n+1)} + B_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad B_j^{(0)} = 0\,,
+  \end{align}
+  where $A_j^{(n)} \in \R$ denotes the finite difference approximation to the solution $a(x_j, t_n)$ and similarly $B_j^{(n)} \in \R$ the approximation to $b(x_j, t_n)$, where $x_j := j \Delta x = \frac{j}{N_x} L$ are equidistant points in space and $t_n = n \Delta t = \frac{n}{N_t} T$ equidistant points in time.
+  A schematic representation of the scheme can be found in \Cref{fig:fd-scheme}.
 
+  \DeclareRobustCommand{\blackcircle}{\begin{tikzpicture}\draw[black,fill=black] (0, 0) circle (0.08cm);\end{tikzpicture}\hspace{0.15cm}}
+  \DeclareRobustCommand{\bluecircle}{\begin{tikzpicture}\draw[black,fill=black] (0, 0) circle (0.08cm);\draw[blue] (0,0) circle (0.15 cm);\end{tikzpicture}\hspace{0.1cm}}
+  \DeclareRobustCommand{\redsquare}{
+    \begin{tikzpicture}
+      \pgfmathsetmacro{\x}{0}
+      \pgfmathsetmacro{\R}{0.15}
+      \pgfmathsetmacro{\D}{0.3}
+      \draw[black,fill=black] (0, 0) circle (0.08cm);
+      \draw[red, thick] (0.8*\x-\D/2,0-\D/2) -- (0.8*\x-\D/2,0+\D/2) -- (0.8*\x+\D/2,0+\D/2) -- (0.8*\x+\D/2,0-\D/2)--(0.8*\x-\D/2,0-\D/2);
+    \end{tikzpicture}
+    \hspace{0.03cm}
+  }
   \begin{figure}[H]
     \centering
     \inputtikz{fd-scheme}
-    \caption{Schematic of the finite different scheme where ... are the nodes specified by initial conditions, and ... are the nodes specified by boundary conditions.}
+    \caption{Schematic of the finite difference scheme where \blackcircle denote points $(x_j, t_n)$. A visual representation of \Cref{eq:fd-scheme-a} is given by the cyan-coloured Tetris symbol in the center. Then \redsquare denotes notes whose values are specified by the initial conditions (\Cref{eq:problem-ics}) and \bluecircle nodes given by the boundary conditions (\Cref{eq:problem-bcs}).}
     \label{fig:fd-scheme}
   \end{figure}
 
@@ -374,11 +393,31 @@
   \end{equation}
 
   \subsection{The 2D Case}
-  % TODO: Jad please tell me one or two sentences here
+  We also considered the two-dimensional case where we do not simplify the problem down to one dimension but instead consider the diffusion equation in two spatial dimensions:
+  $$\frac{\partial a}{\partial t} = \frac{\partial^2 a}{\partial x^2} + \frac{\partial^2 a}{\partial y^2} = \nabla^2 a = \Delta a \quad\text{ and }\quad \frac{\partial b}{\partial t} = \frac{\partial^2 b}{\partial x^2} + \frac{\partial^2 b}{\partial y^2} = \nabla^2 b = \Delta b\,,$$
+  where the electrode is a line $\{(x, y) \in \R^2 \;|\; x = 0 \wedge y \in [0, 1]\}$ instead of just $x = 0$.
+  We choose this layout from \Cref{fig:battery-schema} where we assume the elctrode to be centered and act the same way in both directions, so we exploit symmetry to only solve for the right half ($x > 0$).
+  Cf. \Cref{fig:2d-case} for reference.
+
+  \begin{figure}[H]
+    \centering
+    \inputtikz{2d-case}
+    \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
+    \label{fig:2d-case}
+  \end{figure}
+
+  The finite difference approach to the solution of this problem is the same as described above, one uses the same finite difference approximations ($D_x^+ D_x^-$ and $D_y^+ D_y^-$) for the spatial derivatives as we assume that diffusion acts the same way in all spatial directions, and an implicit scheme in time. Of course, the solution variable $U$ must be extended by $N_y$ entries respectively for each point $(x, t)$ that is already encoded in it.
+  Also, for $D = 1$, we still have that $a + b = 1$.
+
+  Another difference is that the current is now given by
+  $$I(t) = \int_{y=0}^{1} \frac{\partial a}{\partial x} \,\ddy\,,$$
+  which is just an aggregated epxression of the diffusion out of the electrode.
+
+  % TODO: Results can be found in the appendix.
 
   \subsection{Results}
 
-  \section{Spectral Method}
+  \section{Extension: Spectral Method}
   \label{sec:spectral-method}
   The basic idea of a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
   \begin{equation}
