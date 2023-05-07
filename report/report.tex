@@ -15,6 +15,8 @@
 \date{\today}
 
 \makenoidxglossaries
+\newacronym{dc}{DC}{Direct Current}
+\newacronym{ac}{AC}{Alternating Current}
 \newacronym{ode}{ODE}{Ordinary Differential Equation}
 \newacronym{pde}{PDE}{Partial Differential Equation}
 
@@ -46,7 +48,7 @@
     and optionally, the further boundary condition $a(0, t) = 0$, which corresponds to \underline{Chronoamperometry} or $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ which is set according to a special \underline{Linear Sweep Voltammetry} method with $I(t)$ given in \Cref{eq:current}.
     \vspace*{0.05cm}
 
-    The Finite Difference Approximations are implemented in MATLAB and Python, whereas the Spectral Method is implemented in C++ using \tschebfun.
+    The Finite Difference schemes are implemented in MATLAB and Python, whereas the Spectral Method is implemented in C++ using \tschebfun.
   \end{abstract}
 
   \begin{figure}[H]
@@ -62,45 +64,81 @@
   \pagebreak
 
   \section{Problem Introduction}
-  Energy storage and its associated challenges are clearly among the most relevant questions, not only for the industrial but also the private sector.
+  \label{sec:introduction}
+  Energy storage and its associated challenges are clearly among the most relevant questions today, not only for the industrial but also the public sector.
   Politically, many nations in the world are steering towards greener energy supplies.
-  Renewable energy sources such as wind and sun usually have a fundamental issue however, their availability is subject to an immense amount of fluctuation, which the energy grid must compensate through short- and long-term energy storage.
+  Renewable energy sources such as wind and sun usually have a fundamental issue, their availability is subject to an immense amount of fluctuation, which the energy grid must compensate through short- and long-term energy storage.
 
   Long-term solutions include for example pumped-storage hydroelectricity facilities, but these must be complemented with short-term storage approaches such as Lithium-Ion or Lithium-Iron-Phosphate ($\text{LiFePO}_4$) batteries.
+  Of course, batteries also play a crucial role in customer end products such as smartphones or cars where mobility is a key requirement.
   Most modern batteries exploit electrochemical reactions to relate electrical potentials with chemical potentials and their associated difference ($\rightarrow$ voltage) and convert energy accordingly.
-  The oxidation reaction we considere here is
-  $$A \Rightarrow B + e^-?$$
-  where $A$ and $B$ can be any chemicals and $e^-$ is an electron \parencite{Gavaghan2000Jan}.
-
-  More bla bla later on.
+  The oxidation reaction we consider here is
+  \begin{equation}
+    A \leftrightarrow B + n e^-? \label{eq:oxidation-reaction}
+  \end{equation}
+  where $A$ and $B$ can be any chemicals and $n e^-$ represents $n$ electrons oxidated at the electrode surface \parencite{Gavaghan2000Jan}.
 
   \begin{figure}[H]
     \centering
     \inputtikz{battery-schema}
-    \caption{Wohoo.}
+    \caption{Schematic representation of an electrochemical cell with the liquid solution of chemicals $A$ and $B$ in a container, together with an electrode where the oxidation reaction (\Cref{eq:oxidation-reaction}) takes place. For a small semi-minor axis length $R_y \ll H$ compared to the height of the container $H$ and a large eccentricity (so $R_x \gg R_y$), the 3-dimensional problem can be reduced to a two-dimensional one as depicted on the right-hand side.}
     \label{fig:battery-schema}
   \end{figure}
 
-  As stated on \Cpageref{abstract}, we consider the following \gls{pde}s in the concentrations $a, b \in \C^2(\Omega)$
-  \begin{align}
-    \label{eq:pde-a} \frac{\partial a}{\partial t} = D_a \frac{\partial^2 a}{\partial x^2} \\
-    \label{eq:pde-b} \frac{\partial b}{\partial t} = D_b \frac{\partial^2 b}{\partial x^2}
-  \end{align}
+  The physical problem (cf. \Cref{fig:battery-schema}) in principle is three-dimensional but can be reduced down to two spatial dimensions, and even further down to one dimension when the electrode covers the entire ``floor'' of the container.
+  As stated on \Cpageref{abstract}, this results in a coupled system of diffusion \gls{pde}s of the concentration functions $a$ and $b$, cf. \Crefrange{eq:problem-pde-a}{eq:problem-mass-conservation} in an infinitely large container.
+  In practice, the container is modelled as large enough with length $L$ chosen in a way that does not make a large difference for the numerical solution.
+  The electrode is located at $x = 0$ and the chemicals expand all the way to $x \rightarrow \infty$ or in practice, $x = L$.
+
+  The initial conditions are that the chemical $A$ is present everywhere at $t=0$ while the chemical $B$ is not, so $a(x, 0) = 1$ and $b(x, 0) = 0$.
+  The boundary conditions on the right (at $x \rightarrow \infty$) are motivated by the infinite size of the container, so a diffusion-type reaction will never fully propagate to the very end (right-hand side) of the container and hence we have that $a(x\rightarrow\infty, t) = 1$ and $b(x\rightarrow\infty, t) = 0$ in accordance with the initial conditions.
+
+  Last but not least, \Cref{eq:problem-mass-conservation} describes mass conservation within the container - the flux of chemical $A$ must exactly cancel that of chemical $B$. This turns the differential equations into a coupled system.
+
+  As mentioned above, we will consider three different cases that determine the behaviour of the system of \gls{pde}s: Chronoamperometry, Linear Sweep Voltammetry and Sine Wave Voltammetry.
 
   \subsection{Chronoamperometry}
+  Chronoamperometry is an analytical technique employed in electrochemistry to study the internals of a working electrode. In this case, we consider a potential function $E(t)$ with a large step located at the surface of the electrode.
+  The step is modelled as large enough to force the left-hand boundary condition
+  \begin{equation}
+    a(x=0, t) = 0 \quad\text{ and }\quad b(x=0, t) = 1\,.
+    \label{eq:chrono-bc}
+  \end{equation}
+  Note that this conflicts with the initial condition for $a$ which is 1 everywhere at $t = 0$, and similarly for $b$ it is 0 everywhere at $t = 0$.
+  This conflict causes a large jump in the solution (as we will see later, the similarity solution approach yields $\approx \erf\left(\frac{x}{2 \sqrt{D_a t}}\right)$ whose argument explodes to $\infty$ at $t = 0$ and then slowly recovers).
+  That is not a problem for finite difference schemes, but a large issue for spectral methods in polynomial bases as they cannot encode a jump in their expansion with finite coefficients.
+
   \subsection{Linear Sweep Voltammetry}
+  Linear sweep voltammetry is another method to study a working electrode, by sweeping the potential $E(t)$ linearly in time. In our case, this is done by
+  \begin{equation}
+    E_{dc}(t) = \begin{cases}
+      E_{start} + t                     & \text{ when } 0 \leq t< t_{rev},           \\
+      E_{start} + t_{rev} - (t-t_{rev}) & \text{ when } t_{rev} \leq t\leq 2t_{rev}.
+    \end{cases}
+    \label{eq:linear-potential}
+  \end{equation}
+  with parameters $E_{start} = -10$ and $t_{rev} = 20$.
+  In the case of linear sweep voltammetry, we take the potential $E(t) = E_{dc}(t)$, the \gls{dc} potential.
+
+  We then study the current $I(t)$ as the following function of the potential
   \begin{equation}
     I(t) = \kappa_0 \left(a \e^{(1-\alpha) (E(t) - E_0)} - b \e^{-\alpha (E(t) - E_0)}\right)_{x=0}
     \label{eq:current}
   \end{equation}
+  with parameters $\kappa_0 = 35$ and $E_0 = 0$.
+  Note that this expression depends on the values of $a$ and $b$ at $x = 0$, so the concentrations of $A$ and $B$, respectively, at the electrode.
 
-  \subsection{Linear Sweep AC Voltammetry}
+  \subsection{Sine Wave Voltammetry}
+  Sine wave voltammetry is a small extension to linear sweep voltammetry, where we add a small harmonic perturbation on top of the \gls{dc} potential $E_{dc}$, which altogether we will refer to as the \gls{ac} potential:
   \begin{equation}
     E(t) = E_{dc}(t) + \Delta E \sin(\omega t)\,.
     \label{eq:ac-potential}
   \end{equation}
 
+  In the following, we will introduce necessary mathematical background on Laplace transforms and Chebyshev polynomials (\Cref{sec:math-background}), obtain an analytical solution using a similarity solution and Laplace-transform approach in \Cref{sec:analytical-approaches}, discuss the finite difference scheme one can use to solve the problem numerically in \Cref{sec:finite-differences} and finally introduce the Chebyshev spectral method used for most results in this report (\Cref{sec:spectral-method}).
+
   \section{Mathematical Background}
+  \label{sec:math-background}
   Let $\N$ denote the nonnegative integers, so $0 \in \N$.
   Similarly, let $\R^+ = [0, \infty)$ denote the nonnegative real numbers.
 
@@ -164,6 +202,7 @@
   Proof of $U_k(-1)$'s value.
 
   \section{Analytical Approaches}
+  \label{sec:analytical-approaches}
   When $D = 1$, $a + b = 1$ because. % TODO
 
   \subsection{Similarity Solution}
@@ -202,13 +241,18 @@
   % TODO: maybe write down the full expressions? Is maths correct?
   % TODO: When $D = 1$, we have ...
 
+  From our solution, we obtain a current of the form
+  \begin{equation*}
+    I(t) = \frac{d}{dx} a(x,t) \bigg|_{x=0} = \frac{2}{\sqrt{\pi}} \frac{1}{2\sqrt{t}}e^{-(x/2\sqrt{t})^2} = \frac{1}{\sqrt{\pi t}}.
+  \end{equation*}
+
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
   As mentioned above, the Laplace Integral Transform is especially useful in the context of differential equations, mostly due to \Cref{thm:laplace-diff}.
-  Applying it to our \textit{partial} differential diffusion equation \Cref{eq:pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation.
+  Applying it to our \textit{partial} differential diffusion equation \Cref{eq:problem-pde-a} transforms the problem into one of solving an \textit{ordinary} differential equation.
   Similarly, \glstext{ode}s could be turned into algebraic equations using a similar approach.
 
-  Starting from \Cref{eq:pde-a}, we Laplace-transform both sides and then apply \Cref{thm:laplace-diff} in time $t$ to arrive at
+  Starting from \Cref{eq:problem-pde-a}, we Laplace-transform both sides and then apply \Cref{thm:laplace-diff} in time $t$ to arrive at
   \begin{align*}
     \frac{\partial a}{\partial t}                                   & = D_a \frac{\partial^2 a}{\partial x^2} \quad                             & \textcolor{gray}{\text{Laplace-transform w.r.t. } t} \\
     \cL\left\{t \mapsto \frac{\partial a}{\partial t}\right\}       & = D_a \cL\left\{t \mapsto \frac{\partial^2 a}{\partial x^2}\right\} \quad & \textcolor{gray}{\text{Use \Cref{thm:laplace-diff}}} \\
@@ -278,11 +322,12 @@
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-convolution}
-    \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the DC and AC case with parameter $\Delta E = 0.3$ over the DC potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
+    \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the \gls{dc} and \gls{ac} case with parameter $\Delta E = 0.3$ over the \gls{dc} potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
     \label{fig:voltammetry-convolution}
   \end{figure}
 
   \section{Finite Differences}
+  \label{sec:finite-differences}
   Construct $A \vec{x} = \vec{b}$.
   $$\frac{U_{j}^{(n+1)} - U_{j}^{(n)}}{\Delta t} = \alpha \frac{U_{j+1}^{(n)} - 2 U_{j}^{(n)} + U_{j-1}^{(n)}}{(\Delta x)^2}, \quad U_j^{(0)} = u_0(x_j)$$
 
@@ -296,6 +341,7 @@
   \subsection{Results}
 
   \section{Spectral Method}
+  \label{sec:spectral-method}
   The basic idea of a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
   \begin{equation}
     f_N(\xi) = \sum_{k=0}^{N-1} a_k T_k(\xi), \quad k \in \{0, ..., N-1\},\quad N \in \N, N > 1\,,
@@ -365,27 +411,27 @@
     \label{fig:chronoamperometry}
   \end{figure}
 
-  DC Linear Sweep Voltammetry,
-  AC Linear Sweep Voltammetry
+  \gls{dc} Linear Sweep Voltammetry,
+  \gls{ac} Linear Sweep Voltammetry
 
   \begin{figure}[H]
     \centering
     \inputtikz{ac-voltammetry}
-    \caption{AC Voltammetry}
+    \caption{\gls{ac} Voltammetry}
     \label{fig:ac-voltammetry}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{different-E0s}
-    \caption{Voltammetry Current $I(t)$ vs. the DC Potential $E_{dc}(t)$}
+    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$}
     \label{fig:different-E0s}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-current}
-    \caption{Voltammetry Current $I(t)$ vs. the DC Potential $E_{dc}(t)$}
+    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$}
     \label{fig:voltammetry-current}
   \end{figure}
 
