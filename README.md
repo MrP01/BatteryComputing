@@ -1,6 +1,7 @@
-# Welcome
+# Battery Computing
 
-This is a Case Study in Scientific Computing.
+This is a Case Study in Scientific Computing on the _Numerical Solution of an Electrochemical Cell Model using Analytical Approaches, Finite Differences and a Spectral Method_.
+A group project submitted as part of the MSc in MMSC (Mathematical Modelling and Scientific Computing).
 
 ![Screenshot](report/figures/screenshot.png)
 
