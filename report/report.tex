@@ -432,7 +432,7 @@ for ($t = 0$; $t \le T$; $t$ += $\Delta t$); do
   return $u^{(T)}$.
 end
   \end{algorithm}
-  Where $\mathcal{D}_N^2$ denotes the differentiation operation on the series expansion (\Cref{eq:truncated-cheb-series}).
+  Where $\mathcal{D}_N^2$ denotes the differentiation operator on the series expansion (\Cref{eq:truncated-cheb-series}), discussion of which exceeds the scope of this report.
   In each iteration, the previous solution is diminished by the second derivative of that function, scaled by $D_a \Delta t$.
   The same procedure applies to the solution for $b$.
 
@@ -531,7 +531,7 @@ end
 
   With the problem setting in mind, we moved on to solving the equation system numerically, using a finite difference scheme in one and two spatial dimensions (cf. \Cref{fig:fd-scheme}).
   A more efficient approach is to use a spectral method for the solution of the problem, as can be seen from a runtime comparison of the different approaches in \Cref{table:runtime}.
-  We verified the numerical solution of the linear sweep voltammetry case with the expressions derived in \Cref{sec:analytical-approaches} (the convolution integral), which we numerically approximated, cf. \Cref{fig:voltammetry-convolution}.
+  We verified the numerical solution of the linear sweep voltammetry case with the expressions derived in \Cref{sec:analytical-approaches} (the convolution integral), which we numerically approximated, cf. \Cref{fig:voltammetry-convolution} (the error decreases for $\kappa_0 \gg 1$ chosen even larger than $35$).
   Final concentration results, generated from MATLAB, Python and C++ implementations (including a \gls{gui}), may be found in \Cref{fig:chronoamperometry,fig:ac-voltammetry} as well as current development plots in \Cref{fig:different-E0s,fig:voltammetry-current}.
 
   \begin{table}[H]
