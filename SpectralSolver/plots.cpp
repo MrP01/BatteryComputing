@@ -9,10 +9,14 @@ void chronoPlots() {
   TwoComponentSolver solver;
   solver.setupChronoamperometry(xt::ones<double>({ORDER}));
   double times[] = {0.1, 0.5, 1, 2, 4, 10};
+  auto start = std::chrono::system_clock::now();
   for (size_t i = 0; i < sizeof(times) / sizeof(times[0]); i++) {
     solver.runUntil(times[i]);
     solver.exportToFile(fmt::format("results/chronoamperometry-{}.csv", times[i]), N_POINTS);
   }
+  auto end = std::chrono::system_clock::now();
+  auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+  std::cout << "Exported chrono, took " << elapsed.count() << " ms." << std::endl;
 }
 
 void voltammetryPlots() {

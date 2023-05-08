@@ -134,6 +134,8 @@
     \label{eq:ac-potential}
   \end{equation}
 
+  We will refer to linear sweep and sine wave voltammetry together as cyclic voltammetry.
+
   In the following, we will introduce necessary mathematical background on Laplace transforms and Chebyshev polynomials (\Cref{sec:math-background}), obtain an analytical solution using a similarity solution and Laplace-transform approach in \Cref{sec:analytical-approaches}, discuss the finite difference scheme one can use to solve the problem numerically in \Cref{sec:finite-differences} and finally introduce the Chebyshev spectral method used for most results in this report (\Cref{sec:spectral-method}).
 
   \pagebreak
@@ -410,7 +412,7 @@
   The finite difference approach to the solution of this problem is the same as described above, one uses the same finite difference approximations ($D_x^+ D_x^-$ and $D_y^+ D_y^-$) for the spatial derivatives as we assume that diffusion acts the same way in all spatial directions, and an implicit scheme in time. Of course, the solution variable $U$ must be extended by $N_y$ entries respectively for each point $(x, t)$ that is already encoded in it.
   Also, for $D = 1$, we still have that $a + b = 1$.
 
-  Another difference is that the current is now given by
+  A key difference is that the current is now given by
   $$I(t) = \int_{y=0}^{1} \frac{\partial a}{\partial x} \,\ddy\,,$$
   which is just an aggregated epxression of the diffusion out of the electrode.
 
@@ -496,10 +498,9 @@ end
   where $\gamma_1 := \e^{(1-\alpha)(E(t) - E_0)}$ and $\gamma_2 := \e^{-\alpha(E(t) - E_0)}$ are factors appearing in the current expression $I(t) = \kappa_0 \left(a \gamma_1 - b \gamma_2\right)_{x=0} = \kappa_0 (\gamma_1 + \gamma_2) a(x=0) - \kappa_0 \gamma_2$ as $D=1$.
   We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$.
 
-  \subsection{Implementation}
-  The solver was implemented in C++, using TschebFun and is based on the HeatFun numerical integrator.
-
-  % \inputminted{cpp}{../SpectralSolver/Solver.h}
+  Combining all the above, we now have a working spectral method,
+  which was implemented in C++, using \tschebfun and is based on the \heatfun numerical integrator.
+  In the next subsection, we will present some results.
 
   \subsection{Results}
   Chronoamperometry (step potential),
@@ -537,12 +538,30 @@ end
 
   Why does current not return to 0?
 
-  \subsection{Convergence behaviour}
-
   \section{Conclusion}
+  Find a runtime comparison in \Cref{table:runtime}
 
   \begin{table}[H]
-    \caption{Runtime Comparison}
+    \centering
+    \caption{Runtime Comparison of the different implementations run on the same scenarios. Each runtime is given as the average over three runs. The finite difference schemes were run with $N_x = N_t = 4000$ up to $T = 40$. The spectral method was run using a series expansion of order 15, also up to $T = 40$. The remaining parameters ($\alpha$, $\kappa_0$, $E_0$, etc.) were all identical.}
+    \begin{tblr}{
+      colspec={llr},
+      row{2,3,4,5} = {bg=azure9},
+      row{6,7,8} = {bg=violet9},
+        }
+      \hline
+      \bf Case & \bf Method & \bf Runtime / ms \\
+      \hline
+      Chronoamperometry & Finite Differences (MatLab) & 13900 \\
+      & Finite Differences (Python) & 7200 \\
+      & Finite Differences (Python, large mat.) & 3,700,000 \\
+      & Spectral Method (C++) & 190 \\
+      \hline
+      Cyclic Voltammetry & Finite Differences (MatLab) & 15500 \\
+      & Finite Differences (Python) & 8600 \\
+      & Spectral Method (C++) & 200 \\
+    \end{tblr}
+    \label{table:runtime}
   \end{table}
 
   \pagebreak
