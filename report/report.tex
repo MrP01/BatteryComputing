@@ -354,7 +354,7 @@
   In order to avoid such a situation in a numerical integration method, we excluded values where $t = \tau$ from the integral.
   \begin{figure}[H]
     \centering
-    \inputtikz{voltammetry-convolution}
+    \resizebox{0.8\linewidth}{!}{\inputtikz{voltammetry-convolution}}
     \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the \gls{dc} and \gls{ac} case with parameter $\Delta E = 0.3$ over the \gls{dc} potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
     \label{fig:voltammetry-convolution}
   \end{figure}
@@ -402,19 +402,12 @@
   We choose this layout from \Cref{fig:battery-schema} where we assume the elctrode to be centered and act the same way in both directions, so we exploit symmetry to only solve for the right half ($x > 0$).
   Cf. \Cref{fig:2d-case} for reference.
 
-  \begin{figure}[H]
-    \centering
-    \resizebox{6cm}{!}{\inputtikz{2d-case}}
-    \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
-    \label{fig:2d-case}
-  \end{figure}
-
   The finite difference approach to the solution of this problem is the same as described above, one uses the same finite difference approximations ($D_x^+ D_x^-$ and $D_y^+ D_y^-$) for the spatial derivatives as we assume that diffusion acts the same way in all spatial directions, and an implicit scheme in time. Of course, the solution variable $U$ must be extended by $N_y$ entries respectively for each point $(x, t)$ that is already encoded in it.
   Also, for $D = 1$, we still have that $a + b = 1$.
 
   A key difference is that the current is now given by
   $$I(t) = \int_{y=0}^{1} \frac{\partial a}{\partial x} \,\ddy\,,$$
-  which is just an aggregated epxression of the diffusion out of the electrode.
+  which is just an aggregated expression of the diffusion out of the electrode.
 
   % TODO: Results can be found in the appendix.
 
@@ -507,7 +500,7 @@ end
 
   \begin{figure}[H]
     \centering
-    \inputtikz{chronoamperometry}
+    \resizebox{0.8\linewidth}{!}{\inputtikz{chronoamperometry}}
     \caption{Chronoamperometry}
     \label{fig:chronoamperometry}
   \end{figure}
@@ -517,7 +510,7 @@ end
 
   \begin{figure}[H]
     \centering
-    \inputtikz{ac-voltammetry}
+    \resizebox{0.8\linewidth}{!}{\inputtikz{ac-voltammetry}}
     \caption{\gls{ac} Voltammetry}
     \label{fig:ac-voltammetry}
   \end{figure}
@@ -569,6 +562,14 @@ end
   \printnoidxglossary[type=acronym]
 
   \appendix
+  \section{Remaining Results and Figures}
+  \begin{figure}[H]
+    \centering
+    \resizebox{7cm}{!}{\inputtikz{2d-case}}
+    \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
+    \label{fig:2d-case}
+  \end{figure}
+
   \section{Implementation}
   The results above were obtained using implementations of the numerical methods described.
   Three (independent) solvers are available, in MATLAB and in Python and the spectral solver (cf. the folder named \texttt{SpectralSolver}) which is written in C++.
