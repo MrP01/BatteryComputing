@@ -9,11 +9,11 @@
       width=0.4\linewidth,
     ]
     \nextgroupplot[title={DC}, ylabel={Integral value}]
-    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0-0.csv};
-    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0-0.csv};
+    \addplot [no marks, blue, line width=1pt] table [x=t, y=C_l, col sep=comma] {../results/voltammetry-current-0-0.csv};
+    \addplot [no marks, green, line width=1pt] table [x=t, y=C_r, col sep=comma] {../results/voltammetry-current-0-0.csv};
     \nextgroupplot[title={AC, $\Delta E = 0.3$}]
-    \addplot [no marks, blue, line width=1pt] table [x=E_dc, y=C_l, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
-    \addplot [no marks, green, line width=1pt] table [x=E_dc, y=C_r, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
+    \addplot [no marks, blue, line width=1pt] table [x=t, y=C_l, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
+    \addplot [no marks, green, line width=1pt] table [x=t, y=C_r, col sep=comma] {../results/voltammetry-current-0.3-0.csv};
     \vspace*{-0.5cm}
     \nextgroupplot[xlabel={Time $t$}, ylabel={Error}, ymode=log, ymax=1]
     \addplot [no marks, red, line width=1pt] table [x=t, y expr=abs(\thisrow{C_l} - \thisrow{C_r}), col sep=comma] {../results/voltammetry-current-0-0.csv};

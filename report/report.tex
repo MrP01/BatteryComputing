@@ -21,8 +21,6 @@
 \newacronym{pde}{PDE}{Partial Differential Equation}
 \newacronym{gui}{GUI}{Graphical User Interface}
 
-% TODO: check references to figures
-
 \begin{document}
   \pagestyle{plain}
   \mmscSpecialHeader[casestudy]
@@ -102,7 +100,7 @@
     a(x=0, t) = 0 \quad\text{ and }\quad b(x=0, t) = 1\,,\quad \forall\; t \in (0, T]\,.
     \label{eq:chrono-bc}
   \end{equation}
-  Note that this conflicts with the initial condition for $a$ which is 1 everywhere at $t = 0$, and similarly for $b$ which vanishes everywhere at $t = 0$.
+  Note that this conflicts with the initial condition for $a$ which is $\equiv 1$ everywhere at $t = 0$, and similarly for $b$ which vanishes everywhere at $t = 0$.
   This conflict causes a large jump in the solution (as we will see later, the similarity solution approach yields $\propto \erf\left(\frac{x}{2 \sqrt{D_a t}}\right)$ whose argument explodes to $\infty$ at $t = 0$ and then slowly recovers).
   That is not a problem for finite difference schemes, but a large issue for spectral methods in polynomial bases as they cannot encode a jump in their expansion with finite coefficients.
 
@@ -110,8 +108,8 @@
   Linear sweep voltammetry is another method to study a working electrode, by sweeping the potential $E(t)$ linearly in time. In our case, this is done by
   \begin{equation}
     E_{dc}(t) = \begin{cases}
-      E_{start} + t                     & \text{ when } 0 \leq t< t_{rev},           \\
-      E_{start} + t_{rev} - (t-t_{rev}) & \text{ when } t_{rev} \leq t\leq 2t_{rev}.
+      E_{start} + t                     & \text{ when } 0 \leq t< t_{rev}\,,           \\
+      E_{start} + t_{rev} - (t-t_{rev}) & \text{ when } t_{rev} \leq t\leq 2t_{rev}\,.
     \end{cases}
     \label{eq:linear-potential}
   \end{equation}
@@ -120,7 +118,7 @@
 
   We then study the current $I(t)$ as the following function of the potential
   \begin{equation}
-    I(t) = \kappa_0 \left(a \e^{(1-\alpha) (E(t) - E_0)} - b \e^{-\alpha (E(t) - E_0)}\right)_{x=0}
+    I(t) = \kappa_0 \left(a \e^{(1-\alpha) (E(t) - E_0)} - b \e^{-\alpha (E(t) - E_0)}\right)_{x=0}\,,
     \label{eq:current}
   \end{equation}
   with parameters $\kappa_0 = 35$ and $E_0 = 0$.
@@ -267,7 +265,7 @@
   The spatial derivatives are given by
   $$\frac{\partial a}{\partial x} = c_1 \e^{-\frac{x^2}{4D_at}} t^{-\frac{1}{2}} \quad \text{ and }\quad \frac{\partial b}{\partial x} = c_3 \e^{-\frac{x^2}{4D_bt}} t^{-\frac{1}{2}}\,.$$
   Further considering the mass conservation equation $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$ (\Cref{eq:problem-mass-conservation}) which couples $a$ with $b$, one can derive a relation between $c_1$ and $c_3$,
-  $$c_3 = -\frac{D_a}{D_b} \e^{\left(\frac{1}{D_b} - \frac{1}{D_a}\right) \frac{x^2}{4t}} c_1 = -\frac{D_a}{D_b} \e^{\frac{(D_a-D_b) x^2}{4t D_a D_b}} c_1\,.$$
+  $$c_3 = -\frac{D_a}{D_b} \e^{\left(\frac{1}{D_b} - \frac{1}{D_a}\right) \frac{x^2}{4t}} c_1 = -\frac{D_a}{D_b} \e^{\frac{(D_a-D_b) x^2}{4t D_a D_b}} c_1\,. \quad \text{ When } D=1, \text{ we have } \; c_1 = c_3\,.$$
 
   In the case of \underline{Chronoamperometry}, the constant $c_1$ is determined by letting
   $$a(x=0, t) = 0 \quad\Rightarrow\quad c_2 = 1 - \sqrt{D_a\pi} c_1 = 0 \quad\Rightarrow\quad c_1 = \frac{1}{\sqrt{D_a \pi}}\,,$$
@@ -277,9 +275,6 @@
   \end{equation*}
   whereas for \underline{Linear Sweep Voltammetry} the constant is determined by that very current
   $$\frac{\partial a}{\partial x}\bigg|_{x=0} = I(t) \quad\Rightarrow\quad c_1 = \sqrt{t} I(t) \text{ and } c_2 = 1 - \sqrt{D_a \pi t} I(t)\,.$$
-
-  % TODO: maybe write down the full expressions? Is maths correct?
-  % TODO: When $D = 1$, we have ...
 
   \subsection{Voltammetry Integral Equation}
   \subsubsection{Derivation using the Laplace Transform}
@@ -357,7 +352,7 @@
   \begin{figure}[H]
     \centering
     \resizebox{0.8\linewidth}{!}{\inputtikz{voltammetry-convolution}}
-    \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the \gls{dc} and \gls{ac} case with parameter $\Delta E = 0.3$ over the \gls{dc} potential $E_{dc}(t)$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
+    \caption{Convolution Integral: Comparing $\int_{0}^{t} \frac{I(\tau)}{\sqrt{(t - \tau)}} \,\dd\tau$ (in \textcolor{blue}{blue}) with $\frac{\sqrt{\pi}}{1 + \e^{-(E(t) - E_0)}}$ (in \textcolor{green}{green}) for the \gls{dc} and \gls{ac} case with parameter $\Delta E = 0.3$ over time $t$. $\kappa_0 = 35$ is chosen large and we further have $\alpha = 0.9$, $E_0 = 0$ and $t_{rev} = 20$.}
     \label{fig:voltammetry-convolution}
   \end{figure}
 
@@ -490,7 +485,7 @@ end
     a_{N-2} & = r - \Sigma_2 - a_{N-1}\,,
   \end{align}
   where $\gamma_1 := \e^{(1-\alpha)(E(t) - E_0)}$ and $\gamma_2 := \e^{-\alpha(E(t) - E_0)}$ are factors appearing in the current expression $I(t) = \kappa_0 \left(a \gamma_1 - b \gamma_2\right)_{x=0} = \kappa_0 (\gamma_1 + \gamma_2) a(x=0) - \kappa_0 \gamma_2$ as $D=1$.
-  We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$.
+  We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k a_k$.
 
   Combining all the above, we now have a working spectral method, which was implemented in C++ using \tschebfun and is based on the \heatfun numerical integrator.
   A \gls{gui} is also provided for more intuitive interaction with the solver (cf. \Cref{fig:gui}).
@@ -537,7 +532,7 @@ end
   With the problem setting in mind, we moved on to solving the equation system numerically, using a finite difference scheme in one and two spatial dimensions (cf. \Cref{fig:fd-scheme}).
   A more efficient approach is to use a spectral method for the solution of the problem, as can be seen from a runtime comparison of the different approaches in \Cref{table:runtime}.
   We verified the numerical solution of the linear sweep voltammetry case with the expressions derived in \Cref{sec:analytical-approaches} (the convolution integral), which we numerically approximated, cf. \Cref{fig:voltammetry-convolution}.
-  Final concentration results may be found in \Cref{fig:chronoamperometry,fig:ac-voltammetry} as well as current development plots in \Cref{fig:different-E0s,fig:voltammetry-current}.
+  Final concentration results, generated from MATLAB, Python and C++ implementations (including a \gls{gui}), may be found in \Cref{fig:chronoamperometry,fig:ac-voltammetry} as well as current development plots in \Cref{fig:different-E0s,fig:voltammetry-current}.
 
   \begin{table}[H]
     \vspace{0.5cm}
@@ -570,7 +565,7 @@ end
   \section{Implementation}
   The results above were obtained using implementations of the numerical methods described.
   Three (independent) solvers are available, in MATLAB and in Python and the spectral solver (cf. the folder named \texttt{SpectralSolver}) which is written in C++.
-  All code is available on GitHub, in the \href{https://github.com/MrP01/BatteryComputing}{MrP01/BatteryComputing} repository.
+  All code is available on GitHub, along with compilation instruction, in the \href{https://github.com/MrP01/BatteryComputing}{MrP01/BatteryComputing} repository.
 
   \section{Remaining Figures}
   \begin{figure}[H]
