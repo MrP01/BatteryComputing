@@ -227,7 +227,7 @@
     \label{eq:cheb2ndkind-critical-value-1} U_k(1)   & = U_k(\cos 0) = \lim_{\theta \rightarrow 0} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow 0} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1)\,, \\
     \label{eq:cheb2ndkind-critical-value--1} U_k(-1) & = \lim_{\theta \rightarrow \pi} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow \pi} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1) (-1)^k\,,
   \end{align}
-  following from their \Cref{def:chebpoly2ndkind} and using de L'Hospital's rule to find the value of the $\frac{0}{0}$ situation.
+  following directly from their \Cref{def:chebpoly2ndkind} and using de L'Hospital's rule to resolve the value of the $\frac{0}{0}$ situation.
 
   \section{Analytical Approaches}
   \label{sec:analytical-approaches}
@@ -364,6 +364,7 @@
     \label{eq:fd-scheme-b} \frac{B_{j}^{(n+1)} - B_{j}^{(n)}}{\Delta t} & = D_b \frac{B_{j+1}^{(n+1)} - 2 B_{j}^{(n+1)} + B_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad B_j^{(0)} = 0, B_{N_x}^{(n)} = 0
   \end{align}
   where $A_j^{(n)} \in \R$ denotes the finite difference approximation to the solution $a(x_j, t_n)$ and similarly $B_j^{(n)} \in \R$ the approximation to $b(x_j, t_n)$, where $x_j := j \Delta x = \frac{j}{N_x} L$ with $j = 1, ..., N_x$ are equidistant points in space and $t_n = n \Delta t = \frac{n}{N_t} T,\; n = 1, ..., N_t$ equidistant points in time.
+  We chose an implicit scheme because it is unconditonally stable \parencite{süli_mayers_2003}.
   Further boundary conditions (as in Chronoamperometry or Linear Sweep Voltammetry) can be specified accordingly.
   A schematic representation of the scheme can be found in \Cref{fig:fd-scheme}.
 
@@ -413,7 +414,7 @@
     a_N(\xi) = \sum_{k=0}^{N-1} a_k T_k(\xi),\quad N \in \N, N > 1\,,
     \label{eq:truncated-cheb-series}
   \end{equation}
-  where we choose the basis of Chebyshev polynomials of the first kind.
+  where we choose the basis of Chebyshev polynomials of the first kind, for reference see, for example, \cite{spectralmethods}.
   In our case, we consider a Chebyshev expansion in space while using an implicit Euler scheme in time.
   The initial condition for $a$ is given by $a(x, t=0) = T_0(x) = 1$ so only $a_0 = 1, a_{1, ..., N-1} = 0$. Similarly for $b$, all coefficients $b_{0, ..., N-1} = 0$ at $t = 0$.
 
@@ -528,7 +529,7 @@ end
   In this report, we first introduced the problem setting closely following \cite{Gavaghan2000Jan}, where a system of diffusion equations arises from the oxidation of chemical $A$ to chemical $B$ at an electrode.
   After introducing some necessary background on Laplace transformations and Chebyshev polynomials, we moved on to find a similarity solution to the system, an expression of the form $a(x, t) = \tilde{c_1} \erf\left(\frac{x}{2\sqrt{D_a t}}\right) + c_2$, and derived a relation between the current $I(t)$ and potential $E(t)$ using the Laplace transform.
 
-  With the problem setting in mind, we moved on to solving the equation system numerically, using a finite difference scheme in one and two spatial dimensions.
+  With the problem setting in mind, we moved on to solving the equation system numerically, using a finite difference scheme in one and two spatial dimensions (cf. \Cref{fig:fd-scheme}).
   A more efficient approach is to use a spectral method for the solution of the problem, as can be seen from a runtime comparison of the different approaches in \Cref{table:runtime}.
   We verified the numerical solution of the linear sweep voltammetry case with the expressions derived in \Cref{sec:analytical-approaches} (the convolution integral), which we numerically approximated, cf. \Cref{fig:voltammetry-convolution}.
   Final concentration results may be found in \Cref{fig:chronoamperometry,fig:ac-voltammetry} as well as current development plots in \Cref{fig:different-E0s,fig:voltammetry-current}.
