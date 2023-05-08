@@ -1,4 +1,4 @@
-# Python code for solving chronoamperometre problem
+# Python code for solving chronoamperometry problem
 
 import math
 import pathlib
@@ -11,7 +11,7 @@ from scipy.sparse import diags
 from scipy.sparse.linalg import spsolve
 
 # Latex rendering
-plt.rcParams['text.usetex'] = True
+plt.rcParams["text.usetex"] = True
 plt.rcParams["font.family"] = "mathpazo"
 
 # Python code for External viewer on Mac
@@ -111,7 +111,7 @@ def chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D):
     # Set up matrices for solving the Neumann scheme for "b"
     B = schemeD(Nx, Nt, CFL * D, False)
     rhsB = rhsNeumann(Nx, Nt, IC_B, 0, x_A, 1)
-    x_B = spsolve(B, rhsB)
+    spsolve(B, rhsB)
 
     # Store the real solution for a
     real_A = np.zeros(Nx * Nt)
@@ -122,15 +122,17 @@ def chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D):
         real_A[j * Nx : (j + 1) * Nx] = special.erf(x / (2 * h))
 
     # Plot only one instance
+
+
 """     plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "Numerical Solution", "Real Solution",0, False)
     plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "Numerical Solution", "Real Solution",1,False)
     plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB_", "$A$", "$B$", Nt-1,True)
   """
-    # Compare real to numerical solution
-    #plotAnimate(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal.gif", "Numerical Solution", "Real Solution")
+# Compare real to numerical solution
+# plotAnimate(x0, xn, Nx, Nt, dt, x_A, real_A, "chrono_AvsReal.gif", "Numerical Solution", "Real Solution")
 
-    # Plotting the concentration of A versus that of B
-    #plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB.gif", "Concentration A", "Concentration B")
+# Plotting the concentration of A versus that of B
+# plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, "chrono_AvsB.gif", "Concentration A", "Concentration B")
 
 
 # VOLTAMETRY is the main code for running our second experiment, namely using the Butler-Volmer equation
@@ -269,7 +271,8 @@ def plotAnimate(x0, xn, Nx, Nt, dt, x_A, x_B, filename, x_A_Str, x_B_Str):
     # plt.show()
     return x_A, x_B
 
-def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFrame_j,leg):
+
+def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFrame_j, leg):
     # Plotting
     fig, ax = plt.subplots(figsize=(5, 5))
     minTot = min(x_B.min(), x_A.min())
@@ -283,24 +286,23 @@ def plotChrono(x0, xn, Nx, Nt, dt, x_A, x_B, filetype, x_A_Str, x_B_Str, timeFra
     if leg:
         plt.legend(loc="lower right", fontsize=20)
 
-    plt.xlabel("$x$", fontsize = 20)
-    plt.ylabel("Concentration", fontsize = 20)
+    plt.xlabel("$x$", fontsize=20)
+    plt.ylabel("Concentration", fontsize=20)
 
-    j=timeFrame_j
+    j = timeFrame_j
 
     first = j * Nx
     last = first + Nx - 1
     line.set_ydata(x_A[first : last + 1])
     line2.set_ydata(x_B[first : last + 1])
-    
 
     # Generate (time, the time float) (timeStr, the string from time) (intTime , 100 times time) (intTimeStr, string for intTime)
     time = j * dt
     timeStr = str("%.2f" % time)
 
-    intTime = int(time*100)
+    intTime = int(time * 100)
     intTimeStr = str(intTime)
-    plt.title("$t=$" + timeStr, fontsize = 25)
+    plt.title("$t=$" + timeStr, fontsize=25)
 
     # Save some figures
     filename = filetype + intTimeStr + ".png"
@@ -345,16 +347,16 @@ if __name__ == "__main__":
     delta = 0.1
     omega = 2 * math.pi
 
-    #chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
+    # chronoamperometry(x0, xn, t0, tn, Nx, dx, Nt, dt, D)
     [sol_A, sol_B, I, E] = voltametry(x0, xn, t0, tn, Nx, dx, Nt, dt, D, alpha, DC, delta, omega)
 
     # Plotting the concentration of A versus that of B
-     if DC:
-         myStr = "volt_DC_AvsB.gif"
-     else:
-         myStr = "volt_AC_AvsB.gif"
+    if DC:
+        myStr = "volt_DC_AvsB.gif"
+    else:
+        myStr = "volt_AC_AvsB.gif"
 
-     plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
+    plotAnimate(x0, xn, Nx, Nt, dt, sol_A, sol_B, myStr, "Concentration A", "Concentration B")
 
     # # Plotting for different alphas
-     myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
+    myPlotting(x0, xn, Nx, Nt, dt, D, DC, delta, omega)
