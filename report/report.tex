@@ -19,8 +19,9 @@
 \newacronym{ac}{AC}{Alternating Current}
 \newacronym{ode}{ODE}{Ordinary Differential Equation}
 \newacronym{pde}{PDE}{Partial Differential Equation}
+\newacronym{gui}{GUI}{Graphical User Interface}
 
-% TODO: check that all \cL{...} are used on mappings and not values
+% TODO: check references to figures
 
 \begin{document}
   \pagestyle{plain}
@@ -53,7 +54,8 @@
   \begin{figure}[H]
     \centering
     \includegraphics[width=\linewidth]{figures/screenshot.png}
-    \caption{The Graphical User Interface of the Spectral Solver.}
+    \caption{The \gls{gui} of the Spectral Solver.}
+    \label{fig:gui}
   \end{figure}
 
   \pagebreak
@@ -89,7 +91,7 @@
   The initial conditions are that the chemical $A$ is present everywhere at $t=0$ while the chemical $B$ is not, so $a(x, 0) = 1$ and $b(x, 0) = 0$.
   The boundary conditions on the right (at $x \rightarrow \infty$) are motivated by the infinite size of the container, so a diffusion-type reaction will never fully propagate to the very end (right-hand side) of the container and hence we have that $a(x\rightarrow\infty, t) = 1$ and $b(x\rightarrow\infty, t) = 0$ in accordance with the initial conditions.
 
-  Last but not least, \Cref{eq:problem-mass-conservation} describes mass conservation within the container - the flux of chemical $A$ must exactly cancel that of chemical $B$. This turns the differential equations into a coupled system.
+  Last but not least, \Cref{eq:problem-mass-conservation} describes mass conservation within the container: the flux of chemical $A$ must exactly cancel that of chemical $B$. This turns the differential equations into a coupled system.
 
   As mentioned above, we will consider three different cases that determine the behaviour of the system of \gls{pde}s: Chronoamperometry, Linear Sweep Voltammetry and Sine Wave Voltammetry.
 
@@ -97,11 +99,11 @@
   Chronoamperometry is an analytical technique employed in electrochemistry to study the internals of a working electrode. In this case, we consider a potential function $E(t)$ with a large step located at the surface of the electrode.
   The step is modelled as large enough to force the left-hand boundary condition
   \begin{equation}
-    a(x=0, t) = 0 \quad\text{ and }\quad b(x=0, t) = 1\,.
+    a(x=0, t) = 0 \quad\text{ and }\quad b(x=0, t) = 1\,,\quad \forall\; t \in (0, T]\,.
     \label{eq:chrono-bc}
   \end{equation}
-  Note that this conflicts with the initial condition for $a$ which is 1 everywhere at $t = 0$, and similarly for $b$ it is 0 everywhere at $t = 0$.
-  This conflict causes a large jump in the solution (as we will see later, the similarity solution approach yields $\approx \erf\left(\frac{x}{2 \sqrt{D_a t}}\right)$ whose argument explodes to $\infty$ at $t = 0$ and then slowly recovers).
+  Note that this conflicts with the initial condition for $a$ which is 1 everywhere at $t = 0$, and similarly for $b$ which vanishes everywhere at $t = 0$.
+  This conflict causes a large jump in the solution (as we will see later, the similarity solution approach yields $\propto \erf\left(\frac{x}{2 \sqrt{D_a t}}\right)$ whose argument explodes to $\infty$ at $t = 0$ and then slowly recovers).
   That is not a problem for finite difference schemes, but a large issue for spectral methods in polynomial bases as they cannot encode a jump in their expansion with finite coefficients.
 
   \subsection{Linear Sweep Voltammetry}
@@ -161,7 +163,7 @@
   Laplace transforms are especially valuable for physical systems as many of them expose exponentially decaying and/or periodic behaviours which the Laplace transform is well-suited for due to the form of its kernel.
   Decaying behaviour is captured by the real component of the argument $s$, $\Re(s)$, whereas periodicities are captured by the imaginary part $\Im(s)$\footnote{Consider for comparision the Fourier transform $\cF(a)(\omega) := \int_{-\infty}^{\infty} a(t) \e^{\i \omega t} \,\ddt$ which captures periodic frequencies, where the kernel automatically follows multiplication along the unit circle due to the imaginary-valued exponent $\i\omega t$ (the argument $\omega \in \R$ is real-valued). Intuitively, the Laplace transform coincides with the Fourier transform if evaluated at $s = \i \omega$.}.
 
-  In order to transform a function $\hat{a}$ from the frequency domain back to its original $a$ in the time domain, much like finding antiderivatives, one can use a lookup-table of known transformation pairs $a\;\laplace\;\hat{a}$ and harness the linearity of the Laplace transform $\cL$.
+  In order to transform a function $\hat{a}$ from the frequency domain back to its original $a$ in the time domain, much like finding antiderivatives, one can use a lookup-table of known transformation pairs $a(t)\;\laplace\;\hat{a}(s)$ and harness the linearity of the Laplace transform $\cL$.
   For highly composite functions where tables cannot help, the inverse is given by Mellin's inverse formula which is also an integral.
 
   The most important result in the context of this report is the differentiation theorem, \Cref{thm:laplace-diff}, which we will only state here and use later.
@@ -197,12 +199,15 @@
   \end{theorem}
 
   Similar results are available for the Fourier transform and other integral transforms.
+  For a proof of \Cref{thm:initial-value} and \Cref{thm:convolution-theorem}, see \cite{laplace-transforms}.
+  \vspace*{-0.4cm}
 
   \subsection{Chebyshev Polynomials}
+  \vspace*{-0.2cm}
   In order to introduce the spectral method in \Cref{sec:spectral-method}, let us first define the basis in which the spectral method will operate - the basis of Chebyshev polynomials of the first kind (\Cref{def:chebpoly}).
 
   \begin{definition}{Chebyshev Polynomial of the First Kind}{chebpoly}
-    \chebyshev\footnote{Named after Pafnuty Lvovich \chebyshev, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
+    \chebyshev\footnote{Named after Pafnuty Lvovich \textsc{\chebyshev}, alternatively transliterated as Tchebycheff, Tchebyshev (French) or \textsc{Tschebyschow} (German).} polynomials $T_k: \R \mapsto \R$ are functions satisfying
     \begin{align*}
       T_k(x) = T_k(\cos \theta) := \cos(k \theta) = \frac{1}{2} (z^k + z^{-k}) \\
       z := \e^{i \theta},\quad x := \Re(z) = \cos(\theta) = \frac{1}{2}(z + z^{-1})
@@ -487,8 +492,8 @@ end
   where $\gamma_1 := \e^{(1-\alpha)(E(t) - E_0)}$ and $\gamma_2 := \e^{-\alpha(E(t) - E_0)}$ are factors appearing in the current expression $I(t) = \kappa_0 \left(a \gamma_1 - b \gamma_2\right)_{x=0} = \kappa_0 (\gamma_1 + \gamma_2) a(x=0) - \kappa_0 \gamma_2$ as $D=1$.
   We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$.
 
-  Combining all the above, we now have a working spectral method,
-  which was implemented in C++, using \tschebfun and is based on the \heatfun numerical integrator.
+  Combining all the above, we now have a working spectral method, which was implemented in C++ using \tschebfun and is based on the \heatfun numerical integrator.
+  A \gls{gui} is also provided for more intuitive interaction with the solver (cf. \Cref{fig:gui}).
   In the next subsection, we will present some results.
 
   \subsection{Numerical Results}
@@ -521,7 +526,7 @@ end
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-current}
-    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$ for four different values of $\Delta E$, the amplitude of the sine wave added on top of $E_{dc}(t)$.}
+    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$ for four different values of $\Delta E$, the amplitude of the sine wave added on top of $E_{dc}(t)$, cf. \Cref{eq:ac-potential}.}
     \label{fig:voltammetry-current}
   \end{figure}
 
@@ -559,6 +564,7 @@ end
 
   \pagebreak
   \printbibliography
+  \printnoidxglossary[type=acronym]
 
   \appendix
   \section{Implementation}
@@ -593,6 +599,4 @@ end
     Q & := \frac{-\left(D \Sigma_7 + \Sigma_6 + D f_{N-2} (r_b - \Sigma_5) + f_{N-2} (r_a - \Sigma_2)\right)}{f_{N-1} - f_{N-2}}\,, \\
     R & := D \Sigma_7 + D f_{N-2} (r_b - \Sigma_5)\,.
   \end{align*}
-
-  \printnoidxglossary[type=acronym]
 \end{document}
