@@ -20,7 +20,6 @@
 \newacronym{ode}{ODE}{Ordinary Differential Equation}
 \newacronym{pde}{PDE}{Partial Differential Equation}
 
-% TODO: verify oxidation reaction
 % TODO: check that all \cL{...} are used on mappings and not values
 
 \begin{document}
@@ -362,10 +361,11 @@
   \label{sec:finite-differences}
   The problem at hand may be solved by employing an \emph{implicit} finite difference scheme that approximates the derivatives in \Cref{eq:problem-pde-a,eq:problem-pde-b}, as follows:
   \begin{align}
-    \label{eq:fd-scheme-a} \frac{A_{j}^{(n+1)} - A_{j}^{(n)}}{\Delta t} & = D_a \frac{A_{j+1}^{(n+1)} - 2 A_{j}^{(n+1)} + A_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad A_j^{(0)} = 1\,, \\
-    \frac{B_{j}^{(n+1)} - B_{j}^{(n)}}{\Delta t}                        & = D_b \frac{B_{j+1}^{(n+1)} - 2 B_{j}^{(n+1)} + B_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad B_j^{(0)} = 0\,,
+    \label{eq:fd-scheme-a} \frac{A_{j}^{(n+1)} - A_{j}^{(n)}}{\Delta t} & = D_a \frac{A_{j+1}^{(n+1)} - 2 A_{j}^{(n+1)} + A_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad A_j^{(0)} = 1, A_{N_x}^{(n)} = 1 \\
+    \label{eq:fd-scheme-b} \frac{B_{j}^{(n+1)} - B_{j}^{(n)}}{\Delta t} & = D_b \frac{B_{j+1}^{(n+1)} - 2 B_{j}^{(n+1)} + B_{j-1}^{(n+1)}}{(\Delta x)^2}, \quad B_j^{(0)} = 0, B_{N_x}^{(n)} = 0
   \end{align}
-  where $A_j^{(n)} \in \R$ denotes the finite difference approximation to the solution $a(x_j, t_n)$ and similarly $B_j^{(n)} \in \R$ the approximation to $b(x_j, t_n)$, where $x_j := j \Delta x = \frac{j}{N_x} L$ are equidistant points in space and $t_n = n \Delta t = \frac{n}{N_t} T$ equidistant points in time.
+  where $A_j^{(n)} \in \R$ denotes the finite difference approximation to the solution $a(x_j, t_n)$ and similarly $B_j^{(n)} \in \R$ the approximation to $b(x_j, t_n)$, where $x_j := j \Delta x = \frac{j}{N_x} L$ with $j = 1, ..., N_x$ are equidistant points in space and $t_n = n \Delta t = \frac{n}{N_t} T,\; n = 1, ..., N_t$ equidistant points in time.
+  Further boundary conditions (as in Chronoamperometry or Linear Sweep Voltammetry) can be specified accordingly.
   A schematic representation of the scheme can be found in \Cref{fig:fd-scheme}.
 
   \DeclareRobustCommand{\blackcircle}{\begin{tikzpicture}\draw[black,fill=black] (0, 0) circle (0.08cm);\end{tikzpicture}\hspace{0.15cm}}
@@ -387,10 +387,11 @@
     \label{fig:fd-scheme}
   \end{figure}
 
-  The current may then be obtained through the forward difference approximation
+  The current may be obtained through the forward difference approximation
   \begin{equation}
-    I(t) = \frac{\partial a}{\partial x}\bigg|_{x=0} \approx \frac{U_1^m - U_0^m}{\Delta x}
+    I(t) = \frac{\partial a}{\partial x}\bigg|_{x=0} \approx \frac{A_1^{(n)} - A_0^{(n)}}{\Delta x}\,.
   \end{equation}
+  Simultaneously solving \Cref{eq:fd-scheme-a,eq:fd-scheme-b} corresponds to the solution of a linear system. The matrices constructed in this context are highly sparse and their solution is consequently very fast (sparse matrix solvers have computational complexity $\mathcal{O}(N_x T)$ where $N_x T \times N_x T$ is the matrix size).
 
   \subsection{The 2D Case}
   We also considered the two-dimensional case where we do not simplify the problem down to one dimension but instead consider the diffusion equation in two spatial dimensions:
@@ -401,7 +402,7 @@
 
   \begin{figure}[H]
     \centering
-    \inputtikz{2d-case}
+    \resizebox{6cm}{!}{\inputtikz{2d-case}}
     \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
     \label{fig:2d-case}
   \end{figure}
@@ -415,42 +416,62 @@
 
   % TODO: Results can be found in the appendix.
 
-  \subsection{Results}
-
   \section{Extension: Spectral Method}
   \label{sec:spectral-method}
-  The basic idea of a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
+  The basic idea behind a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
   \begin{equation}
-    f_N(\xi) = \sum_{k=0}^{N-1} a_k T_k(\xi), \quad k \in \{0, ..., N-1\},\quad N \in \N, N > 1\,,
+    a_N(\xi) = \sum_{k=0}^{N-1} a_k T_k(\xi),\quad N \in \N, N > 1\,,
     \label{eq:truncated-cheb-series}
   \end{equation}
   where we choose the basis of Chebyshev polynomials of the first kind.
-
-  An initial condition may be obtained by
-  One wishes to interpolate through data points
-
-  % \begin{theorem}{Chebyshev series coefficient formula}{cheb-coefficient-integrals}
-  %   For any function $f: [-1, 1] \mapsto \R$, one can obtain the \chebyshev series coefficients $a_k$, $k \in \N$ as
-  %   \begin{align*}
-  %     a_0 & = \frac{1}{\pi} \langle f, T_0 \rangle =  \frac{1}{\pi} \int_0^\pi f(\cos \theta) \dd\theta                                   \\
-  %     a_k & = \frac{2}{\pi} \langle f, T_k \rangle = \frac{2}{\pi} \int_0^\pi f(\cos \theta) \cos(k \theta) \dd\theta, \quad k \neq 0 \,.
-  %   \end{align*}
-  % \end{theorem}
+  In our case, we consider a Chebyshev expansion in space while using an implicit Euler scheme in time.
+  The initial condition for $a$ is given by $a(x, t=0) = T_0(x) = 1$ so only $a_0 = 1, a_{1, ..., N-1} = 0$. Similarly for $b$, all coefficients $b_{0, ..., N-1} = 0$ at $t = 0$.
 
   Because the domain we are interested in $[0, L]$ as specified in \Cref{eq:problem-pde-a,eq:problem-mass-conservation} is not $[-1, 1]$, we rescale the expansion as follows when evaluating:
-  $$f_N(x) = f_N\left(\xi = \frac{2 x}{L} - 1\right)$$
+  $$a_N(x) = a_N\left(\xi = \frac{2 x}{L} - 1\right)$$
   to get from $x \in [0, L]$ to $\xi \in [-1, 1]$.
 
-  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, confer \Cref{def:chebpoly}, we can derive that
-  $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \cdot \frac{\dd\theta}{\ddx} = -k \sin(k\theta) \cdot \frac{1}{-\sin \theta} = k \frac{\sin(k\theta)}{\sin \theta} = k U_{k-1}(x)\,,$$
-  where we recall that $U_k: [-1, 1] \mapsto \R$ denote the Chebyshev polynomials of the second kind, $U_k(\cos \theta) \sin(\theta) = \sin\left((k+1) \theta\right)$, confer \Cref{def:chebpoly2ndkind}.
+  The forward Euler scheme then operates according to the following procedure:
+  \begin{algorithm}[language=pseudo, caption={\centering A Spectral Method in the Chebyshev Basis}, basicstyle=\footnotesize]
+Given $a^{(0)}$ = |\color{themecolor3}TschebFun|::|\color{themecolor2}interpolantThrough|().
+for ($t = 0$; $t \le T$; $t$ += $\Delta t$); do
+  |\rm\color{gray}Behaviour according to the differential equation:|
+  set $a^{(t+\Delta t)}$ = $a^{(t)}$ + $D_a \Delta t$ $\cdot$ $\mathcal{D}_N^2 a^{(t)}$ |\rm\color{gray}using| |\color{themecolor3}TschebFun|::|\color{themecolor2}derivative|() |\rm\color{gray}twice|.
+  |\rm \textcolor{purple}{enforce} boundary conditions on $a^{(t+\Delta t)}$|.
+  return $u^{(T)}$.
+end
+  \end{algorithm}
+  Where $\mathcal{D}_N^2$ denotes the differentiation operation on the series expansion (\Cref{eq:truncated-cheb-series}).
+  In each iteration, the previous solution is diminished by the second derivative of that function, scaled by $D_a \Delta t$.
+  The same procedure applies to the solution for $b$.
 
-  In order to enforce a von-Neumann boundary condition on the left and a Dirichlet boundary condition on the right,
-  we are interested in explicitly setting coefficients $a_k$ such that
+  \subsection{Enforcing Boundary Conditions}
+  For \underline{Chronoamperometry}, we have a situation of two Dirichlet boundary conditions on both sides. For each iteration, these can be applied to determine the two highest-order coefficients $a_{N-1}$ and $a_{N-2}$ as the two degrees of freedom, as they are``left untouched'' by the heat equation.
+  As the procedure is very similar to what is stated below, we will not rederive this result here, but only state it:
+  \begin{algorithm}[language=pseudo, caption={\centering Enforcing Dirichlet Boundary Conditions on both sides}, basicstyle=\footnotesize]
+let $\Sigma_1 = \sum_{k=0}^{N-3} a_k^{(t+\Delta t)} (-1)^k$.
+let $\Sigma_2 = \sum_{k=0}^{N-3} a_k^{(t+\Delta t)}$.
+if $N$ even; do
+  set $a_{N-2}^{(t+\Delta t)} = \frac{l+r-\Sigma_1-\Sigma_2}{2}$.
+  set $a_{N-1}^{(t+\Delta t)} = r - a_{N-2}^{(t+\Delta t)} - \Sigma_2$.
+else if $N$ odd; do
+  set $a_{N-1}^{(t+\Delta t)} = \frac{l+r-\Sigma_1-\Sigma_2}{2}$.
+  set $a_{N-2}^{(t+\Delta t)} = r - a_{N-1}^{(t+\Delta t)} - \Sigma_2$.
+end
+  \end{algorithm}
+
+  For \underline{Linear Sweep Voltammetry}, we are in the situation of a von-Neumann boundary condition on the left (at $x = 0$ or $\xi = -1$) and a Dirichlet boundary condition on the right (at $x = L$).
+  In this case, the values of the two highest-order coefficients are derived as follows:
+  From the definition of Chebyshev polynomials $T_k(x) = \cos(k\theta)$, cf \Cref{def:chebpoly}, we can derive that
+  $$\frac{\dd T_k}{\ddx} = \frac{\dd T_k}{\dd\theta} \cdot \frac{\dd\theta}{\ddx} = -k \sin(k\theta) \cdot \frac{1}{-\sin \theta} = k \frac{\sin(k\theta)}{\sin \theta} = k U_{k-1}(x)\,,$$
+  where we recall that $U_k: [-1, 1] \mapsto \R$ denotes the $k$\th Chebyshev polynomial of the second kind, cf. \Cref{def:chebpoly2ndkind}.
+
+  Within the scope of this report, we will only present the case where $D = 1$ for brevity, but the general case is given in \Cref{sec:general-case}.
+  In order to implicitly enforce a von-Neumann boundary condition on the left and a Dirichlet boundary condition on the right, we set coefficients $a_{N-1}$ and $a_{N-2}$ such that
   $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \tilde{l} \quad \text{ and } \quad a(1) = r, \quad \text{ where } \quad \tilde{l}, r \in \R\,.$$
 
   Using the Chebyshev series ansatz
-  $$a(x, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k(x)$$
+  $a_N(x, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k(x)$
   we have that
   $$\frac{\dd a}{\ddx} = \sum_{k=0}^{N-1} a_k^{(t)} \frac{\dd T_k}{\ddx}(x)\,,$$
   so we are interested in
@@ -463,15 +484,17 @@
 
   Knowing that the heat equation Forward Euler numerical scheme modifies all but the two highest-degree coefficients in the series, we expand:
   \begin{align*}
-    a_x(-1, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) =   & \overbrace{-\sum_{k=0}^{N-3} a_k^{(t)} k^2 (-1)^{k}}^{:= \Sigma_3} - (N-2)^2 (-1)^{N-2} a_{N-2}                  \\
+    a_x(-1, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) =   & -\sum_{k=0}^{N-3} a_k^{(t) k^2 (-1)^{k}} - (N-2)^2 (-1)^{N-2} a_{N-2}                                            \\
                                                          & -(N-1)^2 (-1)^{N-1} a_{N-1} = l\,,                                                                               \\
     a(1, t)    = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)     = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              + a_{N-2}                    + a_{N-1} = r\,,
   \end{align*}
-
-  \subsection{Enforcing Boundary Conditions}
-  Von Neumann on the left
-
-  \subsection{Stability and Implicit Euler}
+  which one can combine with the boundary conditions $l$ (given by current) and $r = 1$ from \Cref{eq:problem-bcs}, and rearrange to get
+  \begin{align}
+    a_{N-1} & = \frac{f_{N-2}(\Sigma_2 - r) - \Sigma_4 + \kappa_0 \gamma_2}{f_{N-1} - f_{N-2}} \\
+    a_{N-2} & = r - \Sigma_2 - a_{N-1}
+  \end{align}
+  where $\gamma_1 := \e^{(1-\alpha)(E(t) - E_0)}$ and $\gamma_2 := \e^{-\alpha(E(t) - E_0)}$ are factors appearing in the current expression $I(t) = \kappa_0 \left(a \gamma_1 - b \gamma_2\right)_{x=0} = \kappa_0 (\gamma_1 + \gamma_2) a(x=0) - \kappa_0 \gamma_2$ as $D=1$.
+  We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$.
 
   \subsection{Implementation}
   The solver was implemented in C++, using TschebFun and is based on the HeatFun numerical integrator.
@@ -512,6 +535,8 @@
     \label{fig:voltammetry-current}
   \end{figure}
 
+  Why does current not return to 0?
+
   \subsection{Convergence behaviour}
 
   \section{Conclusion}
@@ -529,4 +554,24 @@
   The results above were obtained using implementations of the numerical methods described.
   Three (independent) solvers are available, in MATLAB and in Python and the spectral solver (cf. the folder named \texttt{SpectralSolver}) which is written in C++.
   All code is available on GitHub, in the \href{https://github.com/MrP01/BatteryComputing}{MrP01/BatteryComputing} repository.
+
+  \section{General Boundary Condition Coefficients}
+  \label{sec:general-case}
+  A tedious derivation yields formulae for the four highest-order coefficients $a_{N-1}$, $a_{N-2}$, $b_{N-1}$ and $b_{N-2}$ when enforcing boundary boundary conditions $a(x=L) = r_a$, $b(x=L) = r_b$, $\frac{\partial a}{\partial x}\big|_{x=0} = I(t)$ and $\frac{\partial a}{\partial x} + D \frac{\partial b}{\partial x} = 0$:
+  \begin{align*}
+    b_{N-1} & = \frac{-\kappa_0 \left(\Sigma_8 + \gamma_1 (-1)^{N-2}(r_b - \Sigma_2 - Q) + \gamma_2 (-1)^{N-2} (r_b - \Sigma_5) - \gamma_1 Q\right) + R}{2 \kappa_0 (-1)^{N-2} (D \gamma_1 + \gamma_2) - D (f_{N-1} - f_{N-2})}\,, \\
+    a_{N-1} & = Q - D b_{N-1}\,,                                                                                                                                                                                                   \\
+    a_{N-2} & = r_a - \Sigma_2 - a_{N-1}\,,                                                                                                                                                                                        \\
+    b_{N-2} & = r_b - \Sigma_5 - b_{N-1}\,,
+  \end{align*}
+  where $\kappa_0, \gamma_1, \gamma_2, \Sigma_2, f_{N-1}$ and $f_{N-2}$ are as given in \Cref{sec:spectral-method} and the remaining constants are
+  $$\Sigma_5 := \sum_{k=0}^{N-3} b_k\,,
+    \Sigma_6 := \sum_{k=0}^{N-3} k^2 (-1)^k a_k b_k\,,
+    \Sigma_7 := \sum_{k=0}^{N-3} k^2 (-1)^k b_k b_k\,,$$
+  $$\Sigma_8 := \sum_{k=0}^{N-3} (\gamma_1 a_k - \gamma_2 b_k)(-1)^k\,,$$
+  and
+  \begin{align*}
+    Q & := \frac{-\left(D \Sigma_7 + \Sigma_6 + D f_{N-2} (r_b - \Sigma_5) + f_{N-2} (r_a - \Sigma_2)\right)}{f_{N-1} - f_{N-2}}\,, \\
+    R & := D \Sigma_7 + D f_{N-2} (r_b - \Sigma_5)\,.
+  \end{align*}
 \end{document}
