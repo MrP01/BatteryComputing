@@ -59,9 +59,6 @@
   \pagebreak
   \pagestyle{normal}
 
-  \tableofcontents
-  \pagebreak
-
   \section{Problem Introduction}
   \label{sec:introduction}
   Energy storage and its associated challenges are clearly among the most relevant questions today, not only for the industrial but also the public sector.
@@ -509,7 +506,7 @@ end
   \begin{figure}[H]
     \centering
     \inputtikz{ac-voltammetry}
-    \caption{Time evolution of in the cyclic voltammetry case for $D=1$ and $\alpha = 0.9$: the \gls{ac} potential with $\Delta E = 0.3$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}, at times $t = 5, 10, 15, 25, 30, 35$. The movement on the left-hand side is dictated by the current $I(t)$ which changes over time, and is itself dependent on the concentrations of $a$ and $b$.}
+    \caption{Time evolution of in the cyclic voltammetry case for $D=1$ and $\alpha = 0.9$: the \gls{ac} potential with $\Delta E = 0.3$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}, at times $t = 5, 10, 15, 25, 30, 35$. The movement on the left-hand side is dictated by the current $I(t)$ which changes over time, and is itself dependent on the concentrations $a$ and $b$.}
     \label{fig:ac-voltammetry}
   \end{figure}
 
@@ -528,22 +525,28 @@ end
   \end{figure}
 
   \section{Conclusion}
-  Find a runtime comparison of the different approaches in \Cref{table:runtime}.
+  In this report, we first introduced the problem setting closely following \cite{Gavaghan2000Jan}, where a system of diffusion equations arises from the oxidation of chemical $A$ to chemical $B$ at an electrode.
+  After introducing some necessary background on Laplace transformations and Chebyshev polynomials, we moved on to find a similarity solution to the system, an expression of the form $a(x, t) = \tilde{c_1} \erf\left(\frac{x}{2\sqrt{D_a t}}\right) + c_2$, and derived a relation between the current $I(t)$ and potential $E(t)$ using the Laplace transform.
 
-  \begin{table}
+  With the problem setting in mind, we moved on to solving the equation system numerically, using a finite difference scheme in one and two spatial dimensions.
+  A more efficient approach is to use a spectral method for the solution of the problem, as can be seen from a runtime comparison of the different approaches in \Cref{table:runtime}.
+  We verified the numerical solution of the linear sweep voltammetry case with the expressions derived in \Cref{sec:analytical-approaches} (the convolution integral), which we numerically approximated, cf. \Cref{fig:voltammetry-convolution}.
+  Final concentration results may be found in \Cref{fig:chronoamperometry,fig:ac-voltammetry} as well as current development plots in \Cref{fig:different-E0s,fig:voltammetry-current}.
+
+  \begin{table}[H]
+    \vspace{0.5cm}
     \centering
     \caption{Runtime Comparison of the different implementations run on the same scenarios. Each runtime is given as the average over three runs. The finite difference schemes were run with $N_x = N_t = 4000$ up to $T = 40$. The spectral method was run using a series expansion of order 15, also up to $T = 40$. The remaining parameters ($\alpha$, $\kappa_0$, $E_0$, etc.) were all identical.}
     \begin{tblr}{
       colspec={llr},
-      row{2,3,4,5} = {bg=azure9},
-      row{6,7,8} = {bg=violet9},
+      row{2,3,4} = {bg=azure9},
+      row{5,6,7} = {bg=violet9},
         }
       \hline
       \bf Case & \bf Method & \bf Runtime / ms \\
       \hline
       Chronoamperometry & Finite Differences (MatLab) & 13900 \\
       & Finite Differences (Python) & 7200 \\
-      & Finite Differences (Python, large mat.) & 3,700,000 \\
       & Spectral Method (C++) & 190 \\
       \hline
       Cyclic Voltammetry & Finite Differences (MatLab) & 15500 \\
@@ -555,21 +558,20 @@ end
 
   \pagebreak
   \printbibliography
-  \printnoidxglossary[type=acronym]
 
   \appendix
-  \section{Remaining Results and Figures}
-  \begin{figure}[H]
-    \centering
-    \resizebox{7cm}{!}{\inputtikz{2d-case}}
-    \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
-    \label{fig:2d-case}
-  \end{figure}
-
   \section{Implementation}
   The results above were obtained using implementations of the numerical methods described.
   Three (independent) solvers are available, in MATLAB and in Python and the spectral solver (cf. the folder named \texttt{SpectralSolver}) which is written in C++.
   All code is available on GitHub, in the \href{https://github.com/MrP01/BatteryComputing}{MrP01/BatteryComputing} repository.
+
+  \section{Remaining Figures}
+  \begin{figure}[H]
+    \centering
+    \inputtikz{2d-case}
+    \caption{Schematic depiction of the two-dimensional domain $[0, L] \times [0, L]$ where in this case $L = 3$. The electrode where the oxidation reaction takes place is located at $x=0, y \in [0, 1]$.}
+    \label{fig:2d-case}
+  \end{figure}
 
   \section{General Boundary Condition Coefficients}
   \label{sec:general-case}
@@ -590,4 +592,6 @@ end
     Q & := \frac{-\left(D \Sigma_7 + \Sigma_6 + D f_{N-2} (r_b - \Sigma_5) + f_{N-2} (r_a - \Sigma_2)\right)}{f_{N-1} - f_{N-2}}\,, \\
     R & := D \Sigma_7 + D f_{N-2} (r_b - \Sigma_5)\,.
   \end{align*}
+
+  \printnoidxglossary[type=acronym]
 \end{document}
