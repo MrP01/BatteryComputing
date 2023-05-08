@@ -409,8 +409,6 @@
   $$I(t) = \int_{y=0}^{1} \frac{\partial a}{\partial x} \,\ddy\,,$$
   which is just an aggregated expression of the diffusion out of the electrode.
 
-  % TODO: Results can be found in the appendix.
-
   \section{Extension: Spectral Method}
   \label{sec:spectral-method}
   The basic idea behind a spectral method is to turn a differential equation into an algebraic one by considering a basis expansion ansatz of the form
@@ -495,46 +493,44 @@ end
   which was implemented in C++, using \tschebfun and is based on the \heatfun numerical integrator.
   In the next subsection, we will present some results.
 
-  \subsection{Results}
-  Chronoamperometry (step potential),
+  \subsection{Numerical Results}
+  For Chronoamperometry (the step potential), we obtain time evolution results using the spectral method, as shown in \Cref{fig:chronoamperometry}.
+  Similarly for AC Voltammetry, time evolution of the concentrations $a$ and $b$ can be found in \Cref{fig:ac-voltammetry}.
+  The current $I(t)$ as a plot over the \gls{dc} potential $E_{dc}(t)$ can be found for various cases in \Cref{fig:different-E0s,fig:voltammetry-current}.
+  Generally, the current $I$ does not return back to $I(0) = 0$ in finite time $T$ as in a diffusion setting it takes infinitely long for $a$ and $b$ to converge back to their initial state, hence $I$ will reach exactly $0$ only as $t \rightarrow \infty$.
 
   \begin{figure}[H]
     \centering
-    \resizebox{0.8\linewidth}{!}{\inputtikz{chronoamperometry}}
-    \caption{Chronoamperometry}
+    \inputtikz{chronoamperometry}
+    \caption{Time evolution in the chronoamperometry case with $D=1$ and $\alpha = 0.9$ for $t = 0.1, 0.5, 1, 2, 4, 10$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}. The oscillatory behaviour seen at very small $t = 0.1$ results from the inconsistency between the boundary and initial condition.}
     \label{fig:chronoamperometry}
   \end{figure}
 
-  \gls{dc} Linear Sweep Voltammetry,
-  \gls{ac} Linear Sweep Voltammetry
-
   \begin{figure}[H]
     \centering
-    \resizebox{0.8\linewidth}{!}{\inputtikz{ac-voltammetry}}
-    \caption{\gls{ac} Voltammetry}
+    \inputtikz{ac-voltammetry}
+    \caption{Time evolution of in the cyclic voltammetry case for $D=1$ and $\alpha = 0.9$: the \gls{ac} potential with $\Delta E = 0.3$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}, at times $t = 5, 10, 15, 25, 30, 35$. The movement on the left-hand side is dictated by the current $I(t)$ which changes over time, and is itself dependent on the concentrations of $a$ and $b$.}
     \label{fig:ac-voltammetry}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{different-E0s}
-    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$}
+    \caption{The Voltammetry Current $I(t)$ plotted against the \gls{dc} Potential $E_{dc}(t)$ for different values of $E_0$. Note that the small ridge of $I$ at $t = 0$ is correct according to its definition because $a \e^{(1-\alpha)(E - E_0)}$ dominates the expression at this stage.}
     \label{fig:different-E0s}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{voltammetry-current}
-    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$}
+    \caption{Voltammetry Current $I(t)$ vs. the \gls{dc} Potential $E_{dc}(t)$ for four different values of $\Delta E$, the amplitude of the sine wave added on top of $E_{dc}(t)$.}
     \label{fig:voltammetry-current}
   \end{figure}
 
-  Why does current not return to 0?
-
   \section{Conclusion}
-  Find a runtime comparison in \Cref{table:runtime}
+  Find a runtime comparison of the different approaches in \Cref{table:runtime}.
 
-  \begin{table}[H]
+  \begin{table}
     \centering
     \caption{Runtime Comparison of the different implementations run on the same scenarios. Each runtime is given as the average over three runs. The finite difference schemes were run with $N_x = N_t = 4000$ up to $T = 40$. The spectral method was run using a series expansion of order 15, also up to $T = 40$. The remaining parameters ($\alpha$, $\kappa_0$, $E_0$, etc.) were all identical.}
     \begin{tblr}{
