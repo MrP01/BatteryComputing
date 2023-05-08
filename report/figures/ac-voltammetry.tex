@@ -1,3 +1,7 @@
+\pgfplotsset{/pgfplots/group/.cd,
+  horizontal sep=1.7cm,
+  vertical sep=1.2cm
+}
 \begin{tikzpicture}
   \begin{groupplot}[
       group style={group size=3 by 2,},
@@ -6,7 +10,7 @@
     ]
     \pgfplotsforeachungrouped \t in {5, 10, 15, 25, 30, 35}{
         \edef\tmp{
-          \noexpand\nextgroupplot
+          \noexpand\nextgroupplot[xlabel=$x$, ylabel={Concentration}]
           \noexpand\addplot [no marks, blue, line width=2pt] table [x=x, y=a, col sep=comma] {../results/ac-voltammetry-\t.csv};
           \noexpand\addplot [no marks, magenta, line width=2pt] table [x=x, y=b, col sep=comma] {../results/ac-voltammetry-\t.csv};
         }
@@ -14,3 +18,4 @@
       }
   \end{groupplot}
 \end{tikzpicture}
+\vspace*{-0.8cm}

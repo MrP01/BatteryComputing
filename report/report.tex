@@ -232,7 +232,7 @@
     \label{eq:cheb2ndkind-critical-value-1} U_k(1)   & = U_k(\cos 0) = \lim_{\theta \rightarrow 0} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow 0} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1)\,, \\
     \label{eq:cheb2ndkind-critical-value--1} U_k(-1) & = \lim_{\theta \rightarrow \pi} \frac{\sin\left((k+1) \theta\right)}{\sin \theta} = \lim_{\theta \rightarrow \pi} \frac{(k+1)\cos\left((k+1) \theta\right)}{\cos \theta} = (k+1) (-1)^k\,,
   \end{align}
-  following directly from their \Cref{def:chebpoly2ndkind} and using de L'Hospital's rule to resolve the value of the $\frac{0}{0}$ situation.
+  following directly from their \Cref{def:chebpoly2ndkind} and using de L'Hospital's rule to resolve the value of the $\frac{0}{0}$ limit situation.
 
   \section{Analytical Approaches}
   \label{sec:analytical-approaches}
@@ -396,7 +396,7 @@
   \begin{equation}
     I(t) = \frac{\partial a}{\partial x}\bigg|_{x=0} \approx \frac{A_1^{(n)} - A_0^{(n)}}{\Delta x}\,.
   \end{equation}
-  Simultaneously solving \Cref{eq:fd-scheme-a,eq:fd-scheme-b} corresponds to the solution of a linear system. The matrices constructed in this context are highly sparse and their solution is consequently very fast (sparse matrix solvers have computational complexity $\mathcal{O}(N_x T)$ where $N_x T \times N_x T$ is the matrix size).
+  Simultaneously solving \Cref{eq:fd-scheme-a,eq:fd-scheme-b} corresponds to the solution of a linear system. The matrices constructed in this context are highly sparse and their solution is consequently very fast (sparse matrix solvers have a runtime computational complexity of $\mathcal{O}(N_x T)$ where $N_x T \times N_x T$ is the matrix size).
 
   \subsection{The 2D Case}
   We also considered the two-dimensional case where we do not simplify the problem down to one dimension but instead consider the diffusion equation in two spatial dimensions:
@@ -424,7 +424,7 @@
   The initial condition for $a$ is given by $a(x, t=0) = T_0(x) = 1$ so only $a_0 = 1, a_{1, ..., N-1} = 0$. Similarly for $b$, all coefficients $b_{0, ..., N-1} = 0$ at $t = 0$.
 
   Because the domain we are interested in $[0, L]$ as specified in \Cref{eq:problem-pde-a,eq:problem-mass-conservation} is not $[-1, 1]$, we rescale the expansion as follows when evaluating:
-  $$a_N(x) = a_N\left(\xi = \frac{2 x}{L} - 1\right)$$
+  $$a_N(x) = a_N\left(\xi = \frac{2 x}{L} - 1\right)\,,$$
   to get from $x \in [0, L]$ to $\xi \in [-1, 1]$.
 
   The forward Euler scheme then operates according to the following procedure:
@@ -476,18 +476,18 @@ end
   Following from \Cref{def:chebpoly} and \Cref{eq:cheb2ndkind-critical-value--1}, we know that
   $$U_k(-1) = (-1)^k (k+1) \quad \text{ and } \quad T_k(1) = 1 \quad \forall k \in \N\,,$$
   which turns our conditions into algebraic conditions w.r.t. the coefficients $a_k^{(t)}$,
-  $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} a_k^{(t)} k^2 (-1)^{k-1} \overset{!}{=} \tilde{l} \quad \text{ and } \quad a|_{x=1} = \sum_{k=0}^{N-1} a_k^{(t)} \overset{!}{=} r\,.$$
+  $$a_x(-1, t) = \frac{\dd a}{\ddx}\Big|_{x=-1} = \sum_{k=0}^{N-1} k^2 (-1)^{k-1} a_k^{(t)} \overset{!}{=} \tilde{l} \quad \text{ and } \quad a|_{x=1} = \sum_{k=0}^{N-1} a_k^{(t)} \overset{!}{=} r\,.$$
 
   Knowing that the heat equation Forward Euler numerical scheme modifies all but the two highest-degree coefficients in the series, we expand:
   \begin{align*}
-    a_x(-1, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) =   & -\sum_{k=0}^{N-3} a_k^{(t) k^2 (-1)^{k}} - (N-2)^2 (-1)^{N-2} a_{N-2}                                            \\
-                                                         & -(N-1)^2 (-1)^{N-1} a_{N-1} = l\,,                                                                               \\
-    a(1, t)    = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)     = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              + a_{N-2}                    + a_{N-1} = r\,,
+    a_x(-1, t) = \sum_{k=0}^{N-1} a_k^{(t)} T_k'(-1) =   & -\sum_{k=0}^{N-3} k^2 (-1)^{k} a_k^{(t)} - (N-2)^2 (-1)^{N-2} a_{N-2}^{(t)}                                                  \\
+                                                         & -(N-1)^2 (-1)^{N-1} a_{N-1}^{(t)} = l\,,                                                                                     \\
+    a(1, t)    = \sum_{k=0}^{N-1} a_k^{(t)} T_k(1)     = & \underbrace{\sum_{k=0}^{N-3} a_k^{(t)}}_{:= \Sigma_2}              + a_{N-2}^{(t)}                    + a_{N-1}^{(t)} = r\,,
   \end{align*}
-  which one can combine with the boundary conditions $l$ (given by current) and $r = 1$ from \Cref{eq:problem-bcs}, and rearrange to get
+  which one can combine with the boundary conditions $l$ (given by the current) and $r = 1$ from \Cref{eq:problem-bcs}, and rearrange to obtain that at time step ${(t)}$,
   \begin{align}
-    a_{N-1} & = \frac{f_{N-2}(\Sigma_2 - r) - \Sigma_4 + \kappa_0 \gamma_2}{f_{N-1} - f_{N-2}} \\
-    a_{N-2} & = r - \Sigma_2 - a_{N-1}
+    a_{N-1} & = \frac{f_{N-2}(\Sigma_2 - r) - \Sigma_4 + \kappa_0 \gamma_2}{f_{N-1} - f_{N-2}}\,, \\
+    a_{N-2} & = r - \Sigma_2 - a_{N-1}\,,
   \end{align}
   where $\gamma_1 := \e^{(1-\alpha)(E(t) - E_0)}$ and $\gamma_2 := \e^{-\alpha(E(t) - E_0)}$ are factors appearing in the current expression $I(t) = \kappa_0 \left(a \gamma_1 - b \gamma_2\right)_{x=0} = \kappa_0 (\gamma_1 + \gamma_2) a(x=0) - \kappa_0 \gamma_2$ as $D=1$.
   We further have $f_k := \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$ for $k = N-1, N-2$, $\Sigma_2 := \sum_{k=0}^{N-3} a_k$ (as above for the Dirichlet-Dirichlet case) and $\Sigma_4 := \sum_{k=0}^{N-3} f_k a_k = \sum_{k=0}^{N-3} \left(\kappa_0 (\gamma_1 + \gamma_2) + k^2\right)(-1)^k$.
@@ -505,14 +505,14 @@ end
   \begin{figure}[H]
     \centering
     \inputtikz{chronoamperometry}
-    \caption{Time evolution in the chronoamperometry case with $D=1$ and $\alpha = 0.9$ for $t = 0.1, 0.5, 1, 2, 4, 10$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}. The oscillatory behaviour seen at very small $t = 0.1$ results from the inconsistency between the boundary and initial condition.}
+    \caption{Time evolution in the chronoamperometry case with $D=1$ and $\alpha = 0.9$ for $t = 0.1, 0.5, 1, 2, 4, 10$ (from top left to bottom right), where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}. The oscillatory behaviour seen at very small $t = 0.1$ results from the inconsistency between the boundary and initial condition.}
     \label{fig:chronoamperometry}
   \end{figure}
 
   \begin{figure}[H]
     \centering
     \inputtikz{ac-voltammetry}
-    \caption{Time evolution of in the cyclic voltammetry case for $D=1$ and $\alpha = 0.9$: the \gls{ac} potential with $\Delta E = 0.3$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}, at times $t = 5, 10, 15, 25, 30, 35$. The movement on the left-hand side is dictated by the current $I(t)$ which changes over time, and is itself dependent on the concentrations $a$ and $b$.}
+    \caption{Time evolution of in the cyclic voltammetry case for $D=1$ and $\alpha = 0.9$: the \gls{ac} potential with $\Delta E = 0.3$, where each plot represents $a(x)$, in \textcolor{blue}{blue}, and $b(x)$, in \textcolor{magenta}{magenta}, at times $t = 5, 10, 15, 25, 30, 35$ (from top left to bottom right). The movement on the left-hand side is dictated by the current $I(t)$ which changes over time, and is itself dependent on the concentrations $a$ and $b$.}
     \label{fig:ac-voltammetry}
   \end{figure}
 
@@ -542,7 +542,7 @@ end
   \begin{table}[H]
     \vspace{0.5cm}
     \centering
-    \caption{Runtime Comparison of the different implementations run on the same scenarios. Each runtime is given as the average over three runs. The finite difference schemes were run with $N_x = N_t = 4000$ up to $T = 40$. The spectral method was run using a series expansion of order 15, also up to $T = 40$. The remaining parameters ($\alpha$, $\kappa_0$, $E_0$, etc.) were all identical.}
+    \caption{Runtime Comparison of the different implementations run on the same scenarios. Each runtime is given as the average over three runs. The finite difference schemes (for the one-dimensional case) were run with $N_x = N_t = 4000$ up to $T = 40$. The spectral method was run using a series expansion of order 15, also up to $T = 40$. The remaining parameters ($\alpha$, $\kappa_0$, $E_0$, etc.) were all identical.}
     \begin{tblr}{
       colspec={llr},
       row{2,3,4} = {bg=azure9},
